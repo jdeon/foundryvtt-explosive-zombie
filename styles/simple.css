@@ -1,3 +1,554 @@
+/** Actor styles **/
+:root {
+  --thick: 5px solid black;
+  --med: 3px solid black;
+  --thin: 2px solid black;
+  --font-main: 'Special Elite', 'Courier New', Courier, monospace;
+  --font-data: 'Caveat', cursive;
+  /* Pour différencier le texte fixe des données JSON */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+/* Cadres */
+.sheet-outer {
+  width: 100%;
+  max-width: 800px;
+  background-color: #fdfcf8;
+  border: 8px solid black;
+  padding: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.sheet-inner {
+  border: var(--thin);
+  display: flex;
+  flex-direction: column;
+  color: black;
+  font-family: var(--font-main);
+  font-weight: bold;
+}
+
+/* --- DONNÉES JSON DYNAMIQUES (Style "Écriture à la main") --- */
+.data-val {
+  font-family: var(--font-data);
+  font-size: 32px;
+  color: #1a1a1a;
+  font-weight: normal;
+}
+
+/* --- EN-TÊTE --- */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  padding: 25px;
+  border-bottom: var(--thick);
+}
+
+.header-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-right: 20px;
+}
+
+.header-row {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.dashed-line {
+  width: 90%;
+  height: 10px;
+  border-bottom: 4px dashed black;
+  margin-top: -10px;
+}
+
+.portrait-outer {
+  width: 160px;
+  height: 160px;
+  border: var(--med);
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.portrait-inner {
+  width: 100%;
+  height: 100%;
+  border: 1px solid black;
+  background-size: cover;
+  background-position: center;
+}
+
+/* --- STATS & SANTÉ --- */
+.stats-section {
+  display: flex;
+  border-bottom: var(--thick);
+}
+
+.stats-col {
+  width: 50%;
+  border-right: var(--thick);
+  padding: 20px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  justify-content: center;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 26px;
+  letter-spacing: 1px;
+}
+
+.health-col {
+  width: 50%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.health-title {
+  font-size: 26px;
+  margin-bottom: 5px;
+}
+
+.box-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.box {
+  width: 45px;
+  height: 45px;
+  border: var(--med);
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.box-checked {
+  font-family: var(--font-data);
+  font-size: 40px;
+  color: #b30000;
+  line-height: 0;
+}
+
+/* Croix rouge pour les cases cochées */
+
+/* --- INVENTAIRE & COMPÉTENCES --- */
+.inventory-section {
+  display: flex;
+  border-bottom: var(--thick);
+}
+
+.side-col {
+  width: 25%;
+  padding: 20px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.side-col.left {
+  border-right: var(--thick);
+}
+
+.side-col.right {
+  border-left: var(--thick);
+}
+
+.section-title {
+  font-size: 22px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.ceinture-boxes {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ceinture-boxes .box {
+  width: 60px;
+  height: 45px;
+  font-size: 18px;
+}
+
+.sac-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.sac-grid .box {
+  font-size: 16px;
+  overflow: hidden;
+}
+
+.center-col {
+  width: 50%;
+  padding: 20px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.skills-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px 20px;
+  margin-bottom: 20px;
+}
+
+.skill-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.skill-rect {
+  flex-grow: 1;
+  height: 30px;
+  border: var(--med);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  font-size: 22px;
+}
+
+.skill-brackets {
+  font-size: 20px;
+}
+
+.large-text-area {
+  width: 100%;
+  flex-grow: 1;
+  min-height: 140px;
+  border: var(--med);
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 24px;
+  white-space: pre-wrap;
+}
+
+/* --- PIED DE PAGE --- */
+.footer-section {
+  padding: 30px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dotted-line-container {
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+.dotted-line-text {
+  border-bottom: 4px dashed black;
+  min-height: 35px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-end;
+  padding-left: 10px;
+}
+
+.equip-title {
+  font-size: 28px;
+  margin-bottom: 15px;
+  margin-top: 10px;
+}
+
+.equip-boxes {
+  display: flex;
+  gap: 30px;
+  width: 100%;
+}
+
+.equip-box {
+  flex: 1;
+  height: 45px;
+  border: var(--med);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+
+
+/** Item styles **/
+:root {
+  --metal-light: #f0f0f0;
+  --metal-mid: #dcdcdc;
+  --metal-dark: #a0a0a0;
+  --metal-border: #777;
+  --table-border: #5a3a31;
+  --bg-parchment: #f4ece1;
+  --table-bg: #fffbf5;
+  --header-bg: #e5d4c0;
+  --font-data: 'Caveat', cursive;
+  --font-title: 'Yanone Kaffeesatz', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #333;
+  /* Fond sombre de la page Web pour faire ressortir la carte */
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+/* --- CONTENEUR PRINCIPAL (Effet Parchemin) --- */
+.card-container {
+  width: 450px;
+  background-color: var(--bg-parchment);
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.05) 100%);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* --- STYLES MÉTALLIQUES (Cadres) --- */
+.metal-frame {
+  background: linear-gradient(to bottom, var(--metal-light) 0%, var(--metal-mid) 20%, var(--metal-dark) 100%);
+  border: 1px solid var(--metal-border);
+  border-radius: 8px;
+  padding: 5px;
+  box-shadow:
+    inset 0 1px 3px rgba(255, 255, 255, 0.8),
+    inset 0 -1px 3px rgba(0, 0, 0, 0.3),
+    0 4px 6px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.inner-box {
+  background-color: #fff;
+  border: 2px solid #555;
+  border-radius: 4px;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  height: 100%;
+}
+
+/* Rivets génériques */
+.rivet {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff, #999 50%, #444);
+  border: 1px solid #555;
+  position: absolute;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* --- BARRE DE TITRE --- */
+.top-bar {
+  height: 60px;
+  display: flex;
+}
+
+.top-bar .inner-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+}
+
+.item-name {
+  font-family: var(--font-data);
+  font-size: 34px;
+  color: #222;
+}
+
+.gear-icon {
+  font-size: 30px;
+  color: #888;
+  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #555;
+}
+
+.top-bar .rivet:nth-child(2) {
+  top: 4px;
+  left: 4px;
+}
+
+.top-bar .rivet:nth-child(3) {
+  top: 4px;
+  right: 4px;
+}
+
+.top-bar .rivet:nth-child(4) {
+  bottom: 4px;
+  left: 4px;
+}
+
+.top-bar .rivet:nth-child(5) {
+  bottom: 4px;
+  right: 4px;
+}
+
+/* --- ILLUSTRATION --- */
+.image-box {
+  height: 350px;
+  padding: 8px;
+}
+
+.image-box .inner-box {
+  background-color: #000;
+  /* Fond noir par défaut s'il n'y a pas d'image */
+  background-size: cover;
+  background-position: center;
+  border-radius: 6px;
+  border: 3px solid #333;
+}
+
+/* --- ZONE INFÉRIEURE ET TABLEAU --- */
+.bottom-section {
+  position: relative;
+  margin: 0 -20px;
+  /* Force l'étirement du bloc sur les bords latéraux du parchemin */
+  padding: 10px 20px;
+  background: linear-gradient(to right, #d3cabc 0%, #e8ded1 10%, #e8ded1 90%, #d3cabc 100%);
+  border-top: 1px solid #a89f91;
+  border-bottom: 1px solid #a89f91;
+}
+
+/* Rivets latéraux du bas */
+.side-rivet {
+  width: 12px;
+  height: 12px;
+  position: absolute;
+  left: 5px;
+}
+
+.side-rivet.right {
+  left: auto;
+  right: 5px;
+}
+
+.sr-1 {
+  top: 15px;
+}
+
+.sr-2 {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.sr-3 {
+  bottom: 15px;
+}
+
+.table-frame {
+  border: 2px solid var(--metal-border);
+  border-radius: 4px;
+  background-color: var(--metal-light);
+  padding: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Utilisation de CSS Grid pour dessiner le tableau fidèlement */
+.stats-table {
+  display: grid;
+  grid-template-columns: 35px 35px 45px 40px 1fr;
+  background-color: var(--table-bg);
+  border: 2px solid var(--table-border);
+  border-radius: 2px;
+}
+
+.cell {
+  border-right: 2px solid var(--table-border);
+  border-bottom: 2px solid var(--table-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 45px;
+  padding: 5px;
+  text-align: center;
+}
+
+.cell:last-child {
+  border-right: none;
+  justify-content: flex-start;
+  padding-left: 12px;
+}
+
+.table-row:last-child .cell {
+  border-bottom: none;
+}
+
+/* Style de l'en-tête du tableau */
+.table-header .cell {
+  background-color: var(--header-bg);
+  color: #4a3424;
+  font-size: 18px;
+  border-bottom: 3px solid var(--table-border);
+}
+
+.table-header .cell i {
+  filter: drop-shadow(0px 1px 0px rgba(255, 255, 255, 0.6));
+}
+
+.header-effect {
+  font-family: var(--font-title);
+  font-size: 36px !important;
+  font-weight: 700;
+  letter-spacing: 1px;
+  justify-content: center !important;
+  color: #3b2818 !important;
+}
+
+/* Écriture des données JSON */
+.data-val {
+  font-family: var(--font-data);
+  font-size: 26px;
+  color: #1a1a1a;
+  line-height: 1;
+}
+
+.effect-text {
+  font-size: 22px;
+  text-align: left;
+}
+
+
+
+/** Legacy style **/
 .worldbuilding {
   /* Sheet Tabs */
   /* Items List */

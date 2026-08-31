@@ -1,56 +1,58 @@
-<form class="flexcol {{cssClass}}" autocomplete="off">
-    <header class="sheet-header">
-        <img class="profile-img" src="{{data.img}}" data-edit="img" title="{{data.name}}" />
-        <div class="header-fields">
-            <h1 class="charname">
-                <input name="name" type="text" value="{{data.name}}" placeholder="Name" />
-            </h1>
-            <div class="resource">
-                <label>Quantity</label>
-                <input type="number" name="system.quantity" value="{{systemData.quantity}}"/>
-            </div>
-            <div class="resource">
-                <label>Weight</label>
-                <input type="number" name="system.weight" value="{{systemData.weight}}"/>
-            </div>
+<div class="card-container">
+
+    <!-- Barre de Titre -->
+    <div class="metal-frame top-bar">
+        <div class="rivet"></div>
+        <div class="rivet"></div>
+        <div class="rivet"></div>
+        <div class="rivet"></div>
+        <div class="inner-box">
+            <div class="item-name">{{item.name}}</div>
+            <i class="fas fa-cog gear-icon"></i>
         </div>
-    </header>
+    </div>
 
-    {{!-- Sheet Tab Navigation --}}
-    <nav class="sheet-tabs tabs" data-group="primary">
-        <a class="item" data-tab="description">Description</a>
-        <a class="item" data-tab="attributes">Attributes</a>
-    </nav>
+    <!-- Illustration -->
+    <div class="metal-frame image-box">
+        <!-- L'URL de l'image est dynamique. Si elle est vide, la case reste noire -->
+        <div class="inner-box" style="background-image: url('{{item.imageUrl}}');"></div>
+    </div>
 
-    {{!-- Sheet Body --}}
-    <section class="sheet-body">
+    <!-- Tableau des effets -->
+    <div class="bottom-section">
+        <!-- Rivets extérieurs de la zone tableau -->
+        <div class="rivet side-rivet sr-1"></div>
+        <div class="rivet side-rivet sr-2"></div>
+        <div class="rivet side-rivet sr-3"></div>
+        <div class="rivet side-rivet right sr-1"></div>
+        <div class="rivet side-rivet right sr-2"></div>
+        <div class="rivet side-rivet right sr-3"></div>
 
-        {{!-- Description Tab --}}
-        <div class="tab" data-group="primary" data-tab="description">
-            {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror"}}
-        </div>
+        <div class="table-frame">
+            <div class="stats-table">
 
-        {{!-- Attributes Tab --}}
-        <div class="tab attributes" data-group="primary" data-tab="attributes">
-            <header class="attributes-header flexrow">
-                <span class="attribute-key">{{localize "SIMPLE.AttributeKey"}}</span>
-                <span class="attribute-value">{{localize "SIMPLE.AttributeValue"}}</span>
-                <span class="attribute-label">{{localize "SIMPLE.AttributeLabel"}}</span>
-                <span class="attribute-dtype">{{localize "SIMPLE.AttributeDtype"}}</span>
-                <a class="attribute-control" data-action="create" data-group="{{group}}"><i class="fas fa-plus"></i></a>
-            </header>
-
-            {{!-- Render the attribute list partial. --}}
-            {{> "systems/worldbuilding/templates/parts/sheet-attributes.html" attributes=systemData.ungroupedAttributes dtypes=dtypes}}
-
-            {{!-- Render the grouped attributes partial and control. --}}
-            <div class="groups">
-                {{> "systems/worldbuilding/templates/parts/sheet-groups.html" attributes=systemData.groupedAttributes groups=systemData.groups dtypes=dtypes}}
-                <div class="group-controls flexrow">
-                    <input class="group-prefix" type="text" value=""/>
-                    <a class="button group-control" data-action="create-group"><i class="fas fa-plus"></i>Add Attribute Group</a>
+                <!-- Ligne d'En-tête (Icônes + Texte) -->
+                <div class="table-header" style="display: contents;">
+                    <div class="cell"><i class="fa-solid fa-hand"></i></div>
+                    <div class="cell"><i class="fa-solid fa-crosshairs"></i></div>
+                    <div class="cell"><i class="fa-solid fa-dice"></i></div>
+                    <div class="cell"><i class="fa-solid fa-gas-pump"></i></div>
+                    <div class="cell header-effect">effet</div>
                 </div>
+
+                <!-- Lignes de stats générées dynamiquement -->
+                {{#each item.effects}}
+                <div class="table-row" style="display: contents;">
+                    <div class="cell data-val">{{this.melee}}</div>
+                    <div class="cell data-val">{{this.ranged}}</div>
+                    <div class="cell data-val">{{this.dice}}</div>
+                    <div class="cell data-val">{{this.ammo}}</div>
+                    <div class="cell data-val effect-text">{{this.description}}</div>
+                </div>
+                {{/each}}
+
             </div>
         </div>
-    </section>
-</form>
+    </div>
+
+</div>

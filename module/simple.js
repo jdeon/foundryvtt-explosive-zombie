@@ -19,7 +19,7 @@ import { SimpleToken, SimpleTokenDocument } from "./token.js";
 /**
  * Init hook.
  */
-Hooks.once("init", async function() {
+Hooks.once("init", async function () {
   console.log(`Initializing Simple Worldbuilding System`);
 
   /**
@@ -80,8 +80,8 @@ Hooks.once("init", async function() {
    */
   function _simpleUpdateInit(formula, notify = false) {
     const isValid = Roll.validate(formula);
-    if ( !isValid ) {
-      if ( notify ) ui.notifications.error(`${game.i18n.localize("SIMPLE.NotifyInitFormulaInvalid")}: ${formula}`);
+    if (!isValid) {
+      if (notify) ui.notifications.error(`${game.i18n.localize("SIMPLE.NotifyInitFormulaInvalid")}: ${formula}`);
       return;
     }
     CONFIG.Combat.initiative.formula = formula;
@@ -90,8 +90,8 @@ Hooks.once("init", async function() {
   /**
    * Slugify a string.
    */
-  Handlebars.registerHelper('slugify', function(value) {
-    return value.slugify({strict: true});
+  Handlebars.registerHelper('slugify', function (value) {
+    return value.slugify({ strict: true });
   });
 
   // Preload template partials

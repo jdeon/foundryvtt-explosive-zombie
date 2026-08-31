@@ -3,11 +3,13 @@
     <li class="group" data-group="{{groupKey}}">
         <div class="group-header flexrow">
             <input class="group-key" type="text" readonly name="system.groups.{{groupKey}}.key" value="{{groupKey}}" />
-            <input class="group-label" type="text" name="system.groups.{{groupKey}}.label" value="{{group.label}}" placeholder="Group Label" />
+            <input class="group-label" type="text" name="system.groups.{{groupKey}}.label" value="{{group.label}}"
+                placeholder="Group Label" />
             <select class="group-dtype" name="system.groups.{{groupKey}}.dtype">
-	        {{selectOptions ../dtypes selected=group.dtype valueAttr="label" labelAttr="label"}}
+                {{selectOptions ../dtypes selected=group.dtype valueAttr="label" labelAttr="label"}}
             </select>
-            <a class="attribute-control" data-action="create" data-group="{{groupKey}}" data-dtype="{{group.dtype}}"><i class="fas fa-plus"></i></a>
+            <a class="attribute-control" data-action="create" data-group="{{groupKey}}" data-dtype="{{group.dtype}}"><i
+                    class="fas fa-plus"></i></a>
             <a class="group-control" data-action="delete-group"><i class="fas fa-trash"></i></a>
         </div>
 

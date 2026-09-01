@@ -38,7 +38,8 @@
         },
         "backpack": {
           "size": 6,
-          "contain": []
+          "contain": [],
+          "freeSpace": []
         },
         "equipped": {
           "size": 2,

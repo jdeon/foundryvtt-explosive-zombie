@@ -36,19 +36,47 @@
                         <div class="stats-col">
                             <div class="stat-row">
                                 <span>AGILITÉ</span>
-                                <span>[<span class="data-val">{{stats.agility}}</span>]</span>
+                                <div class="stat-bracket-box">
+                                    <span class="bracket">[</span>
+                                    <div class="stat-inner-stack">
+                                        <span class="data-val">{{stats.agility}}</span>
+                                        <span class="stat-underscores">___</span>
+                                    </div>
+                                    <span class="bracket">]</span>
+                                </div>
                             </div>
                             <div class="stat-row">
                                 <span>CONSTITUTION</span>
-                                <span>[<span class="data-val">{{stats.constitution}}</span>]</span>
+                                <div class="stat-bracket-box">
+                                    <span class="bracket">[</span>
+                                    <div class="stat-inner-stack">
+                                        <span class="data-val">{{stats.constitution}}</span>
+                                        <span class="stat-underscores">___</span>
+                                    </div>
+                                    <span class="bracket">]</span>
+                                </div>
                             </div>
                             <div class="stat-row">
                                 <span>MENTAL</span>
-                                <span>[<span class="data-val">{{stats.mental}}</span>]</span>
+                                <div class="stat-bracket-box">
+                                    <span class="bracket">[</span>
+                                    <div class="stat-inner-stack">
+                                        <span class="data-val">{{stats.mental}}</span>
+                                        <span class="stat-underscores">___</span>
+                                    </div>
+                                    <span class="bracket">]</span>
+                                </div>
                             </div>
                             <div class="stat-row">
                                 <span>VITESSE</span>
-                                <span>[<span class="data-val">{{stats.speed}}</span>]</span>
+                                <div class="stat-bracket-box">
+                                    <span class="bracket">[</span>
+                                    <div class="stat-inner-stack">
+                                        <span class="data-val">{{stats.speed}}</span>
+                                        <span class="stat-underscores">___</span>
+                                    </div>
+                                    <span class="bracket">]</span>
+                                </div>
                             </div>
                         </div>
                         <div class="health-col">
@@ -110,7 +138,8 @@
                                 <div class="box data-val"></div>
                                 {{/if}}
                                 {{/repeat}}
-                                //TODO free item
+                                <div class="box free-space data-val">Petits objets : {{inventory.backpack.freeSpace}}
+                                </div>
                             </div>
                         </div>
                     </div>

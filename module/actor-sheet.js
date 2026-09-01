@@ -12,10 +12,10 @@ export class SimpleActorSheet extends ActorSheet {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["worldbuilding", "sheet", "actor"],
       template: "systems/explosive-zombie/templates/actor-sheet.html",
-      width: 600,
-      height: 600,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" }],
-      scrollY: [".biography", ".items", ".attributes"],
+      width: 780,
+      height: 720,
+      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "sheet" }],
+      scrollY: [".sheet-outer", ".classic-form", ".biography", ".items", ".attributes"],
       dragDrop: [{ dragSelector: ".item-list .item", dropSelector: null }]
     });
   }
@@ -29,10 +29,32 @@ export class SimpleActorSheet extends ActorSheet {
     context.shorthand = !!game.settings.get("explosive-zombie", "macroShorthand");
     context.systemData = context.data.system;
     context.dtypes = ATTRIBUTE_TYPES;
-    context.biographyHTML = await TextEditor.enrichHTML(context.systemData.biography, {
-      secrets: this.document.isOwner,
-      async: true
-    });
+
+    // Ensure system object defaults exist safely
+    context.systemData.stats = context.systemData.stats || { agility: 2, constitution: 2, mental: 2, speed: 5 };
+    context.systemData.inventory = context.systemData.inventory || {
+      belt: { size: 3, contain: [] },
+      backpack: { size: 6, contain: [] },
+      equipped: { size: 2, contain: [] }
+    };
+    if (!context.systemData.inventory.belt) context.systemData.inventory.belt = { size: 3, contain: [] };
+    if (!context.systemData.inventory.backpack) context.systemData.inventory.backpack = { size: 6, contain: [] };
+    if (!context.systemData.inventory.equipped) context.systemData.inventory.equipped = { size: 2, contain: [] };
+    if (!context.systemData.skills) context.systemData.skills = [];
+    if (!context.systemData.healthPoints) context.systemData.healthPoints = ["", "", "", ""];
+    if (!context.systemData.armors) context.systemData.armors = [];
+
+    // Helper context values for template compatibility
+    context.portraitUrl = context.systemData.portraitUrl || context.data.img || "icons/svg/mystery-man.svg";
+    context.description = context.systemData.description || "";
+    context.quotes = context.systemData.quotes || "";
+    context.notes = context.systemData.notes || "";
+    context.stats = context.systemData.stats;
+    context.healthPoints = context.systemData.healthPoints;
+    context.armors = context.systemData.armors;
+    context.skills = context.systemData.skills;
+    context.inventory = context.systemData.inventory;
+
     return context;
   }
 
@@ -44,6 +66,13 @@ export class SimpleActorSheet extends ActorSheet {
 
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
+
+    // Skill management in Classic Form
+    html.find('.skill-control').click(this._onSkillControl.bind(this));
+
+    // Health / Armor box management in Classic Form
+    html.find('.health-control').change(this._onHealthControl.bind(this));
+    html.find('.armor-control').change(this._onArmorControl.bind(this));
 
     // Attribute Management
     html.find(".attributes").on("click", ".attribute-control", EntitySheetHelper.onClickAttributeControl.bind(this));
@@ -62,6 +91,67 @@ export class SimpleActorSheet extends ActorSheet {
         ev.dataTransfer.setData('text/plain', JSON.stringify(dragData));
       }, false);
     });
+  }
+
+  /**
+   * Handle skill creation and deletion controls
+   * @param {Event} event
+   * @private
+   */
+  async _onSkillControl(event) {
+    event.preventDefault();
+    const button = event.currentTarget;
+    const action = button.dataset.action;
+    const skills = this.actor.system.skills;
+
+    if (action === "add") {
+      skills.push({ label: `Compétence ${skills.length + 1}`, val: 2 });
+    } else if (action === "delete") {
+      const index = Number(button.dataset.index);
+      if (!isNaN(index)) skills.splice(index, 1);
+    }
+    return this.actor.update({ "system.skills": skills });
+  }
+
+  /**
+   * Handle adding or removing health boxes
+   * @param {Event} event
+   * @private
+   */
+  async _onHealthControl(event) {
+    event.preventDefault();
+    const healthPointsLenght = event.currentTarget.valueAsNumber;
+    const health = Array.from(this.actor.system.healthPoints || []);
+
+    while (healthPointsLenght > health.length) {
+      health.push("");
+    }
+
+    while (healthPointsLenght < health.length) {
+      health.pop();
+    }
+
+    return this.actor.update({ "system.healthPoints": health });
+  }
+
+  /**
+   * Handle adding or removing armor boxes
+   * @param {Event} event
+   * @private
+   */
+  async _onArmorControl(event) {
+    event.preventDefault();
+    const armorsLenght = event.currentTarget.valueAsNumber;
+    const armors = Array.from(this.actor.system.armors || []);
+
+    while (armorsLenght > armors.length) {
+      armors.push("");
+    }
+
+    while (armorsLenght < armors.length) {
+      armors.pop();
+    }
+    return this.actor.update({ "system.armors": armors });
   }
 
   /* -------------------------------------------- */

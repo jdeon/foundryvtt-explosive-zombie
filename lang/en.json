@@ -35,5 +35,12 @@
   "SIMPLE.DeleteGroupContent": "Do you wish to delete this group? This will delete the following group and all attributes included in it: ",
 
   "SIMPLE.Create": "Create",
-  "SIMPLE.New": "New"
+  "SIMPLE.New": "New",
+
+  "SIMPLE.TabSheet": "Fiche",
+  "SIMPLE.TabEdit": "Formulaire",
+  "SIMPLE.TabItems": "Objets",
+  "SIMPLE.TabAttributes": "Attributs",
+  "SIMPLE.SkillAdd": "Ajouter une compétence",
+  "SIMPLE.SkillDelete": "Supprimer"
 }

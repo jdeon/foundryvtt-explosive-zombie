@@ -1,105 +1,345 @@
-<div class="sheet-outer">
-    <div class="sheet-inner">
+<form class="flexcol {{cssClass}}" autocomplete="off">
 
-        <!-- EN-TÊTE -->
-        <div class="header-section">
-            <div class="header-text">
-                <div class="header-row">NOM DU PERSONNAGE : <span class="data-val">{{name}}</span></div>
-                <div class="dashed-line"></div>
-                <div class="header-row" style="margin-top:10px">DESCRIPTION : <span
-                        class="data-val">{{description}}</span></div>
-            </div>
-            <div class="portrait-outer">
-                <div class="portrait-inner" style="background-image: url('{{portraitUrl}}');"></div>
-            </div>
-        </div>
+    {{!-- Sheet Tab Navigation --}}
+    <nav class="sheet-tabs tabs" data-group="primary">
+        <a class="item" data-tab="sheet"><i class="fas fa-id-card"></i> {{localize "SIMPLE.TabSheet"}}</a>
+        <a class="item" data-tab="edit"><i class="fas fa-edit"></i> {{localize "SIMPLE.TabEdit"}}</a>
+        <a class="item" data-tab="items"><i class="fas fa-box"></i> {{localize "SIMPLE.TabItems"}}</a>
+        <a class="item" data-tab="attributes"><i class="fas fa-cogs"></i> {{localize "SIMPLE.TabAttributes"}}</a>
+    </nav>
 
-        <!-- STATS ET SANTÉ -->
-        <div class="stats-section">
-            <div class="stats-col">
-                <div class="stat-row">
-                    <span>AGILITÉ</span>
-                    <span>[<span class="data-val">{{stats.agility}}</span>]</span>
-                </div>
-                <div class="stat-row">
-                    <span>CONSTITUTION</span>
-                    <span>[<span class="data-val">{{stats.constitution}}</span>]</span>
-                </div>
-                <div class="stat-row">
-                    <span>MENTAL</span>
-                    <span>[<span class="data-val">{{stats.mental}}</span>]</span>
-                </div>
-                <div class="stat-row">
-                    <span>VITESSE</span>
-                    <span>[<span class="data-val">{{stats.speed}}</span>]</span>
-                </div>
-            </div>
-            <div class="health-col">
-                <div class="health-title">SANTÉ (PV)</div>
-                <div class="box-row">
-                    {{#each healthPoints}}
-                    <div class="box">{{#if this}}<span class="box-checked">X</span>{{/if}}</div>
-                    {{/each}}
-                </div>
-                <div class="health-title" style="margin-top: 5px;">ARMURE (CA)</div>
-                <div class="box-row">
-                    {{#each armors}}
-                    <div class="box">{{#if this}}<span class="box-checked">X</span>{{/if}}</div>
-                    {{/each}}
-                </div>
-            </div>
-        </div>
+    {{!-- Sheet Body --}}
+    <section class="sheet-body">
 
-        <!-- INVENTAIRE ET COMPÉTENCES -->
-        <div class="inventory-section">
+        {{!-- Stylized Sheet View Tab --}}
+        <div class="tab sheet" data-group="primary" data-tab="sheet">
+            <div class="sheet-outer">
+                <div class="sheet-inner">
 
-            <!-- Ceinture -->
-            <div class="side-col left">
-                <div class="section-title">CEINTURE (1A)</div>
-                <div class="ceinture-boxes">
-                    {{#each inventorybelt}}
-                    <div class="box data-val">{{this}}</div>
-                    {{/each}}
-                </div>
-            </div>
-
-            <!-- Compétences -->
-            <div class="center-col">
-                <div class="section-title" style="font-size: 26px;">COMPÉTENCES</div>
-                <div class="skills-grid">
-                    {{#each skills}}
-                    <div class="skill-item">
-                        <div class="skill-rect data-val">{{this.name}}</div>
-                        <span class="skill-brackets">(<span class="data-val">{{this.val}}</span>)</span>
+                    <!-- EN-TÊTE -->
+                    <div class="header-section">
+                        <div class="header-text">
+                            <div class="header-row">NOM DU PERSONNAGE : <br />
+                                <span class="data-val">{{data.name}}</span>
+                            </div>
+                            <div class="dashed-line"></div>
+                            <div class="header-row" style="margin-top:10px">DESCRIPTION : <span
+                                    class="data-val">{{description}}</span></div>
+                        </div>
+                        <div class="portrait-outer">
+                            <div class="portrait-inner" style="background-image: url('{{portraitUrl}}');"></div>
+                        </div>
                     </div>
-                    {{/each}}
-                </div>
-                <div class="large-text-area data-val">{{notes}}</div>
-            </div>
 
-            <!-- Sac à dos -->
-            <div class="side-col right">
-                <div class="section-title">SAC À DOS (3A)</div>
-                <div class="sac-grid">
-                    {{#each inventory.backpack}}
-                    <div class="box data-val">{{this}}</div>
-                    {{/each}}
+                    <!-- STATS ET SANTÉ -->
+                    <div class="stats-section">
+                        <div class="stats-col">
+                            <div class="stat-row">
+                                <span>AGILITÉ</span>
+                                <span>[<span class="data-val">{{stats.agility}}</span>]</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>CONSTITUTION</span>
+                                <span>[<span class="data-val">{{stats.constitution}}</span>]</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>MENTAL</span>
+                                <span>[<span class="data-val">{{stats.mental}}</span>]</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>VITESSE</span>
+                                <span>[<span class="data-val">{{stats.speed}}</span>]</span>
+                            </div>
+                        </div>
+                        <div class="health-col">
+                            <div class="health-title">SANTÉ (PV)</div>
+                            <div class="box-row">
+                                {{#each healthPoints}}
+                                <div class="box"><input type="text" name="system.healthPoints.{{@index}}"
+                                        value="{{this}}" /></div>
+                                {{/each}}
+                            </div>
+                            <div class="health-title" style="margin-top: 5px;">ARMURE (CA)</div>
+                            <div class="box-row">
+                                {{#each armors}}
+                                <div class="box">{{#if this}}<span class="box-checked">X</span>{{/if}}</div>
+                                {{/each}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INVENTAIRE ET COMPÉTENCES -->
+                    <div class="inventory-section">
+
+                        <!-- Ceinture -->
+                        <div class="side-col left">
+                            <div class="section-title">CEINTURE (1A)</div>
+                            <div class="ceinture-boxes">
+                                {{#repeat inventory.belt.size}}
+                                {{#if inventory.belt.contain.[index]}}
+                                <div class="box data-val">{{inventory.belt.contain.[index]}}</div>
+                                {{else}}
+                                <div class="box data-val"></div>
+                                {{/if}}
+                                {{/repeat}}
+                            </div>
+                        </div>
+
+                        <!-- Compétences -->
+                        <div class="center-col">
+                            <div class="section-title" style="font-size: 26px;">COMPÉTENCES</div>
+                            <div class="skills-grid">
+                                {{#each skills}}
+                                <div class="skill-item">
+                                    <div class="skill-rect data-val">{{this.label}}</div>
+                                    <span class="skill-brackets">(<span class="data-val">{{this.value}}</span>)</span>
+                                </div>
+                                {{/each}}
+                            </div>
+                            <div class="large-text-area data-val">{{notes}}</div>
+                        </div>
+
+                        <!-- Sac à dos -->
+                        <div class="side-col right">
+                            <div class="section-title">SAC À DOS (3A)</div>
+                            <div class="sac-grid">
+                                {{#repeat inventory.backpack.size}}
+                                {{#if inventory.backpack.contain.[index]}}
+                                <div class="box data-val">{{inventory.backpack.contain.[index]}}</div>
+                                {{else}}
+                                <div class="box data-val"></div>
+                                {{/if}}
+                                {{/repeat}}
+                                //TODO free item
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PIED DE PAGE -->
+                    <div class="footer-section">
+                        <div class="dotted-line-container">
+                            <div class="dotted-line-text data-val">{{quotes}}</div>
+                        </div>
+                        <div class="equip-title">ÉQUIPÉ</div>
+                        <div class="equip-boxes">
+                            {{#repeat inventory.equipped.size}}
+                            {{#if inventory.equipped.contain.[index]}}
+                            <div class="box data-val">{{inventory.equipped.contain.[index]}}</div>
+                            {{else}}
+                            <div class="box data-val"></div>
+                            {{/if}}
+                            {{/repeat}}
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
 
-        <!-- PIED DE PAGE -->
-        <div class="footer-section">
-            <div class="dotted-line-container">
-                <div class="dotted-line-text data-val">{{quotes}}</div>
+        {{!-- Classic Form Edit Tab --}}
+        <div class="tab edit" data-group="primary" data-tab="edit">
+            <div class="classic-form">
+
+                <!-- Section Identity -->
+                <fieldset class="form-section">
+                    <legend><i class="fas fa-user-id"></i> Identité & Apparence</legend>
+                    <div class="form-group">
+                        <label>Nom du Personnage</label>
+                        <div class="form-fields">
+                            <input type="text" name="name" value="{{data.name}}" placeholder="Nom du personnage" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Image / Avatar URL</label>
+                        <div class="form-fields flexrow">
+                            <file-picker type="image" name="img" value="{{data.img}}"
+                                placeholder="{{ default.icon }}"></file-picker>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <div class="form-fields">
+                            <input type="text" name="system.description" value="{{systemData.description}}"
+                                placeholder="Courte description" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Citations / Slogan</label>
+                        <div class="form-fields">
+                            <input type="text" name="system.quotes" value="{{systemData.quotes}}"
+                                placeholder="Citation..." />
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Section Caractéristiques -->
+                <fieldset class="form-section">
+                    <legend><i class="fas fa-running"></i> Caractéristiques (Stats)</legend>
+                    <div class="form-grid grid-4col">
+                        <div class="form-group">
+                            <label>Agilité</label>
+                            <input type="number" name="system.stats.agility" value="{{systemData.stats.agility}}" />
+                        </div>
+                        <div class="form-group">
+                            <label>Constitution</label>
+                            <input type="number" name="system.stats.constitution"
+                                value="{{systemData.stats.constitution}}" />
+                        </div>
+                        <div class="form-group">
+                            <label>Mental</label>
+                            <input type="number" name="system.stats.mental" value="{{systemData.stats.mental}}" />
+                        </div>
+                        <div class="form-group">
+                            <label>Vitesse</label>
+                            <input type="number" name="system.stats.speed" value="{{systemData.stats.speed}}" />
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Section Santé & Armure -->
+                <fieldset class="form-section">
+                    <legend><i class="fas fa-heartbeat"></i> Santé & Armure</legend>
+                    <div class="form-grid grid-2col">
+                        <div class="form-group">
+                            <label>Cases de Santé (PV)</label>
+                            <input type="number" class="health-control" value="{{healthPoints.length}}" />
+                        </div>
+                        <div class="form-group">
+                            <label>Cases d'Armure (CA)</label>
+                            <input type="number" class="armor-control" value="{{armors.length}}" />
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Section Compétences -->
+                <fieldset class="form-section">
+                    <legend class="flexrow flex-between">
+                        <span><i class="fas fa-brain"></i> Compétences</span>
+                        <button type="button" class="skill-control btn-add" data-action="add"><i
+                                class="fas fa-plus"></i> {{localize "SIMPLE.SkillAdd"}}</button>
+                    </legend>
+                    <div class="skills-list-edit">
+                        {{#each systemData.skills}}
+                        <div class="skill-edit-row">
+                            <input type="text" name="system.skills.{{@index}}.label" value="{{this.label}}"
+                                placeholder="Nom de la compétence" />
+                            <input type="number" name="system.skills.{{@index}}.value" value="{{this.value}}"
+                                class="skill-val-input" placeholder="Valeur" />
+                            <a class="skill-control btn-del" data-action="delete" data-index="{{@index}}"
+                                title="{{localize 'SIMPLE.SkillDelete'}}"><i class="fas fa-trash"></i></a>
+                        </div>
+                        {{else}}
+                        <p class="empty-msg">Aucune compétence. Cliquez sur "Ajouter une compétence".</p>
+                        {{/each}}
+                    </div>
+                    <input type="text" name="system.notes" value="{{this.notes}}" placeholder="Compétences passives" />
+                </fieldset>
+
+                <!-- Section Inventaires -->
+                <fieldset class="form-section">
+                    <legend><i class="fas fa-briefcase"></i> Capacité d'Inventaire</legend>
+                    <div class="form-grid grid-3col">
+                        <div class="form-group">
+                            <label>Taille Ceinture</label>
+                            <input type="number" name="system.inventory.belt.size"
+                                value="{{systemData.inventory.belt.size}}" />
+                        </div>
+                        <div class="form-group">
+                            <label>Taille Sac à dos</label>
+                            <input type="number" name="system.inventory.backpack.size"
+                                value="{{systemData.inventory.backpack.size}}" />
+                        </div>
+                        <div class="form-group">
+                            <label>Taille Équipé</label>
+                            <input type="number" name="system.inventory.equipped.size"
+                                value="{{systemData.inventory.equipped.size}}" />
+                        </div>
+                    </div>
+                </fieldset>
             </div>
-            <div class="equip-title">ÉQUIPÉ</div>
-            <div class="equip-boxes">
-                {{#each inventory.equipped}}
-                <div class="equip-box data-val">{{this}}</div>
+        </div>
+
+        {{!-- Owned Items Tab --}}
+        <div class="tab items" data-group="primary" data-tab="items">
+            <ol class="item-list">
+                {{#each data.items as |item id|}}
+                <li class="item flexrow" data-item-id="{{item._id}}">
+                    <img src="{{item.img}}" title="{{item.name}}" width="24" height="24" />
+                    <h4 class="item-name">{{item.name}}</h4>
+                    <div class="item-buttons">
+                        {{#each item.system.attributes as |itemAttr key|}}
+                        {{#if itemAttr.dtype}}
+                        {{#if itemAttr.isFormula}}
+                        {{#if ../../shorthand}}
+                        <button class="item-button rollable" data-roll="@items.{{slugify item.name}}.{{key}}"
+                            data-label="{{ itemAttr.label }}" title="{{itemAttr.value}}">{{itemAttr.label}}</button>
+                        {{else}}
+                        <button class="item-button rollable"
+                            data-roll="@items.{{slugify item.name}}.attributes.{{key}}.value"
+                            data-label="{{ itemAttr.label }}" title="{{itemAttr.value}}">{{itemAttr.label}}</button>
+                        {{/if}}
+                        {{/if}}
+                        {{else}}
+                        {{#each itemAttr as |itemGroupedAttr groupedKey|}}
+                        {{#if itemGroupedAttr.isFormula}}
+                        {{#if ../../../shorthand}}
+                        <button class="item-button rollable"
+                            data-roll="@items.{{slugify item.name}}.{{key}}.{{groupedKey}}"
+                            data-label="{{ itemGroupedAttr.label }}"
+                            title="{{itemGroupedAttr.value}}">{{itemGroupedAttr.label}}</button>
+                        {{else}}
+                        <button class="item-button rollable"
+                            data-roll="@items.{{slugify item.name}}.attributes.{{key}}.{{groupedKey}}.value"
+                            data-label="{{ itemGroupedAttr.label }}"
+                            title="{{itemGroupedAttr.value}}">{{itemGroupedAttr.label}}</button>
+                        {{/if}}
+                        {{/if}}
+                        {{/each}}
+                        {{/if}}
+                        {{/each}}
+                    </div>
+                    <div class="item-controls">
+                        <a class="item-control" title="{{ localize " SIMPLE.ItemEdit" }}" data-action="edit"><i
+                                class="fas fa-edit"></i></a>
+                        <a class="item-control" title="{{ localize " SIMPLE.ItemDelete" }}" data-action="delete"><i
+                                class="fas fa-trash"></i></a>
+                    </div>
+                </li>
                 {{/each}}
+            </ol>
+            <p>
+                <a class="item-control" title="{{ localize " SIMPLE.ItemCreate" }}" data-action="create"><i
+                        class="fas fa-plus"></i> {{ localize "SIMPLE.ItemCreate" }}</a>
+            </p>
+        </div>
+
+        {{!-- Attributes Tab --}}
+        <div class="tab attributes" data-group="primary" data-tab="attributes">
+            <header class="attributes-header flexrow">
+                <span class="attribute-key">{{localize "SIMPLE.AttributeKey"}}</span>
+                <span class="attribute-value">{{localize "SIMPLE.AttributeValue"}}</span>
+                <span class="attribute-label">{{localize "SIMPLE.AttributeLabel"}}</span>
+                <span class="attribute-dtype">{{localize "SIMPLE.AttributeDtype"}}</span>
+                <a class="attribute-control" data-action="create" data-group="{{group}}"><i class="fas fa-plus"></i></a>
+            </header>
+
+            {{!-- Render the attribute list partial --}}
+            {{> "systems/explosive-zombie/templates/parts/sheet-attributes.html"
+            attributes=systemData.ungroupedAttributes
+            dtypes=dtypes}}
+
+            {{!-- Render the grouped attributes partial and control --}}
+            <div class="groups">
+                {{> "systems/explosive-zombie/templates/parts/sheet-groups.html" attributes=systemData.groupedAttributes
+                groups=systemData.groups dtypes=dtypes}}
+
+                <div class="group-controls flexrow">
+                    <input class="group-prefix" type="text" value="" />
+                    <a class="button group-control" data-action="create-group"><i class="fas fa-plus"></i>Add Attribute
+                        Group</a>
+                </div>
             </div>
         </div>
 
-    </div>
-</div>
+    </section>
+</form>

@@ -94,6 +94,17 @@ Hooks.once("init", async function () {
     return value.slugify({ strict: true });
   });
 
+  Handlebars.registerHelper('repeat', function (count, options) {
+    let result = '';
+    for (let i = 0; i < count; i++) {
+      result += options.fn({
+        index: i,
+        total: count
+      });
+    }
+    return result;
+  });
+
   // Preload template partials
   await preloadHandlebarsTemplates();
 });

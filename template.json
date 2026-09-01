@@ -58,7 +58,6 @@
     "item": {
       "name": "",
       "imageUrl": "",
-      "quantity": 1,
       "requiredSlots": 1,
       "activeEffects": [
         {
@@ -73,7 +72,12 @@
         {
           "description": ""
         }
-      ]
+      ],
+      "munitions": {
+        "capacity": 0,
+        "loadAmmo": 0,
+        "remainingAmmo": 0
+      }
     }
   }
 }

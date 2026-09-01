@@ -629,16 +629,42 @@ body {
   padding: 0 15px;
 }
 
+.item-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .item-name {
   font-family: var(--font-data);
   font-size: 34px;
   color: #222;
 }
 
-.gear-icon {
-  font-size: 30px;
-  color: #888;
-  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #555;
+.item-slot-box {
+  width: 50px;
+  height: 38px;
+  font-size: 22px;
+  background-color: #fff;
+  flex-shrink: 0;
+}
+
+.item-munitions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 20px;
+  font-family: var(--font-data);
+  color: #222;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid #aaa;
+}
+
+.item-munitions i {
+  font-size: 16px;
+  color: #555;
 }
 
 .top-bar .rivet:nth-child(2) {
@@ -724,10 +750,11 @@ body {
 /* Utilisation de CSS Grid pour dessiner le tableau fidèlement */
 .stats-table {
   display: grid;
-  grid-template-columns: 35px 35px 45px 40px 1fr;
+  grid-template-columns: 35px 35px 90px 40px minmax(0, 1fr);
   background-color: var(--table-bg);
   border: 2px solid var(--table-border);
   border-radius: 2px;
+  width: 100%;
 }
 
 .cell {
@@ -739,6 +766,13 @@ body {
   min-height: 45px;
   padding: 5px;
   text-align: center;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.cell-dice {
+  font-size: 18px !important;
+  padding: 2px 4px;
 }
 
 .cell:last-child {
@@ -777,12 +811,16 @@ body {
   font-family: var(--font-data);
   font-size: 26px;
   color: #1a1a1a;
-  line-height: 1;
+  line-height: 1.1;
 }
 
 .effect-text {
-  font-size: 22px;
+  font-size: 20px;
   text-align: left;
+  line-height: 1.1;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 

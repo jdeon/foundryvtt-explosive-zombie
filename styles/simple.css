@@ -240,14 +240,6 @@ body {
   font-weight: bold;
 }
 
-/* --- DONNÉES JSON DYNAMIQUES (Style "Écriture à la main") --- */
-.data-val {
-  font-family: var(--font-data);
-  font-size: 32px;
-  color: #1a1a1a;
-  font-weight: normal;
-}
-
 /* --- EN-TÊTE --- */
 .header-section {
   display: flex;
@@ -460,30 +452,42 @@ body {
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px 20px;
+  gap: 10px 12px;
   margin-bottom: 20px;
+  box-sizing: border-box;
 }
 
 .skill-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  min-width: 0;
+  width: 100%;
 }
 
 .skill-rect {
-  flex-grow: 1;
-  height: 30px;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 30px;
+  height: auto;
   border: var(--med);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 5px;
-  font-size: 22px;
+  padding: 4px 6px;
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+.skill-item .data-val {
+  font-size: 16px;
 }
 
 .skill-brackets {
-  font-size: 20px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .large-text-area {
@@ -812,6 +816,7 @@ body {
   font-size: 26px;
   color: #1a1a1a;
   line-height: 1.1;
+  font-weight: normal;
 }
 
 .effect-text {

@@ -100,6 +100,10 @@ export class SimpleItemSheet extends ItemSheet {
     let formData = super._getSubmitData(updateData);
     formData = EntitySheetHelper.updateAttributes(formData, this.object);
     formData = EntitySheetHelper.updateGroups(formData, this.object);
+    formData = EntitySheetHelper.updateArrays(formData, [
+      "system.activeEffects",
+      "system.passiveEffects"
+    ]);
     return formData;
   }
 }

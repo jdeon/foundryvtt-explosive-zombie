@@ -206,6 +206,11 @@ export class SimpleActorSheet extends ActorSheet {
     let formData = super._getSubmitData(updateData);
     formData = EntitySheetHelper.updateAttributes(formData, this.object);
     formData = EntitySheetHelper.updateGroups(formData, this.object);
+    formData = EntitySheetHelper.updateArrays(formData, [
+      "system.skills",
+      "system.healthPoints",
+      "system.armors"
+    ]);
     return formData;
   }
 }

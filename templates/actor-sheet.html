@@ -100,14 +100,17 @@
                     <div class="inventory-section">
 
                         <!-- Ceinture -->
-                        <div class="side-col left">
+                        <div class="side-col left" data-inventory-section="belt">
                             <div class="section-title">CEINTURE (1A)</div>
-                            <div class="ceinture-boxes">
+                            <div class="ceinture-boxes" data-inventory-section="belt">
                                 {{#repeat inventory.belt.size}}
-                                {{#if inventory.belt.contain.[index]}}
-                                <div class="box data-val">{{inventory.belt.contain.[index]}}</div>
+                                {{#if (lookup ../inventory.belt.contain index)}}
+                                <div class="box data-val slot-box filled" data-inventory-section="belt"
+                                    data-slot-index="{{index}}" data-item-id="{{lookup (lookup ../inventory.belt.contain index) "item"}}" title="Glisser pour déplacer / Clic droit pour vider">
+                                    {{lookup (lookup ../inventory.belt.contain index) "title"}}</div>
                                 {{else}}
-                                <div class="box data-val"></div>
+                                <div class="box data-val slot-box empty" data-inventory-section="belt"
+                                    data-slot-index="{{index}}"></div>
                                 {{/if}}
                                 {{/repeat}}
                             </div>
@@ -128,17 +131,26 @@
                         </div>
 
                         <!-- Sac à dos -->
-                        <div class="side-col right">
+                        <div class="side-col right" data-inventory-section="backpack">
                             <div class="section-title">SAC À DOS (3A)</div>
-                            <div class="sac-grid">
+                            <div class="sac-grid" data-inventory-section="backpack">
                                 {{#repeat inventory.backpack.size}}
-                                {{#if inventory.backpack.contain.[index]}}
-                                <div class="box data-val">{{inventory.backpack.contain.[index]}}</div>
+                                {{#if (lookup ../inventory.backpack.contain index)}}
+                                <div class="box data-val slot-box filled" data-inventory-section="backpack"
+                                    data-slot-index="{{index}}" data-item-id="{{lookup (lookup ../inventory.backpack.contain index) "item"}}" title="Glisser pour déplacer / Clic droit pour vider">
+                                    {{lookup (lookup ../inventory.backpack.contain index) "title"}}</div>
                                 {{else}}
-                                <div class="box data-val"></div>
+                                <div class="box data-val slot-box empty" data-inventory-section="backpack"
+                                    data-slot-index="{{index}}"></div>
                                 {{/if}}
                                 {{/repeat}}
-                                <div class="box free-space data-val">Petits objets : {{inventory.backpack.freeSpace}}
+                                <div class="box free-space data-val">Petits objets :
+                                    {{#each inventory.backpack.freeSpace}}
+                                    <span class="data-val">
+                                        {{#unless (eq @index 0)}}, {{/unless}}
+                                        {{this.title}}
+                                    </span>
+                                    {{/each}}
                                 </div>
                             </div>
                         </div>
@@ -150,12 +162,15 @@
                             <div class="dotted-line-text data-val">{{quotes}}</div>
                         </div>
                         <div class="equip-title">ÉQUIPÉ</div>
-                        <div class="equip-boxes">
+                        <div class="equip-boxes" data-inventory-section="equipped">
                             {{#repeat inventory.equipped.size}}
-                            {{#if inventory.equipped.contain.[index]}}
-                            <div class="box data-val">{{inventory.equipped.contain.[index]}}</div>
+                            {{#if (lookup ../inventory.equipped.contain index)}}
+                            <div class="box data-val slot-box filled" data-inventory-section="equipped"
+                                data-slot-index="{{index}}" data-item-id="{{lookup (lookup ../inventory.equipped.contain index) "item"}}" title="Glisser pour déplacer / Clic droit pour vider">
+                                {{lookup (lookup ../inventory.equipped.contain index) "title"}}</div>
                             {{else}}
-                            <div class="box data-val"></div>
+                            <div class="box data-val slot-box empty" data-inventory-section="equipped"
+                                data-slot-index="{{index}}"></div>
                             {{/if}}
                             {{/repeat}}
                         </div>

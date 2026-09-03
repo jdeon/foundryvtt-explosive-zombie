@@ -373,6 +373,29 @@ body {
   line-height: 0;
 }
 
+.slot-box {
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+
+.slot-box:hover {
+  border-color: #3b2818;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.slot-box.filled {
+  cursor: grab;
+}
+
+.slot-box.filled:active {
+  cursor: grabbing;
+}
+
+.slot-box.empty {
+  cursor: pointer;
+}
+
 /* Croix rouge pour les cases cochées */
 
 /* --- INVENTAIRE & COMPÉTENCES --- */

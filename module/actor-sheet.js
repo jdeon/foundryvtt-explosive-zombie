@@ -16,7 +16,7 @@ export class SimpleActorSheet extends ActorSheet {
       height: 720,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "sheet" }],
       scrollY: [".sheet-outer", ".classic-form", ".biography", ".items", ".attributes"],
-      dragDrop: [{ dragSelector: ".item-list .item", dropSelector: null }]
+      dragDrop: [{ dragSelector: ".item-list .item, .slot-box", dropSelector: null }]
     });
   }
 
@@ -91,6 +91,30 @@ export class SimpleActorSheet extends ActorSheet {
         ev.dataTransfer.setData('text/plain', JSON.stringify(dragData));
       }, false);
     });
+
+    // Make inventory slot boxes draggable and handle contextmenu (clear)
+    html.find('.slot-box').each((i, el) => {
+      const section = el.dataset.inventorySection;
+      const index = el.dataset.slotIndex;
+      const itemId = el.dataset.itemId;
+      const text = el.textContent?.trim();
+
+      if (text) {
+        el.setAttribute("draggable", true);
+        el.addEventListener("dragstart", ev => {
+          const dragData = {
+            type: "InventorySlot",
+            fromSection: section,
+            fromIndex: Number(index),
+            itemName: text,
+            itemId: itemId
+          };
+          ev.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+        }, false);
+      }
+    });
+
+    html.find('.slot-box').on('contextmenu', this._onClearSlot.bind(this));
   }
 
   /**
@@ -212,5 +236,150 @@ export class SimpleActorSheet extends ActorSheet {
       "system.armors"
     ]);
     return formData;
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  async _onDrop(event) {
+    let data;
+    try {
+      data = TextEditor.getDragEventData(event);
+    } catch (e) {
+      return super._onDrop(event);
+    }
+    if (!data) return super._onDrop(event);
+
+    const slotTarget = event.target.closest("[data-inventory-section]");
+    if (slotTarget) {
+      const section = slotTarget.dataset.inventorySection;
+      const slotIndexAttr = slotTarget.dataset.slotIndex;
+      const targetIndex = slotIndexAttr !== undefined && slotIndexAttr !== null && slotIndexAttr !== "" ? Number(slotIndexAttr) : null;
+
+      if (data.type === "InventorySlot") {
+        return this._onDropInventorySlot(event, data, section, targetIndex);
+      }
+
+      if (data.type === "Item") {
+        await this._onDropItemToInventory(event, data, section, targetIndex);
+        return super._onDrop(event);
+      }
+    }
+
+    return super._onDrop(event);
+  }
+
+  /**
+   * Handle dropping an Item document onto an inventory section or slot box
+   * @param {Event} event
+   * @param {Object} data
+   * @param {string} section  "belt", "backpack", or "equipped"
+   * @param {number|null} targetIndex
+   * @returns {Promise<boolean>} If the drop was successful
+   * @private
+   */
+  async _onDropItemToInventory(event, data, section, targetIndex) {
+    let item;
+    try {
+      item = await Item.fromDropData(data);
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+    if (!item) return false;
+
+    const itemName = item.name;
+    const inventory = foundry.utils.duplicate(this.actor.system.inventory || {});
+    const targetContainer = inventory[section];
+    if (!targetContainer || !Array.isArray(targetContainer.contain)) return;
+
+    if (targetContainer.size < targetContainer.contain.length + item.system.requiredSlots && targetContainer.contain.length > 0) {
+      ui.notifications.error(game.i18n.localize("SIMPLE.ErrorInventoryFull"));
+      return false;
+    }
+
+    if (item.system.requiredSlots > 1) {
+      for (let i = 1; i <= item.system.requiredSlots; i++) {
+        targetContainer.contain.push({ title: `${itemName} (${i}/${item.system.requiredSlots})`, item: item.id });
+      }
+    } else if (item.system.requiredSlots === 0 && Array.isArray(targetContainer.freeSpace)) {
+      targetContainer.freeSpace.push({ title: itemName, item: item.id });
+    } else {
+      targetContainer.contain.push({ title: itemName, item: item.id });
+    }
+
+    await this.actor.update({ "system.inventory": inventory });
+    return true
+  }
+
+  /**
+   * Handle moving an inventory slot item from one slot to another
+   * @param {Event} event
+   * @param {Object} data
+   * @param {string} targetSection
+   * @param {number|null} targetIndex
+   * @returns {Promise<boolean>} if the move was successful
+   * @private
+   */
+  async _onDropInventorySlot(event, data, targetSection, targetIndex) {
+    const { fromSection, fromIndex, itemName } = data;
+    const itemId = data.itemId || data.item || this.actor.system.inventory[fromSection]?.contain?.[fromIndex]?.item;
+    if (!fromSection || fromIndex === undefined || !itemName || !itemId) return false;
+    if (fromSection === targetSection) return false;
+
+    const item = this.actor.items.get(itemId);
+    const itemData = item ? { type: "Item", uuid: item.uuid } : { type: "Item", uuid: `Item.${itemId}` };
+
+    const successful = await this._onDropItemToInventory(event, itemData, targetSection, targetIndex);
+    if (!successful) return false;
+
+    await this._removeItemFromInventory(itemId, fromSection);
+    return true;
+  }
+
+  /**
+   * Clear an inventory slot on right click
+   * @param {Event} event
+   * @private
+   */
+  async _onClearSlot(event) {
+    event.preventDefault();
+    const el = event.currentTarget;
+    const section = el.dataset.inventorySection;
+    const index = Number(el.dataset.slotIndex);
+    if (!section || isNaN(index)) return;
+
+    const inventory = foundry.utils.duplicate(this.actor.system.inventory || {});
+    const container = inventory[section];
+    if (!container || !Array.isArray(container.contain)) return;
+
+    if (container.contain[index]?.item) {
+      this._removeItemFromInventory(container.contain[index].item, section);
+    }
+  }
+
+  /**
+   * Remove an item from the inventory
+   * @param {string} itemId
+   * @param {string} section
+   * @returns {Promise<boolean>} if the item was removed
+   * @private
+   */
+  async _removeItemFromInventory(itemId, section) {
+    const inventory = foundry.utils.duplicate(this.actor.system.inventory || {});
+    const container = inventory[section];
+    if (!itemId || !container || !Array.isArray(container.contain)) return false;
+
+    if (container.contain.some(slot => slot.item === itemId)) {
+      inventory[section].contain = container.contain.filter(el => el.item !== itemId);
+
+    } else if (Array.isArray(container.freeSpace) && container.freeSpace.some(slot => slot.item === itemId)) {
+      inventory[section].freeSpace = container.freeSpace.filter(slot => slot.item !== itemId);
+    } else {
+      return false;
+    }
+
+    await this.actor.update({ "system.inventory": inventory });
+    return true;
   }
 }

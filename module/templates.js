@@ -7,9 +7,15 @@ export const preloadHandlebarsTemplates = async function () {
 
   // Define template paths to load
   const templatePaths = [
-    // Attribute list partial.
     "systems/explosive-zombie/templates/parts/sheet-attributes.html",
-    "systems/explosive-zombie/templates/parts/sheet-groups.html"
+    "systems/explosive-zombie/templates/parts/sheet-groups.html",
+    "systems/explosive-zombie/templates/parts/item-tab-sheet.html",
+    "systems/explosive-zombie/templates/parts/item-tab-edit.html",
+    "systems/explosive-zombie/templates/parts/item-tab-attributes.html",
+    "systems/explosive-zombie/templates/parts/actor-tab-sheet.html",
+    "systems/explosive-zombie/templates/parts/actor-tab-edit.html",
+    "systems/explosive-zombie/templates/parts/actor-tab-items.html",
+    "systems/explosive-zombie/templates/parts/actor-tab-attributes.html"
   ];
 
   // Load the template parts

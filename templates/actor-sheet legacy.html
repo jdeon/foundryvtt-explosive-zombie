@@ -8,14 +8,14 @@
                 <input name="name" type="text" value="{{data.name}}" placeholder="Name" />
             </h1>
             <div class="resource">
-                <input type="number" name="system.health.value" value="{{systemData.health.value}}" />
+                <input type="number" name="system.health.value" value="{{system.health.value}}" />
                 <span> / </span>
-                <input type="number" name="system.health.max" value="{{systemData.health.max}}" />
+                <input type="number" name="system.health.max" value="{{system.health.max}}" />
             </div>
             <div class="resource">
-                <input type="number" name="system.power.value" value="{{systemData.power.value}}" />
+                <input type="number" name="system.power.value" value="{{system.power.value}}" />
                 <span> / </span>
-                <input type="number" name="system.power.max" value="{{systemData.power.max}}" />
+                <input type="number" name="system.power.max" value="{{system.power.max}}" />
             </div>
         </div>
     </header>
@@ -105,13 +105,13 @@
             </header>
 
             {{!-- Render the attribute list partial. --}}
-            {{> "systems/worldbuilding/templates/parts/sheet-attributes.html" attributes=systemData.ungroupedAttributes
+            {{> "systems/worldbuilding/templates/parts/sheet-attributes.html" attributes=system.ungroupedAttributes
             dtypes=dtypes}}
 
             {{!-- Render the grouped attributes partial and control. --}}
             <div class="groups">
-                {{> "systems/worldbuilding/templates/parts/sheet-groups.html" attributes=systemData.groupedAttributes
-                groups=systemData.groups dtypes=dtypes}}
+                {{> "systems/worldbuilding/templates/parts/sheet-groups.html" attributes=system.groupedAttributes
+                groups=system.groups dtypes=dtypes}}
 
                 <div class="group-controls flexrow">
                     <input class="group-prefix" type="text" value="" />

@@ -1,68 +1,140 @@
 import { EntitySheetHelper } from "./helper.js";
 import { ATTRIBUTE_TYPES } from "./constants.js";
 
-/**
- * Extend the basic ActorSheet with some very simple modifications
- * @extends {ActorSheet}
- */
-export class SimpleActorSheet extends ActorSheet {
+const { ActorSheetV2 } = foundry.applications.sheets;
+const { HandlebarsApplicationMixin } = foundry.applications.api;
 
-  /** @inheritdoc */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["worldbuilding", "sheet", "actor"],
-      template: "systems/explosive-zombie/templates/actor-sheet.html",
+/**
+ * Extend the basic ActorSheetV2 with custom tabbed sheet layout and inventory management
+ * @extends {ActorSheetV2}
+ */
+export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
+
+  /** @override */
+  static DEFAULT_OPTIONS = {
+    classes: ["worldbuilding", "sheet", "actor"],
+    position: {
       width: 780,
-      height: 720,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "sheet" }],
-      scrollY: [".sheet-outer", ".classic-form", ".biography", ".items", ".attributes"],
-      dragDrop: [{ dragSelector: ".item-list .item, .slot-box", dropSelector: null }]
-    });
+      height: 'auto'
+    },
+    window: {
+      resizable: true,
+      title: 'SIMPLE.ActorSheetTitle'
+    },
+    tabGroups: {
+      primary: "sheet"
+    },
+    tag: "form",
+    form: {
+      handler: SimpleActorSheet.#onSubmitForm,
+      submitOnChange: true,
+      closeOnSubmit: false
+    }
+  };
+
+  static TABS = {
+    primary: {
+      tabs: [
+        { id: 'sheet', group: 'primary', label: 'SIMPLE.TabSheet' },
+        { id: 'edit', group: 'primary', label: 'SIMPLE.TabEdit' },
+        { id: 'items', group: 'primary', label: 'SIMPLE.TabItems' },
+        { id: 'attributes', group: 'primary', label: 'SIMPLE.TabAttributes' }
+      ],
+      initial: 'sheet'
+    }
+  };
+
+  /** @override */
+  static PARTS = {
+    tabs: {
+      template: "templates/generic/tab-navigation.hbs"
+    },
+    sheet: {
+      template: "systems/explosive-zombie/templates/parts/actor-tab-sheet.html",
+      scrollable: [""]
+    },
+    edit: {
+      template: "systems/explosive-zombie/templates/parts/actor-tab-edit.html",
+      scrollable: [""]
+    },
+    items: {
+      template: "systems/explosive-zombie/templates/parts/actor-tab-items.html",
+      scrollable: [""]
+    },
+    attributes: {
+      template: "systems/explosive-zombie/templates/parts/actor-tab-attributes.html",
+      scrollable: [""]
+    }
+  };
+
+  /**
+   * Convenience getter for the Actor document
+   * @type {Actor}
+   */
+  get actor() {
+    return this.document;
   }
 
   /* -------------------------------------------- */
 
-  /** @inheritdoc */
-  async getData(options) {
-    const context = await super.getData(options);
-    EntitySheetHelper.getAttributeData(context.data);
+  /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    context.actor = this.document;
+    context.data = this.document.toObject(false);
     context.shorthand = !!game.settings.get("explosive-zombie", "macroShorthand");
+    context.system = context.data.system;
     context.systemData = context.data.system;
     context.dtypes = ATTRIBUTE_TYPES;
 
+    EntitySheetHelper.getAttributeData(context);
+
     // Ensure system object defaults exist safely
-    context.systemData.stats = context.systemData.stats || { agility: 2, constitution: 2, mental: 2, speed: 5 };
-    context.systemData.inventory = context.systemData.inventory || {
+    context.system.stats = context.system.stats || { agility: 2, constitution: 2, mental: 2, speed: 5 };
+    context.system.inventory = context.system.inventory || {
       belt: { size: 3, contain: [] },
       backpack: { size: 6, contain: [] },
       equipped: { size: 2, contain: [] }
     };
-    if (!context.systemData.inventory.belt) context.systemData.inventory.belt = { size: 3, contain: [] };
-    if (!context.systemData.inventory.backpack) context.systemData.inventory.backpack = { size: 6, contain: [] };
-    if (!context.systemData.inventory.equipped) context.systemData.inventory.equipped = { size: 2, contain: [] };
-    if (!context.systemData.skills) context.systemData.skills = [];
-    if (!context.systemData.healthPoints) context.systemData.healthPoints = ["", "", "", ""];
-    if (!context.systemData.armors) context.systemData.armors = [];
+    if (!context.system.inventory.belt) context.system.inventory.belt = { size: 3, contain: [] };
+    if (!context.system.inventory.backpack) context.system.inventory.backpack = { size: 6, contain: [] };
+    if (!context.system.inventory.equipped) context.system.inventory.equipped = { size: 2, contain: [] };
+    if (!context.system.skills) context.system.skills = [];
+    if (!context.system.healthPoints) context.system.healthPoints = ["", "", "", ""];
+    if (!context.system.armors) context.system.armors = [];
 
     // Helper context values for template compatibility
-    context.portraitUrl = context.systemData.portraitUrl || context.data.img || "icons/svg/mystery-man.svg";
-    context.description = context.systemData.description || "";
-    context.quotes = context.systemData.quotes || "";
-    context.notes = context.systemData.notes || "";
-    context.stats = context.systemData.stats;
-    context.healthPoints = context.systemData.healthPoints;
-    context.armors = context.systemData.armors;
-    context.skills = context.systemData.skills;
-    context.inventory = context.systemData.inventory;
+    context.portraitUrl = context.system.portraitUrl || context.data.img || "icons/svg/mystery-man.svg";
+    context.description = context.system.description || "";
+    context.quotes = context.system.quotes || "";
+    context.notes = context.system.notes || "";
+    context.stats = context.system.stats;
+    context.healthPoints = context.system.healthPoints;
+    context.armors = context.system.armors;
+    context.skills = context.system.skills;
+    context.inventory = context.system.inventory;
 
     return context;
   }
 
   /* -------------------------------------------- */
 
-  /** @inheritdoc */
-  activateListeners(html) {
-    super.activateListeners(html);
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    // Activate current tab content
+    const activeTab = this.tabGroups.primary || "sheet";
+    this.changeTab(activeTab, "primary", { force: true });
+
+    const html = $(this.element);
+
+    // Tab navigation click handling
+    html.find('.sheet-tabs .item, [data-action="tab"]').on('click', ev => {
+      ev.preventDefault();
+      const tab = ev.currentTarget.dataset.tab;
+      if (tab) this.changeTab(tab, "primary");
+    });
 
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
@@ -117,6 +189,28 @@ export class SimpleActorSheet extends ActorSheet {
     html.find('.slot-box').on('contextmenu', this._onClearSlot.bind(this));
   }
 
+  /* -------------------------------------------- */
+
+  /**
+   * Handle form submission processing
+   * @param {Event} event
+   * @param {HTMLFormElement} form
+   * @param {FormDataExtended} formData
+   */
+  static async #onSubmitForm(event, form, formData) {
+    let submitData = formData.object;
+    submitData = EntitySheetHelper.updateAttributes(submitData, this.document);
+    submitData = EntitySheetHelper.updateGroups(submitData, this.document);
+    submitData = EntitySheetHelper.updateArrays(submitData, [
+      "system.skills",
+      "system.healthPoints",
+      "system.armors"
+    ]);
+    await this.document.update(submitData);
+  }
+
+  /* -------------------------------------------- */
+
   /**
    * Handle skill creation and deletion controls
    * @param {Event} event
@@ -126,7 +220,7 @@ export class SimpleActorSheet extends ActorSheet {
     event.preventDefault();
     const button = event.currentTarget;
     const action = button.dataset.action;
-    const skills = this.actor.system.skills;
+    const skills = Array.from(this.actor.system.skills || []);
 
     if (action === "add") {
       skills.push({ label: `Compétence ${skills.length + 1}`, val: 2 });
@@ -182,7 +276,7 @@ export class SimpleActorSheet extends ActorSheet {
 
   /**
    * Handle click events for Item control buttons within the Actor Sheet
-   * @param event
+   * @param {Event} event
    * @private
    */
   _onItemControl(event) {
@@ -221,21 +315,6 @@ export class SimpleActorSheet extends ActorSheet {
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       flavor: `<h2>${item.name}</h2><h3>${button.text()}</h3>`
     });
-  }
-
-  /* -------------------------------------------- */
-
-  /** @inheritdoc */
-  _getSubmitData(updateData) {
-    let formData = super._getSubmitData(updateData);
-    formData = EntitySheetHelper.updateAttributes(formData, this.object);
-    formData = EntitySheetHelper.updateGroups(formData, this.object);
-    formData = EntitySheetHelper.updateArrays(formData, [
-      "system.skills",
-      "system.healthPoints",
-      "system.armors"
-    ]);
-    return formData;
   }
 
   /* -------------------------------------------- */
@@ -309,7 +388,7 @@ export class SimpleActorSheet extends ActorSheet {
     }
 
     await this.actor.update({ "system.inventory": inventory });
-    return true
+    return true;
   }
 
   /**
@@ -372,7 +451,6 @@ export class SimpleActorSheet extends ActorSheet {
 
     if (container.contain.some(slot => slot.item === itemId)) {
       inventory[section].contain = container.contain.filter(el => el.item !== itemId);
-
     } else if (Array.isArray(container.freeSpace) && container.freeSpace.some(slot => slot.item === itemId)) {
       inventory[section].freeSpace = container.freeSpace.filter(slot => slot.item !== itemId);
     } else {

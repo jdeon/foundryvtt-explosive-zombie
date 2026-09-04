@@ -1,40 +1,90 @@
 import { EntitySheetHelper } from "./helper.js";
 import { ATTRIBUTE_TYPES } from "./constants.js";
 
-/**
- * Extend the basic ItemSheet with custom tabbed sheet layout and effect management
- * @extends {ItemSheet}
- */
-export class SimpleItemSheet extends ItemSheet {
+const { ItemSheetV2 } = foundry.applications.sheets;
+const { HandlebarsApplicationMixin } = foundry.applications.api;
 
-  /** @inheritdoc */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["worldbuilding", "sheet", "item"],
-      template: "systems/explosive-zombie/templates/item-sheet.html",
+/**
+ * Extend the basic ItemSheetV2 with custom tabbed sheet layout and effect management
+ * @extends {ItemSheetV2}
+ */
+export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
+
+  /** @override */
+  static DEFAULT_OPTIONS = {
+    classes: ["worldbuilding", "sheet", "item"],
+    position: {
       width: 580,
-      height: 620,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "sheet" }],
-      scrollY: [".card-container", ".classic-form", ".attributes"],
-    });
+      height: 620
+    },
+    tabGroups: {
+      primary: "sheet"
+    },
+    form: {
+      handler: SimpleItemSheet.#onSubmitForm,
+      submitOnChange: true,
+      closeOnSubmit: false
+    }
+  };
+
+  static TABS = {
+    primary: {
+      tabs: [
+        { id: 'sheet', group: 'primary', label: 'SIMPLE.TabSheet' },
+        { id: 'edit', group: 'primary', label: 'SIMPLE.TabEdit' },
+        { id: 'attributes', group: 'primary', label: 'SIMPLE.TabAttributes' }
+      ],
+      initial: 'sheet'
+    }
+  };
+
+  /** @override */
+  static PARTS = {
+    tabs: {
+      template: "templates/generic/tab-navigation.hbs"
+    },
+    sheet: {
+      template: "systems/explosive-zombie/templates/parts/item-tab-sheet.html",
+      scrollable: [""]
+    },
+    edit: {
+      template: "systems/explosive-zombie/templates/parts/item-tab-edit.html",
+      scrollable: [""]
+    },
+    attributes: {
+      template: "systems/explosive-zombie/templates/parts/item-tab-attributes.html",
+      scrollable: [""]
+    }
+  };
+
+  /**
+   * Convenience getter for the Item document
+   * @type {Item}
+   */
+  get item() {
+    return this.document;
   }
 
   /* -------------------------------------------- */
 
-  /** @inheritdoc */
-  async getData(options) {
-    const context = await super.getData(options);
-    EntitySheetHelper.getAttributeData(context.data);
+  /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    context.item = this.document;
+    context.data = this.document.toObject(false);
+    context.system = context.data.system;
     context.systemData = context.data.system;
     context.dtypes = ATTRIBUTE_TYPES;
 
+    EntitySheetHelper.getAttributeData(context);
+
     // Ensure array defaults exist safely
-    if (!context.systemData.activeEffects) context.systemData.activeEffects = [];
-    if (!context.systemData.passiveEffects) context.systemData.passiveEffects = [];
+    if (!context.system.activeEffects) context.system.activeEffects = [];
+    if (!context.system.passiveEffects) context.system.passiveEffects = [];
 
-    context.imageUrl = context.systemData.imageUrl || context.data.img || "icons/svg/item-bag.svg";
+    context.imageUrl = context.system.imageUrl || context.data.img || "icons/svg/item-bag.svg";
 
-    context.descriptionHTML = await TextEditor.enrichHTML(context.systemData.description || "", {
+    context.descriptionHTML = await TextEditor.enrichHTML(context.system.description || "", {
       secrets: this.document.isOwner,
       async: true
     });
@@ -43,9 +93,22 @@ export class SimpleItemSheet extends ItemSheet {
 
   /* -------------------------------------------- */
 
-  /** @inheritdoc */
-  activateListeners(html) {
-    super.activateListeners(html);
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    // Activate current tab content
+    const activeTab = this.tabGroups.primary || "sheet";
+    this.changeTab(activeTab, "primary", { force: true });
+
+    const html = $(this.element);
+
+    // Tab navigation click handling
+    html.find('.sheet-tabs .item, [data-action="tab"]').on('click', ev => {
+      ev.preventDefault();
+      const tab = ev.currentTarget.dataset.tab;
+      if (tab) this.changeTab(tab, "primary");
+    });
 
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
@@ -67,6 +130,27 @@ export class SimpleItemSheet extends ItemSheet {
       }, false);
     });
   }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle form submission processing
+   * @param {Event} event
+   * @param {HTMLFormElement} form
+   * @param {FormDataExtended} formData
+   */
+  static async #onSubmitForm(event, form, formData) {
+    let submitData = formData.object;
+    submitData = EntitySheetHelper.updateAttributes(submitData, this.document);
+    submitData = EntitySheetHelper.updateGroups(submitData, this.document);
+    submitData = EntitySheetHelper.updateArrays(submitData, [
+      "system.activeEffects",
+      "system.passiveEffects"
+    ]);
+    await this.document.update(submitData);
+  }
+
+  /* -------------------------------------------- */
 
   /**
    * Handle active and passive effect creation and deletion
@@ -91,19 +175,5 @@ export class SimpleItemSheet extends ItemSheet {
       if (!isNaN(index)) effects.splice(index, 1);
     }
     return this.item.update({ [`system.${type}`]: effects });
-  }
-
-  /* -------------------------------------------- */
-
-  /** @override */
-  _getSubmitData(updateData) {
-    let formData = super._getSubmitData(updateData);
-    formData = EntitySheetHelper.updateAttributes(formData, this.object);
-    formData = EntitySheetHelper.updateGroups(formData, this.object);
-    formData = EntitySheetHelper.updateArrays(formData, [
-      "system.activeEffects",
-      "system.passiveEffects"
-    ]);
-    return formData;
   }
 }

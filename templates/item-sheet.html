@@ -24,16 +24,16 @@
                         <div class="item-title-group">
                             <span class="item-name">{{data.name}}</span>
                         </div>
-                        {{#if systemData.munitions.capacity}}
+                        {{#if system.munitions.capacity}}
                         <div class="item-munitions">
                             <i class="fa-solid fa-gas-pump"></i>
-                            <span>{{systemData.munitions.loadAmmo}} / {{systemData.munitions.capacity}}</span>
-                            {{#if systemData.munitions.totalAmmo}}<span
-                                class="total-ammo">({{systemData.munitions.totalAmmo}})</span>{{/if}}
+                            <span>{{system.munitions.loadAmmo}} / {{system.munitions.capacity}}</span>
+                            {{#if system.munitions.totalAmmo}}<span
+                                class="total-ammo">({{system.munitions.totalAmmo}})</span>{{/if}}
                         </div>
                         {{/if}}
                         <div class="item-title-group">
-                            <div class="box item-slot-box data-val">{{systemData.requiredSlots}}A</div>
+                            <div class="box item-slot-box data-val">{{system.requiredSlots}}A</div>
                         </div>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                             </div>
 
                             <!-- Lignes de stats générées dynamiquement -->
-                            {{#each systemData.activeEffects}}
+                            {{#each system.activeEffects}}
                             <div class="table-row" style="display: contents;">
                                 <div class="cell data-val">{{this.actionNumber}}</div>
                                 <div class="cell data-val">{{this.threshold}}</div>
@@ -74,9 +74,11 @@
                                 <div class="cell data-val effect-text">{{this.description}}</div>
                             </div>
                             {{/each}}
-                            {{#each systemData.passiveEffects}}
+                            {{#each system.passiveEffects}}
                             <div class="table-row" style="display: contents;">
-                                <div class="cell data-val effect-text" style="grid-column: 1 / -1; justify-content: flex-start; padding-left: 12px;">{{this.description}}</div>
+                                <div class="cell data-val effect-text"
+                                    style="grid-column: 1 / -1; justify-content: flex-start; padding-left: 12px;">
+                                    {{this.description}}</div>
                             </div>
                             {{/each}}
 
@@ -110,22 +112,22 @@
                     <div class="form-grid grid-4col">
                         <div class="form-group">
                             <label>Emplacements Requis (A)</label>
-                            <input type="number" name="system.requiredSlots" value="{{systemData.requiredSlots}}" />
+                            <input type="number" name="system.requiredSlots" value="{{system.requiredSlots}}" />
                         </div>
                         <div class="form-group">
                             <label>Capacité Chargeur</label>
                             <input type="number" name="system.munitions.capacity"
-                                value="{{systemData.munitions.capacity}}" />
+                                value="{{system.munitions.capacity}}" />
                         </div>
                         <div class="form-group">
                             <label>Munitions Chargées</label>
                             <input type="number" name="system.munitions.loadAmmo"
-                                value="{{systemData.munitions.loadAmmo}}" />
+                                value="{{system.munitions.loadAmmo}}" />
                         </div>
                         <div class="form-group">
                             <label>Munitions Restantes</label>
                             <input type="number" name="system.munitions.remainingAmmo"
-                                value="{{systemData.munitions.remainingAmmo}}" />
+                                value="{{system.munitions.remainingAmmo}}" />
                         </div>
                     </div>
                 </fieldset>
@@ -138,7 +140,7 @@
                             data-type="activeEffects"><i class="fas fa-plus"></i> Ajouter un effet</button>
                     </legend>
                     <div class="effects-list-edit">
-                        {{#each systemData.activeEffects}}
+                        {{#each system.activeEffects}}
                         <div class="effect-edit-row"
                             style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 2fr 30px; gap: 6px; margin-bottom: 8px; align-items: center;">
                             <input type="text" name="system.activeEffects.{{@index}}.actionNumber"
@@ -168,7 +170,7 @@
                             data-type="passiveEffects"><i class="fas fa-plus"></i> Ajouter un effet</button>
                     </legend>
                     <div class="effects-list-edit">
-                        {{#each systemData.passiveEffects}}
+                        {{#each system.passiveEffects}}
                         <div class="effect-edit-row"
                             style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
                             <input type="text" name="system.passiveEffects.{{@index}}.description"
@@ -197,13 +199,13 @@
 
             {{!-- Render the attribute list partial --}}
             {{> "systems/explosive-zombie/templates/parts/sheet-attributes.html"
-            attributes=systemData.ungroupedAttributes
+            attributes=system.ungroupedAttributes
             dtypes=dtypes}}
 
             {{!-- Render the grouped attributes partial and control --}}
             <div class="groups">
-                {{> "systems/explosive-zombie/templates/parts/sheet-groups.html" attributes=systemData.groupedAttributes
-                groups=systemData.groups dtypes=dtypes}}
+                {{> "systems/explosive-zombie/templates/parts/sheet-groups.html" attributes=system.groupedAttributes
+                groups=system.groups dtypes=dtypes}}
 
                 <div class="group-controls flexrow">
                     <input class="group-prefix" type="text" value="" />

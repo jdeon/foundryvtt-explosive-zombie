@@ -63,7 +63,10 @@ body {
   overflow: hidden;
 }
 
-.sheet-body .tab {
+.sheet-body .tab,
+form.sheet .tab,
+.window-content .tab {
+  flex: 1;
   height: 100%;
   overflow-y: auto;
 }

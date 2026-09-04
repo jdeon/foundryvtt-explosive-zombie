@@ -106,7 +106,9 @@
                                 {{#repeat inventory.belt.size}}
                                 {{#if (lookup ../inventory.belt.contain index)}}
                                 <div class="box data-val slot-box filled" data-inventory-section="belt"
-                                    data-slot-index="{{index}}" data-item-id="{{lookup (lookup ../inventory.belt.contain index) "item"}}" title="Glisser pour déplacer / Clic droit pour vider">
+                                    data-slot-index="{{index}}"
+                                    data-item-id="{{lookup (lookup ../inventory.belt.contain index) "item"}}"
+                                    title="Glisser pour déplacer / Clic droit pour vider">
                                     {{lookup (lookup ../inventory.belt.contain index) "title"}}</div>
                                 {{else}}
                                 <div class="box data-val slot-box empty" data-inventory-section="belt"
@@ -137,13 +139,16 @@
                                 {{#repeat inventory.backpack.size}}
                                 {{#if (lookup ../inventory.backpack.contain index)}}
                                 <div class="box data-val slot-box filled" data-inventory-section="backpack"
-                                    data-slot-index="{{index}}" data-item-id="{{lookup (lookup ../inventory.backpack.contain index) "item"}}" title="Glisser pour déplacer / Clic droit pour vider">
+                                    data-slot-index="{{index}}"
+                                    data-item-id="{{lookup (lookup ../inventory.backpack.contain index) "item"}}"
+                                    title="Glisser pour déplacer / Clic droit pour vider">
                                     {{lookup (lookup ../inventory.backpack.contain index) "title"}}</div>
                                 {{else}}
                                 <div class="box data-val slot-box empty" data-inventory-section="backpack"
                                     data-slot-index="{{index}}"></div>
                                 {{/if}}
                                 {{/repeat}}
+                                <!--TODO text to big for the box-->
                                 <div class="box free-space data-val">Petits objets :
                                     {{#each inventory.backpack.freeSpace}}
                                     <span class="data-val">
@@ -166,7 +171,9 @@
                             {{#repeat inventory.equipped.size}}
                             {{#if (lookup ../inventory.equipped.contain index)}}
                             <div class="box data-val slot-box filled" data-inventory-section="equipped"
-                                data-slot-index="{{index}}" data-item-id="{{lookup (lookup ../inventory.equipped.contain index) "item"}}" title="Glisser pour déplacer / Clic droit pour vider">
+                                data-slot-index="{{index}}"
+                                data-item-id="{{lookup (lookup ../inventory.equipped.contain index) "item"}}"
+                                title="Glisser pour déplacer / Clic droit pour vider">
                                 {{lookup (lookup ../inventory.equipped.contain index) "title"}}</div>
                             {{else}}
                             <div class="box data-val slot-box empty" data-inventory-section="equipped"
@@ -203,14 +210,14 @@
                     <div class="form-group">
                         <label>Description</label>
                         <div class="form-fields">
-                            <input type="text" name="system.description" value="{{systemData.description}}"
+                            <input type="text" name="system.description" value="{{system.description}}"
                                 placeholder="Courte description" />
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Citations / Slogan</label>
                         <div class="form-fields">
-                            <input type="text" name="system.quotes" value="{{systemData.quotes}}"
+                            <input type="text" name="system.quotes" value="{{system.quotes}}"
                                 placeholder="Citation..." />
                         </div>
                     </div>
@@ -222,20 +229,20 @@
                     <div class="form-grid grid-4col">
                         <div class="form-group">
                             <label>Agilité</label>
-                            <input type="number" name="system.stats.agility" value="{{systemData.stats.agility}}" />
+                            <input type="number" name="system.stats.agility" value="{{system.stats.agility}}" />
                         </div>
                         <div class="form-group">
                             <label>Constitution</label>
                             <input type="number" name="system.stats.constitution"
-                                value="{{systemData.stats.constitution}}" />
+                                value="{{system.stats.constitution}}" />
                         </div>
                         <div class="form-group">
                             <label>Mental</label>
-                            <input type="number" name="system.stats.mental" value="{{systemData.stats.mental}}" />
+                            <input type="number" name="system.stats.mental" value="{{system.stats.mental}}" />
                         </div>
                         <div class="form-group">
                             <label>Vitesse</label>
-                            <input type="number" name="system.stats.speed" value="{{systemData.stats.speed}}" />
+                            <input type="number" name="system.stats.speed" value="{{system.stats.speed}}" />
                         </div>
                     </div>
                 </fieldset>
@@ -263,7 +270,7 @@
                                 class="fas fa-plus"></i> {{localize "SIMPLE.SkillAdd"}}</button>
                     </legend>
                     <div class="skills-list-edit">
-                        {{#each systemData.skills}}
+                        {{#each system.skills}}
                         <div class="skill-edit-row">
                             <input type="text" name="system.skills.{{@index}}.label" value="{{this.label}}"
                                 placeholder="Nom de la compétence" />
@@ -286,17 +293,17 @@
                         <div class="form-group">
                             <label>Taille Ceinture</label>
                             <input type="number" name="system.inventory.belt.size"
-                                value="{{systemData.inventory.belt.size}}" />
+                                value="{{system.inventory.belt.size}}" />
                         </div>
                         <div class="form-group">
                             <label>Taille Sac à dos</label>
                             <input type="number" name="system.inventory.backpack.size"
-                                value="{{systemData.inventory.backpack.size}}" />
+                                value="{{system.inventory.backpack.size}}" />
                         </div>
                         <div class="form-group">
                             <label>Taille Équipé</label>
                             <input type="number" name="system.inventory.equipped.size"
-                                value="{{systemData.inventory.equipped.size}}" />
+                                value="{{system.inventory.equipped.size}}" />
                         </div>
                     </div>
                 </fieldset>
@@ -369,13 +376,13 @@
 
             {{!-- Render the attribute list partial --}}
             {{> "systems/explosive-zombie/templates/parts/sheet-attributes.html"
-            attributes=systemData.ungroupedAttributes
+            attributes=system.ungroupedAttributes
             dtypes=dtypes}}
 
             {{!-- Render the grouped attributes partial and control --}}
             <div class="groups">
-                {{> "systems/explosive-zombie/templates/parts/sheet-groups.html" attributes=systemData.groupedAttributes
-                groups=systemData.groups dtypes=dtypes}}
+                {{> "systems/explosive-zombie/templates/parts/sheet-groups.html" attributes=system.groupedAttributes
+                groups=system.groups dtypes=dtypes}}
 
                 <div class="group-controls flexrow">
                     <input class="group-prefix" type="text" value="" />

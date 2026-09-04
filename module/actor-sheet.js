@@ -209,6 +209,8 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     });
 
     html.find('.slot-box').on('contextmenu', this._onClearSlot.bind(this));
+    html.find('.box.free-space').on('click', this._onOpenFreeSpaceOverlay.bind(this));
+    this._updateFreeSpaceOverlay();
   }
 
   /* -------------------------------------------- */
@@ -374,6 +376,108 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
 
     ui.notifications.info(game.i18n.localize("SIMPLE.NotifyInventorySynced"));
+  }
+
+  /**
+   * Open an overlay dialog displaying all small items contained in the backpack freeSpace.
+   * @param {Event} event
+   * @private
+   */
+  async _onOpenFreeSpaceOverlay(event) {
+    if (event) event.preventDefault();
+
+    if (this._freeSpaceDialog && $(this._freeSpaceDialog.element).length > 0) {
+      await this._updateFreeSpaceOverlay();
+      this._freeSpaceDialog.bringToTop?.();
+      return;
+    }
+
+    const freeSpaceItems = this.actor.system.inventory?.backpack?.freeSpace || [];
+    const htmlContent = await renderTemplate(
+      "systems/explosive-zombie/templates/parts/actor-free-space-dialog.html",
+      { freeSpaceItems }
+    );
+
+    const dialogOptions = {
+      window: { title: game.i18n.localize("SIMPLE.FreeSpaceTitle") },
+      content: htmlContent,
+      buttons: [
+        { action: "close", label: game.i18n.localize("Close"), default: true }
+      ]
+    };
+
+
+    this._freeSpaceDialog = new foundry.applications.api.DialogV2(dialogOptions);
+    await this._freeSpaceDialog.render(true);
+
+
+    setTimeout(() => {
+      if (this._freeSpaceDialog?.element) {
+        this._bindFreeSpaceOverlayEvents($(this._freeSpaceDialog.element));
+      }
+    }, 50);
+  }
+
+  /**
+   * Refresh the active freeSpace overlay dialog content if it is currently open
+   * @private
+   */
+  async _updateFreeSpaceOverlay() {
+    if (!this._freeSpaceDialog) return;
+    const dialogElem = $(this._freeSpaceDialog.element);
+    if (!dialogElem.length) {
+      this._freeSpaceDialog = null;
+      return;
+    }
+
+    const freeSpaceItems = this.actor.system.inventory?.backpack?.freeSpace || [];
+    const htmlContent = await renderTemplate(
+      "systems/explosive-zombie/templates/parts/actor-free-space-dialog.html",
+      { freeSpaceItems }
+    );
+
+    const container = dialogElem.find('.free-space-overlay');
+    if (container.length) {
+      container.replaceWith(htmlContent);
+    } else {
+      dialogElem.find('.window-content, .dialog-content').html(htmlContent);
+    }
+
+    this._bindFreeSpaceOverlayEvents(dialogElem);
+  }
+
+  /**
+   * Bind event listeners for slot boxes inside the freeSpace overlay
+   * @param {jQuery} dialogElem
+   * @private
+   */
+  _bindFreeSpaceOverlayEvents(dialogElem) {
+    dialogElem.find('.slot-box').each((i, el) => {
+      const itemId = el.dataset.itemId;
+      const index = el.dataset.slotIndex;
+      const text = el.querySelector('.item-title')?.textContent?.trim() || el.title;
+
+      el.setAttribute("draggable", true);
+      el.addEventListener("dragstart", ev => {
+        const dragData = {
+          type: "InventorySlot",
+          fromSection: "backpack",
+          fromIndex: Number(index),
+          itemName: text,
+          itemId: itemId
+        };
+        ev.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+      }, false);
+    });
+
+    dialogElem.find('.remove-free-item').off('click').on('click', async ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const itemId = ev.currentTarget.dataset.itemId;
+      if (itemId) {
+        await this._removeItemFromInventory(itemId, "backpack");
+      }
+    });
   }
 
   /* -------------------------------------------- */

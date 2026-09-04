@@ -30,6 +30,7 @@
   /* Footer Section */
   /* Item Card Styles */
   /* Items Section */
+  /* Free Space Overlay Dialog */
   /* Items List */
   /* Attributes */
 }
@@ -330,6 +331,7 @@
   min-height: 45px;
   border: var(--med);
   border-radius: 4px;
+  background: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -342,13 +344,14 @@
   line-height: 0;
 }
 .explosive-zombie .slot-box {
+  background: #ffffff;
   transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   user-select: none;
 }
 .explosive-zombie .slot-box:hover {
   border-color: #3b2818;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: #f8f8f8;
 }
 .explosive-zombie .slot-box.filled {
   cursor: grab;
@@ -423,6 +426,13 @@
   max-width: 100%;
   font-size: 14px;
   min-height: 48px;
+  cursor: pointer;
+  transition: background 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+.explosive-zombie .sac-grid .box.free-space:hover {
+  background: #fff8e7;
+  border-color: #5a3a31;
+  box-shadow: 0 0 5px rgba(90, 58, 49, 0.3);
 }
 .explosive-zombie .center-col {
   width: 50%;
@@ -753,6 +763,75 @@
   color: #888;
   font-size: 12px;
   border-bottom: none;
+}
+.explosive-zombie .free-space-overlay {
+  padding: 10px;
+}
+.explosive-zombie .free-space-overlay .free-space-header {
+  font-family: var(--font-title, sans-serif);
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #5a3a31;
+  border-bottom: 2px solid #5a3a31;
+  padding-bottom: 4px;
+}
+.explosive-zombie .free-space-overlay .free-space-header i {
+  margin-right: 6px;
+}
+.explosive-zombie .free-space-overlay .free-space-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 4px;
+}
+.explosive-zombie .free-space-overlay .free-space-grid .slot-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #f0f0f0;
+  border: 2px solid black;
+  border-radius: 4px;
+  font-family: var(--font-data, cursive);
+  font-size: 16px;
+  cursor: grab;
+  user-select: none;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
+}
+.explosive-zombie .free-space-overlay .free-space-grid .slot-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  background: #ffffff;
+}
+.explosive-zombie .free-space-overlay .free-space-grid .slot-box:active {
+  cursor: grabbing;
+}
+.explosive-zombie .free-space-overlay .free-space-grid .slot-box .item-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.explosive-zombie .free-space-overlay .free-space-grid .slot-box .remove-free-item {
+  margin-left: 8px;
+  color: #a00;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.7;
+}
+.explosive-zombie .free-space-overlay .free-space-grid .slot-box .remove-free-item:hover {
+  opacity: 1;
+  color: #e00;
+}
+.explosive-zombie .free-space-overlay .free-space-grid .empty-notice {
+  grid-column: -1;
+  font-style: italic;
+  color: #777;
+  text-align: center;
+  padding: 20px;
 }
 .explosive-zombie .item-list {
   list-style: none;

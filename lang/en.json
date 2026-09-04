@@ -49,5 +49,8 @@
   "SIMPLE.SlotOther": "Non rangé",
   "SIMPLE.NoItems": "Aucun objet",
   "SIMPLE.ItemSync": "Synchroniser avec la fiche",
-  "SIMPLE.NotifyInventorySynced": "Inventaire synchronisé avec les objets de l'acteur."
+  "SIMPLE.NotifyInventorySynced": "Inventaire synchronisé avec les objets de l'acteur.",
+  "SIMPLE.FreeSpaceTitle": "Petits objets (Sac à dos)",
+  "SIMPLE.FreeSpaceItemTooltip": "Glisser pour déplacer / Supprimer pour vider",
+  "SIMPLE.FreeSpaceEmpty": "Aucun petit objet dans le sac à dos."
 }

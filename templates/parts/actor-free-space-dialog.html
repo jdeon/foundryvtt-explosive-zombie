@@ -1,0 +1,20 @@
+<div class="explosive-zombie free-space-overlay">
+    <div class="free-space-header">
+        <i class="fas fa-box-open"></i> {{localize "SIMPLE.FreeSpaceTitle"}}
+    </div>
+    <div class="free-space-grid">
+        {{#each freeSpaceItems}}
+        <div class="box data-val slot-box filled"
+             data-inventory-section="backpack"
+             data-slot-index="{{@index}}"
+             data-item-id="{{this.item}}"
+             draggable="true"
+             title="{{this.title}} - {{localize "SIMPLE.FreeSpaceItemTooltip"}}">
+            <span class="item-title">{{this.title}}</span>
+            <a class="remove-free-item" data-item-id="{{this.item}}" data-slot-index="{{@index}}" title="{{localize "SIMPLE.ItemDelete"}}"><i class="fas fa-trash"></i></a>
+        </div>
+        {{else}}
+        <div class="empty-notice">{{localize "SIMPLE.FreeSpaceEmpty"}}</div>
+        {{/each}}
+    </div>
+</div>

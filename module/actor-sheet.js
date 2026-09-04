@@ -114,6 +114,28 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     context.skills = context.system.skills;
     context.inventory = context.system.inventory;
 
+    // Categorize items by slotType for divided tab view
+    const itemsBySlot = [
+      { id: "equipped", labelKey: "SIMPLE.SlotEquipped", icon: "fas fa-shield-alt", items: [] },
+      { id: "belt", labelKey: "SIMPLE.SlotBelt", icon: "fas fa-ring", items: [] },
+      { id: "backpack", labelKey: "SIMPLE.SlotBackpack", icon: "fas fa-briefcase", items: [] },
+      { id: "other", labelKey: "SIMPLE.SlotOther", icon: "fas fa-box-open", items: [] }
+    ];
+    const slotMap = {
+      equipped: itemsBySlot[0],
+      belt: itemsBySlot[1],
+      backpack: itemsBySlot[2],
+      other: itemsBySlot[3]
+    };
+
+    for (const itemData of (context.data.items || [])) {
+      const slotType = itemData.system?.slotType;
+      const targetGroup = slotMap[slotType] || slotMap.other;
+      targetGroup.items.push(itemData);
+    }
+
+    context.itemsBySlot = itemsBySlot;
+
     return context;
   }
 
@@ -296,7 +318,62 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         return item.sheet.render(true);
       case "delete":
         return item.delete();
+      case "sync":
+        return this._onSyncInventory();
     }
+  }
+
+  /**
+   * Synchronize the actor's inventory grid with actor.items.
+   * Removes any inventory slot entry that references an item ID not present in actor.items,
+   * and updates system.slotType on existing item documents.
+   * @private
+   */
+  async _onSyncInventory() {
+    const inventory = foundry.utils.duplicate(this.actor.system.inventory || {});
+    const existingItemIds = new Set(this.actor.items.keys());
+
+    // 1. Filter out slot entries referencing missing item IDs across all inventory sections
+    for (const [sectionName, section] of Object.entries(inventory)) {
+      if (!section || typeof section !== "object") continue;
+
+      if (Array.isArray(section.contain)) {
+        section.contain = section.contain.filter(slot => slot && slot.item && existingItemIds.has(slot.item));
+      }
+
+      if (Array.isArray(section.freeSpace)) {
+        section.freeSpace = section.freeSpace.filter(slot => slot && slot.item && existingItemIds.has(slot.item));
+      }
+    }
+
+    // 2. Update actor's inventory state
+    await this.actor.update({ "system.inventory": inventory });
+
+    // 3. Ensure item system.slotType properties match the current inventory layout
+    const itemUpdates = [];
+    for (const item of this.actor.items) {
+      let currentSlot = "";
+      if (inventory.equipped?.contain?.some(s => s.item === item.id)) {
+        currentSlot = "equipped";
+      } else if (inventory.belt?.contain?.some(s => s.item === item.id)) {
+        currentSlot = "belt";
+      } else if (
+        inventory.backpack?.contain?.some(s => s.item === item.id) ||
+        inventory.backpack?.freeSpace?.some(s => s.item === item.id)
+      ) {
+        currentSlot = "backpack";
+      }
+
+      if (item.system.slotType !== currentSlot) {
+        itemUpdates.push({ _id: item.id, "system.slotType": currentSlot });
+      }
+    }
+
+    if (itemUpdates.length > 0) {
+      await this.actor.updateEmbeddedDocuments("Item", itemUpdates);
+    }
+
+    ui.notifications.info(game.i18n.localize("SIMPLE.NotifyInventorySynced"));
   }
 
   /* -------------------------------------------- */
@@ -340,8 +417,7 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       }
 
       if (data.type === "Item") {
-        await this._onDropItemToInventory(event, data, section, targetIndex);
-        return super._onDrop(event);
+        return this._onDropItemToInventory(event, data, section, targetIndex);
       }
     }
 
@@ -358,30 +434,52 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
    * @private
    */
   async _onDropItemToInventory(event, data, section, targetIndex) {
-    let item;
+    let droppedItem;
     try {
-      item = await Item.fromDropData(data);
+      droppedItem = await Item.fromDropData(data);
     } catch (err) {
       console.error(err);
       return false;
+    }
+    if (!droppedItem) return false;
+
+    // Check if the item is already owned by this actor
+    let item;
+    let isNewItem = false;
+    if (droppedItem.parent === this.actor || this.actor.items.has(droppedItem.id)) {
+      item = droppedItem;
+      await item.update({ "system.slotType": section });
+    } else {
+      // Add item to generic actor.items with slotType property set
+      const itemData = droppedItem.toObject();
+      foundry.utils.setProperty(itemData, "system.slotType", section);
+      const createdItems = await this.actor.createEmbeddedDocuments("Item", [itemData]);
+      item = createdItems[0];
+      isNewItem = true;
     }
     if (!item) return false;
 
     const itemName = item.name;
     const inventory = foundry.utils.duplicate(this.actor.system.inventory || {});
     const targetContainer = inventory[section];
-    if (!targetContainer || !Array.isArray(targetContainer.contain)) return;
-
-    if (targetContainer.size < targetContainer.contain.length + item.system.requiredSlots && targetContainer.contain.length > 0) {
-      ui.notifications.error(game.i18n.localize("SIMPLE.ErrorInventoryFull"));
+    if (!targetContainer || !Array.isArray(targetContainer.contain)) {
+      if (isNewItem) await item.delete();
       return false;
     }
 
-    if (item.system.requiredSlots > 1) {
-      for (let i = 1; i <= item.system.requiredSlots; i++) {
-        targetContainer.contain.push({ title: `${itemName} (${i}/${item.system.requiredSlots})`, item: item.id });
+    const requiredSlots = Number(item.system?.requiredSlots ?? 1);
+
+    if (targetContainer.size < targetContainer.contain.length + requiredSlots && targetContainer.contain.length > 0) {
+      ui.notifications.error(game.i18n.localize("SIMPLE.ErrorInventoryFull"));
+      if (isNewItem) await item.delete();
+      return false;
+    }
+
+    if (requiredSlots > 1) {
+      for (let i = 1; i <= requiredSlots; i++) {
+        targetContainer.contain.push({ title: `${itemName} (${i}/${requiredSlots})`, item: item.id });
       }
-    } else if (item.system.requiredSlots === 0 && Array.isArray(targetContainer.freeSpace)) {
+    } else if (requiredSlots === 0 && Array.isArray(targetContainer.freeSpace)) {
       targetContainer.freeSpace.push({ title: itemName, item: item.id });
     } else {
       targetContainer.contain.push({ title: itemName, item: item.id });
@@ -432,9 +530,11 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const container = inventory[section];
     if (!container || !Array.isArray(container.contain)) return;
 
+    //TODO add a confirm dialog
     if (container.contain[index]?.item) {
       this._removeItemFromInventory(container.contain[index].item, section);
     }
+    //TODO generate a chatmessage
   }
 
   /**
@@ -458,6 +558,19 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
 
     await this.actor.update({ "system.inventory": inventory });
+
+    // Clear item's system.slotType if it is no longer in any inventory container
+    const item = this.actor.items.get(itemId);
+    if (item) {
+      const stillInInventory = Object.values(inventory).some(cont =>
+        cont?.contain?.some(slot => slot.item === itemId) ||
+        cont?.freeSpace?.some(slot => slot.item === itemId)
+      );
+      if (!stillInInventory) {
+        await item.delete();
+      }
+    }
+
     return true;
   }
 }

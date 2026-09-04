@@ -77,7 +77,8 @@
         "capacity": 0,
         "loadAmmo": 0,
         "remainingAmmo": 0
-      }
+      },
+      "slotType": ""
     }
   }
 }

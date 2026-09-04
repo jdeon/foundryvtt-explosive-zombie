@@ -29,6 +29,7 @@
   /* Inventory & Skills Section */
   /* Footer Section */
   /* Item Card Styles */
+  /* Items Section */
   /* Items List */
   /* Attributes */
 }
@@ -719,6 +720,40 @@
   overflow-wrap: anywhere;
   hyphens: auto;
 }
+.explosive-zombie .item-section {
+  margin-bottom: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+.explosive-zombie .item-section .item-section-header {
+  margin: 0 0 4px 0;
+  padding: 4px 0;
+  border-bottom: 2px solid #5a3a31;
+  font-family: var(--font-title, sans-serif);
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  align-items: center;
+}
+.explosive-zombie .item-section .item-section-header i {
+  margin-right: 6px;
+  color: #5a3a31;
+}
+.explosive-zombie .item-section .item-section-header .item-section-count {
+  font-size: 12px;
+  color: #777;
+  margin-left: 6px;
+  font-weight: normal;
+}
+.explosive-zombie .item-section .empty-section-notice {
+  padding: 6px 0;
+  font-style: italic;
+  color: #888;
+  font-size: 12px;
+  border-bottom: none;
+}
 .explosive-zombie .item-list {
   list-style: none;
   margin: 7px 0;
@@ -755,6 +790,30 @@
   font-size: 11px;
   flex: none;
   width: auto;
+}
+.explosive-zombie .items-footer-controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+.explosive-zombie .items-footer-controls .item-control {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  color: #333;
+  text-decoration: none;
+  font-size: 13px;
+  font-family: var(--font-main, sans-serif);
+  transition: background 0.15s ease-in-out;
+}
+.explosive-zombie .items-footer-controls .item-control:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: #000;
 }
 .explosive-zombie .attributes {
   position: relative;

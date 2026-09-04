@@ -1,5 +1,7 @@
 import { EntitySheetHelper } from "./helper.js";
 
+
+//TODO create Zombie Actor class and reward actor class
 /**
  * Extend the base Actor document to support attributes and groups with a custom template creation dialog.
  * @extends {Actor}

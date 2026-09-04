@@ -42,5 +42,12 @@
   "SIMPLE.TabItems": "Objets",
   "SIMPLE.TabAttributes": "Attributs",
   "SIMPLE.SkillAdd": "Ajouter une compétence",
-  "SIMPLE.SkillDelete": "Supprimer"
+  "SIMPLE.SkillDelete": "Supprimer",
+  "SIMPLE.SlotEquipped": "Équipé",
+  "SIMPLE.SlotBelt": "Ceinture",
+  "SIMPLE.SlotBackpack": "Sac à dos",
+  "SIMPLE.SlotOther": "Non rangé",
+  "SIMPLE.NoItems": "Aucun objet",
+  "SIMPLE.ItemSync": "Synchroniser avec la fiche",
+  "SIMPLE.NotifyInventorySynced": "Inventaire synchronisé avec les objets de l'acteur."
 }

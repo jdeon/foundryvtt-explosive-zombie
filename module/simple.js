@@ -31,7 +31,7 @@ Hooks.once("init", async function () {
     decimals: 2
   };
 
-  game.worldbuilding = {
+  game.explosiveZombie = {
     SimpleActor,
     createWorldbuildingMacro
   };

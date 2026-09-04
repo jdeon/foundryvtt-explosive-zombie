@@ -12,7 +12,7 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   /** @override */
   static DEFAULT_OPTIONS = {
-    classes: ["worldbuilding", "sheet", "actor"],
+    classes: ["explosive-zombie", "sheet", "actor"],
     position: {
       width: 780,
       height: 'auto'

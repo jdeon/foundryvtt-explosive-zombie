@@ -12,7 +12,7 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
   /** @override */
   static DEFAULT_OPTIONS = {
-    classes: ["worldbuilding", "sheet", "item"],
+    classes: ["explosive-zombie", "sheet", "item"],
     position: {
       width: 580,
       height: 620

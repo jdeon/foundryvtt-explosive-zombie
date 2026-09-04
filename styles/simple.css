@@ -1,28 +1,44 @@
-/** Actor styles **/
+/** Actor & Item styles for Explosive Zombie system **/
 :root {
   --thick: 5px solid black;
   --med: 3px solid black;
   --thin: 2px solid black;
   --font-main: 'Special Elite', 'Courier New', Courier, monospace;
   --font-data: 'Caveat', cursive;
-  /* Pour différencier le texte fixe des données JSON */
+  --metal-light: #f0f0f0;
+  --metal-mid: #dcdcdc;
+  --metal-dark: #a0a0a0;
+  --metal-border: #777;
+  --table-border: #5a3a31;
+  --bg-parchment: #f4ece1;
+  --table-bg: #fffbf5;
+  --header-bg: #e5d4c0;
+  --font-title: 'Yanone Kaffeesatz', sans-serif;
 }
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background-color: #f4f4f4;
+/* System Container Class for Actor and Item Sheets */
+.explosive-zombie {
   display: flex;
-  justify-content: center;
-  padding: 40px 20px;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  /* Navigation Tabs */
+  /* Classic Form Styles */
+  /* Actor Sheet View Cadres */
+  /* Header Section */
+  /* Stats & Health Section */
+  /* Inventory & Skills Section */
+  /* Footer Section */
+  /* Item Card Styles */
+  /* Items List */
+  /* Attributes */
 }
-
-/* Navigation Tabs */
-.sheet-tabs.tabs {
+.explosive-zombie,
+.explosive-zombie *,
+.explosive-zombie *::before,
+.explosive-zombie *::after {
+  box-sizing: border-box;
+}
+.explosive-zombie .sheet-tabs.tabs {
   flex: 0 0 38px;
   border-bottom: 2px solid #333;
   display: flex;
@@ -32,8 +48,7 @@ body {
   border-radius: 6px 6px 0 0;
   padding: 4px 6px 0 6px;
 }
-
-.sheet-tabs.tabs .item {
+.explosive-zombie .sheet-tabs.tabs .item {
   padding: 6px 14px;
   font-family: var(--font-main, sans-serif);
   font-weight: bold;
@@ -47,8 +62,7 @@ body {
   cursor: pointer;
   transition: background 0.15s ease-in-out;
 }
-
-.sheet-tabs.tabs .item.active {
+.explosive-zombie .sheet-tabs.tabs .item.active {
   background: #ffffff;
   color: #000000;
   border-color: #333;
@@ -57,22 +71,16 @@ body {
   font-weight: 800;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.08);
 }
-
-.sheet-body {
+.explosive-zombie .tab {
   flex: 1;
-  overflow: hidden;
-}
-
-.sheet-body .tab,
-form.sheet .tab,
-.window-content .tab {
-  flex: 1;
-  height: 100%;
+  min-height: 0;
   overflow-y: auto;
 }
-
-/* Classic Form Styles */
-.classic-form {
+.explosive-zombie .editor,
+.explosive-zombie .editor-content {
+  height: 100%;
+}
+.explosive-zombie .classic-form {
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -82,40 +90,35 @@ form.sheet .tab,
   border: 1px solid #ccc;
   color: #222;
 }
-
-.classic-form .form-section {
+.explosive-zombie .classic-form .form-section {
   border: 1px solid #bbb;
   border-radius: 6px;
   padding: 12px 16px;
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
-
-.classic-form .form-section legend {
+.explosive-zombie .classic-form .form-section legend {
   font-weight: bold;
   font-size: 14px;
   padding: 0 8px;
   color: #222;
 }
-
-.classic-form .form-group {
+.explosive-zombie .classic-form .form-group {
   margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-
-.classic-form .form-group label {
+.explosive-zombie .classic-form .form-group label {
   font-weight: 600;
   font-size: 12px;
   color: #444;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-
-.classic-form input[type="text"],
-.classic-form input[type="number"],
-.classic-form textarea {
+.explosive-zombie .classic-form input[type="text"],
+.explosive-zombie .classic-form input[type="number"],
+.explosive-zombie .classic-form textarea {
   width: 100%;
   padding: 6px 10px;
   border: 1px solid #aaa;
@@ -124,38 +127,31 @@ form.sheet .tab,
   background: #fff;
   color: #111;
 }
-
-.classic-form input[type="text"]:focus,
-.classic-form input[type="number"]:focus,
-.classic-form textarea:focus {
+.explosive-zombie .classic-form input[type="text"]:focus,
+.explosive-zombie .classic-form input[type="number"]:focus,
+.explosive-zombie .classic-form textarea:focus {
   border-color: #0076df;
   outline: none;
   box-shadow: 0 0 4px rgba(0, 118, 223, 0.3);
 }
-
-.classic-form .form-grid {
+.explosive-zombie .classic-form .form-grid {
   display: grid;
   gap: 12px;
 }
-
-.classic-form .grid-2col {
+.explosive-zombie .classic-form .grid-2col {
   grid-template-columns: 1fr 1fr;
 }
-
-.classic-form .grid-3col {
+.explosive-zombie .classic-form .grid-3col {
   grid-template-columns: 1fr 1fr 1fr;
 }
-
-.classic-form .grid-4col {
+.explosive-zombie .classic-form .grid-4col {
   grid-template-columns: 1fr 1fr 1fr 1fr;
 }
-
-.classic-form .button-row {
+.explosive-zombie .classic-form .button-row {
   display: flex;
   gap: 8px;
 }
-
-.classic-form button {
+.explosive-zombie .classic-form button {
   padding: 6px 12px;
   font-size: 12px;
   font-weight: bold;
@@ -165,35 +161,29 @@ form.sheet .tab,
   cursor: pointer;
   color: #222;
 }
-
-.classic-form button:hover {
+.explosive-zombie .classic-form button:hover {
   background: #e0e0e0;
 }
-
-.skills-list-edit {
+.explosive-zombie .skills-list-edit {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-top: 8px;
 }
-
-.skill-edit-row {
+.explosive-zombie .skill-edit-row {
   display: flex;
   gap: 8px;
   align-items: center;
 }
-
-.skill-edit-row input[type="text"] {
+.explosive-zombie .skill-edit-row input[type="text"] {
   flex: 1;
 }
-
-.skill-edit-row input.skill-val-input {
+.explosive-zombie .skill-edit-row input.skill-val-input {
   width: 80px;
   flex: 0 0 80px;
   text-align: center;
 }
-
-.btn-add {
+.explosive-zombie .btn-add {
   font-size: 12px;
   padding: 4px 8px;
   background: #2e7d32;
@@ -202,30 +192,24 @@ form.sheet .tab,
   border-radius: 4px;
   cursor: pointer;
 }
-
-.btn-add:hover {
+.explosive-zombie .btn-add:hover {
   background: #1b5e20;
 }
-
-.btn-del {
+.explosive-zombie .btn-del {
   color: #d32f2f;
   padding: 6px;
   cursor: pointer;
 }
-
-.btn-del:hover {
+.explosive-zombie .btn-del:hover {
   color: #b71c1c;
 }
-
-.empty-msg {
+.explosive-zombie .empty-msg {
   font-style: italic;
   color: #777;
   font-size: 13px;
   margin: 4px 0;
 }
-
-/* Cadres */
-.sheet-outer {
+.explosive-zombie .sheet-outer {
   width: 100%;
   max-width: 800px;
   background-color: #fdfcf8;
@@ -233,8 +217,7 @@ form.sheet .tab,
   padding: 6px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
-
-.sheet-inner {
+.explosive-zombie .sheet-inner {
   border: var(--thin);
   display: flex;
   flex-direction: column;
@@ -242,58 +225,48 @@ form.sheet .tab,
   font-family: var(--font-main);
   font-weight: bold;
 }
-
-/* --- EN-TÊTE --- */
-.header-section {
+.explosive-zombie .header-section {
   display: flex;
   justify-content: space-between;
   padding: 25px;
   border-bottom: var(--thick);
 }
-
-.header-text {
+.explosive-zombie .header-text {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding-right: 20px;
 }
-
-.header-row {
+.explosive-zombie .header-row {
   font-size: 28px;
   line-height: 1;
 }
-
-.dashed-line {
+.explosive-zombie .dashed-line {
   width: 90%;
   height: 10px;
   border-bottom: 4px dashed black;
   margin-top: -10px;
 }
-
-.portrait-outer {
+.explosive-zombie .portrait-outer {
   width: 160px;
   height: 160px;
   border: var(--med);
   padding: 4px;
   flex-shrink: 0;
 }
-
-.portrait-inner {
+.explosive-zombie .portrait-inner {
   width: 100%;
   height: 100%;
   border: 1px solid black;
   background-size: cover;
   background-position: center;
 }
-
-/* --- STATS & SANTÉ --- */
-.stats-section {
+.explosive-zombie .stats-section {
   display: flex;
   border-bottom: var(--thick);
 }
-
-.stats-col {
+.explosive-zombie .stats-col {
   width: 50%;
   border-right: var(--thick);
   padding: 20px 30px;
@@ -302,43 +275,37 @@ form.sheet .tab,
   gap: 15px;
   justify-content: center;
 }
-
-.stat-row {
+.explosive-zombie .stat-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 26px;
   letter-spacing: 1px;
 }
-
-.stat-bracket-box {
+.explosive-zombie .stat-bracket-box {
   display: flex;
   align-items: center;
   gap: 2px;
 }
-
-.stat-bracket-box .bracket {
+.explosive-zombie .stat-bracket-box .bracket {
   font-size: 44px;
   font-weight: bold;
   line-height: 1;
 }
-
-.stat-inner-stack {
+.explosive-zombie .stat-inner-stack {
   display: flex;
   flex-direction: column;
   align-items: center;
   line-height: 1;
 }
-
-.stat-underscores {
+.explosive-zombie .stat-underscores {
   font-size: 18px;
   line-height: 0.5;
   margin-top: -2px;
   letter-spacing: 5px;
   margin-right: -5px;
 }
-
-.health-col {
+.explosive-zombie .health-col {
   width: 50%;
   padding: 20px;
   display: flex;
@@ -347,134 +314,123 @@ form.sheet .tab,
   justify-content: center;
   gap: 10px;
 }
-
-.health-title {
+.explosive-zombie .health-title {
   font-size: 26px;
   margin-bottom: 5px;
 }
-
-.box-row {
+.explosive-zombie .box-row {
   display: flex;
   gap: 12px;
   margin-bottom: 10px;
 }
-
-.box {
+.explosive-zombie .box {
   width: 45px;
   height: 45px;
+  min-height: 45px;
   border: var(--med);
   border-radius: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-shrink: 0;
 }
-
-.box-checked {
+.explosive-zombie .box-checked {
   font-family: var(--font-data);
   font-size: 40px;
   color: #b30000;
   line-height: 0;
 }
-
-.slot-box {
+.explosive-zombie .slot-box {
   transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   user-select: none;
 }
-
-.slot-box:hover {
+.explosive-zombie .slot-box:hover {
   border-color: #3b2818;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: rgba(0, 0, 0, 0.03);
 }
-
-.slot-box.filled {
+.explosive-zombie .slot-box.filled {
   cursor: grab;
 }
-
-.slot-box.filled:active {
+.explosive-zombie .slot-box.filled:active {
   cursor: grabbing;
 }
-
-.slot-box.empty {
+.explosive-zombie .slot-box.empty {
   cursor: pointer;
 }
-
-/* Croix rouge pour les cases cochées */
-
-/* --- INVENTAIRE & COMPÉTENCES --- */
-.inventory-section {
+.explosive-zombie .inventory-section {
   display: flex;
   border-bottom: var(--thick);
 }
-
-.side-col {
+.explosive-zombie .side-col {
   width: 25%;
   padding: 20px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
-.side-col.left {
+.explosive-zombie .side-col.left {
   border-right: var(--thick);
 }
-
-.side-col.right {
+.explosive-zombie .side-col.right {
   border-left: var(--thick);
 }
-
-.section-title {
+.explosive-zombie .section-title {
   font-size: 22px;
   margin-bottom: 25px;
   text-align: center;
 }
-
-.ceinture-boxes {
+.explosive-zombie .ceinture-boxes {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 15px;
   width: 100%;
 }
-
-.ceinture-boxes .box {
+.explosive-zombie .ceinture-boxes .box {
   width: 100px;
   height: 48px;
+  min-height: 48px;
   font-size: 20px;
+  flex-shrink: 0;
 }
-
-.sac-grid {
+.explosive-zombie .sac-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   width: 100%;
   justify-items: center;
+  align-items: center;
 }
-
-.sac-grid .box {
+.explosive-zombie .sac-grid .box {
   width: 100%;
   max-width: 75px;
   height: 48px;
+  min-height: 48px;
   font-size: 18px;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  word-break: break-word;
+  flex-shrink: 0;
 }
-
-.sac-grid .box.free-space {
+.explosive-zombie .sac-grid .box.free-space {
   grid-column: 1 / -1;
   width: 100%;
   max-width: 100%;
   font-size: 14px;
+  min-height: 48px;
 }
-
-.center-col {
+.explosive-zombie .center-col {
   width: 50%;
   padding: 20px 25px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
-.skills-grid {
+.explosive-zombie .skills-grid {
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -482,16 +438,14 @@ form.sheet .tab,
   margin-bottom: 20px;
   box-sizing: border-box;
 }
-
-.skill-item {
+.explosive-zombie .skill-item {
   display: flex;
   align-items: center;
   gap: 6px;
   min-width: 0;
   width: 100%;
 }
-
-.skill-rect {
+.explosive-zombie .skill-rect {
   flex: 1 1 0;
   min-width: 0;
   min-height: 30px;
@@ -506,17 +460,14 @@ form.sheet .tab,
   word-break: break-word;
   line-height: 1.2;
 }
-
-.skill-item .data-val {
+.explosive-zombie .skill-item .data-val {
   font-size: 16px;
 }
-
-.skill-brackets {
+.explosive-zombie .skill-brackets {
   flex-shrink: 0;
   white-space: nowrap;
 }
-
-.large-text-area {
+.explosive-zombie .large-text-area {
   width: 100%;
   flex-grow: 1;
   min-height: 140px;
@@ -526,21 +477,17 @@ form.sheet .tab,
   font-size: 24px;
   white-space: pre-wrap;
 }
-
-/* --- PIED DE PAGE --- */
-.footer-section {
+.explosive-zombie .footer-section {
   padding: 30px 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
-.dotted-line-container {
+.explosive-zombie .dotted-line-container {
   width: 100%;
   margin-bottom: 25px;
 }
-
-.dotted-line-text {
+.explosive-zombie .dotted-line-text {
   border-bottom: 4px dashed black;
   min-height: 35px;
   margin-bottom: 10px;
@@ -548,58 +495,24 @@ form.sheet .tab,
   align-items: flex-end;
   padding-left: 10px;
 }
-
-.equip-title {
+.explosive-zombie .equip-title {
   font-size: 28px;
   margin-bottom: 15px;
   margin-top: 10px;
 }
-
-.equip-boxes {
+.explosive-zombie .equip-boxes {
   display: flex;
   gap: 150px;
   width: 100%;
   justify-content: center;
 }
-
-.equip-boxes .box,
-.equip-box {
+.explosive-zombie .equip-boxes .box,
+.explosive-zombie .equip-boxes .equip-box {
   width: 200px;
   height: 48px;
   font-size: 20px;
 }
-
-
-/** Item styles **/
-:root {
-  --metal-light: #f0f0f0;
-  --metal-mid: #dcdcdc;
-  --metal-dark: #a0a0a0;
-  --metal-border: #777;
-  --table-border: #5a3a31;
-  --bg-parchment: #f4ece1;
-  --table-bg: #fffbf5;
-  --header-bg: #e5d4c0;
-  --font-data: 'Caveat', cursive;
-  --font-title: 'Yanone Kaffeesatz', sans-serif;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background-color: #333;
-  /* Fond sombre de la page Web pour faire ressortir la carte */
-  display: flex;
-  justify-content: center;
-  padding: 40px;
-}
-
-/* --- CONTENEUR PRINCIPAL (Effet Parchemin) --- */
-.card-container {
+.explosive-zombie .card-container {
   width: 450px;
   background-color: var(--bg-parchment);
   background-image: radial-gradient(circle, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.05) 100%);
@@ -612,21 +525,15 @@ body {
   position: relative;
   overflow: hidden;
 }
-
-/* --- STYLES MÉTALLIQUES (Cadres) --- */
-.metal-frame {
+.explosive-zombie .metal-frame {
   background: linear-gradient(to bottom, var(--metal-light) 0%, var(--metal-mid) 20%, var(--metal-dark) 100%);
   border: 1px solid var(--metal-border);
   border-radius: 8px;
   padding: 5px;
-  box-shadow:
-    inset 0 1px 3px rgba(255, 255, 255, 0.8),
-    inset 0 -1px 3px rgba(0, 0, 0, 0.3),
-    0 4px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.8), inset 0 -1px 3px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.3);
   position: relative;
 }
-
-.inner-box {
+.explosive-zombie .inner-box {
   background-color: #fff;
   border: 2px solid #555;
   border-radius: 4px;
@@ -634,9 +541,7 @@ body {
   width: 100%;
   height: 100%;
 }
-
-/* Rivets génériques */
-.rivet {
+.explosive-zombie .rivet {
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -645,41 +550,50 @@ body {
   position: absolute;
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
 }
-
-/* --- BARRE DE TITRE --- */
-.top-bar {
+.explosive-zombie .top-bar {
   height: 60px;
   display: flex;
 }
-
-.top-bar .inner-box {
+.explosive-zombie .top-bar .inner-box {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 15px;
 }
-
-.item-title-group {
+.explosive-zombie .top-bar .rivet:nth-child(2) {
+  top: 4px;
+  left: 4px;
+}
+.explosive-zombie .top-bar .rivet:nth-child(3) {
+  top: 4px;
+  right: 4px;
+}
+.explosive-zombie .top-bar .rivet:nth-child(4) {
+  bottom: 4px;
+  left: 4px;
+}
+.explosive-zombie .top-bar .rivet:nth-child(5) {
+  bottom: 4px;
+  right: 4px;
+}
+.explosive-zombie .item-title-group {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
-.item-name {
+.explosive-zombie .item-name {
   font-family: var(--font-data);
   font-size: 34px;
   color: #222;
 }
-
-.item-slot-box {
+.explosive-zombie .item-slot-box {
   width: 50px;
   height: 38px;
   font-size: 22px;
   background-color: #fff;
   flex-shrink: 0;
 }
-
-.item-munitions {
+.explosive-zombie .item-munitions {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -691,94 +605,57 @@ body {
   border-radius: 4px;
   border: 1px solid #aaa;
 }
-
-.item-munitions i {
+.explosive-zombie .item-munitions i {
   font-size: 16px;
   color: #555;
 }
-
-.top-bar .rivet:nth-child(2) {
-  top: 4px;
-  left: 4px;
-}
-
-.top-bar .rivet:nth-child(3) {
-  top: 4px;
-  right: 4px;
-}
-
-.top-bar .rivet:nth-child(4) {
-  bottom: 4px;
-  left: 4px;
-}
-
-.top-bar .rivet:nth-child(5) {
-  bottom: 4px;
-  right: 4px;
-}
-
-/* --- ILLUSTRATION --- */
-.image-box {
+.explosive-zombie .image-box {
   height: 350px;
   padding: 8px;
 }
-
-.image-box .inner-box {
+.explosive-zombie .image-box .inner-box {
   background-color: #000;
-  /* Fond noir par défaut s'il n'y a pas d'image */
   background-size: cover;
   background-position: center;
   border-radius: 6px;
   border: 3px solid #333;
 }
-
-/* --- ZONE INFÉRIEURE ET TABLEAU --- */
-.bottom-section {
+.explosive-zombie .bottom-section {
   position: relative;
   margin: 0 -20px;
-  /* Force l'étirement du bloc sur les bords latéraux du parchemin */
   padding: 10px 20px;
   background: linear-gradient(to right, #d3cabc 0%, #e8ded1 10%, #e8ded1 90%, #d3cabc 100%);
   border-top: 1px solid #a89f91;
   border-bottom: 1px solid #a89f91;
 }
-
-/* Rivets latéraux du bas */
-.side-rivet {
+.explosive-zombie .side-rivet {
   width: 12px;
   height: 12px;
   position: absolute;
   left: 5px;
 }
-
-.side-rivet.right {
+.explosive-zombie .side-rivet.right {
   left: auto;
   right: 5px;
 }
-
-.sr-1 {
+.explosive-zombie .sr-1 {
   top: 15px;
 }
-
-.sr-2 {
+.explosive-zombie .sr-2 {
   top: 50%;
   transform: translateY(-50%);
 }
-
-.sr-3 {
+.explosive-zombie .sr-3 {
   bottom: 15px;
 }
-
-.table-frame {
+.explosive-zombie .table-frame {
   border: 2px solid var(--metal-border);
   border-radius: 4px;
   background-color: var(--metal-light);
   padding: 4px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
-
-/* Utilisation de CSS Grid pour dessiner le tableau fidèlement */
-.stats-table {
+.explosive-zombie .stats-table {
   display: grid;
   grid-template-columns: 35px 35px 90px 40px minmax(0, 1fr);
   background-color: var(--table-bg);
@@ -786,8 +663,7 @@ body {
   border-radius: 2px;
   width: 100%;
 }
-
-.cell {
+.explosive-zombie .cell {
   border-right: 2px solid var(--table-border);
   border-bottom: 2px solid var(--table-border);
   display: flex;
@@ -799,35 +675,28 @@ body {
   word-break: break-word;
   overflow-wrap: anywhere;
 }
-
-.cell-dice {
-  font-size: 18px !important;
-  padding: 2px 4px;
-}
-
-.cell:last-child {
+.explosive-zombie .cell:last-child {
   border-right: none;
   justify-content: flex-start;
   padding-left: 12px;
 }
-
-.table-row:last-child .cell {
+.explosive-zombie .cell-dice {
+  font-size: 18px !important;
+  padding: 2px 4px;
+}
+.explosive-zombie .table-row:last-child .cell {
   border-bottom: none;
 }
-
-/* Style de l'en-tête du tableau */
-.table-header .cell {
+.explosive-zombie .table-header .cell {
   background-color: var(--header-bg);
   color: #4a3424;
   font-size: 18px;
   border-bottom: 3px solid var(--table-border);
 }
-
-.table-header .cell i {
+.explosive-zombie .table-header .cell i {
   filter: drop-shadow(0px 1px 0px rgba(255, 255, 255, 0.6));
 }
-
-.header-effect {
+.explosive-zombie .header-effect {
   font-family: var(--font-title);
   font-size: 36px !important;
   font-weight: 700;
@@ -835,17 +704,14 @@ body {
   justify-content: center !important;
   color: #3b2818 !important;
 }
-
-/* Écriture des données JSON */
-.data-val {
+.explosive-zombie .data-val {
   font-family: var(--font-data);
   font-size: 26px;
   color: #1a1a1a;
   line-height: 1.1;
   font-weight: normal;
 }
-
-.effect-text {
+.explosive-zombie .effect-text {
   font-size: 20px;
   text-align: left;
   line-height: 1.1;
@@ -853,132 +719,30 @@ body {
   overflow-wrap: anywhere;
   hyphens: auto;
 }
-
-
-
-/** Legacy style **/
-.worldbuilding {
-  /* Sheet Tabs */
-  /* Items List */
-  /* Attributes */
-}
-
-.worldbuilding .window-content {
-  height: 100%;
-  padding: 5px;
-  overflow-y: hidden;
-}
-
-.worldbuilding form {
-  height: 100%;
-}
-
-.worldbuilding .sheet-header {
-  flex: 0 0 100px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  margin-bottom: 10px;
-}
-
-.worldbuilding .sheet-header .profile-img {
-  flex: 0 0 100px;
-  height: 100px;
-  margin-right: 10px;
-}
-
-.worldbuilding .sheet-header .header-fields {
-  flex: 1;
-  height: 100px;
-}
-
-.worldbuilding .sheet-header h1.charname {
-  height: 50px;
-  padding: 0px;
-  margin: 5px 0;
-  border-bottom: 0;
-}
-
-.worldbuilding .sheet-header h1.charname input {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-}
-
-.worldbuilding .resource {
-  width: 50%;
-  height: 40px;
-  margin-top: 10px;
-  float: left;
-  text-align: center;
-}
-
-.worldbuilding .resource input {
-  width: 100px;
-  height: 28px;
-}
-
-.worldbuilding .tabs {
-  flex: 0 0 40px;
-  border-top: 1px solid #AAA;
-  border-bottom: 1px solid #AAA;
-}
-
-.worldbuilding .tabs .item {
-  line-height: 40px;
-  font-weight: bold;
-}
-
-.worldbuilding .tabs .item.active {
-  text-decoration: underline;
-  text-shadow: none;
-}
-
-.worldbuilding .sheet-body {
-  overflow: hidden;
-}
-
-.worldbuilding .sheet-body .tab {
-  height: 100%;
-  overflow-y: auto;
-}
-
-.worldbuilding .editor,
-.worldbuilding .editor-content {
-  height: 100%;
-}
-
-.worldbuilding .item-list {
+.explosive-zombie .item-list {
   list-style: none;
   margin: 7px 0;
   padding: 0;
   overflow-y: auto;
 }
-
-.worldbuilding .item-list .item {
+.explosive-zombie .item-list .item {
   min-height: 30px;
   line-height: 24px;
   padding: 3px 0;
   border-bottom: 1px solid #BBB;
   align-items: stretch;
 }
-
-.worldbuilding .item-list .item img {
+.explosive-zombie .item-list .item img {
   flex: 0 0 24px;
   margin-right: 5px;
 }
-
-.worldbuilding .item-list .item-name {
+.explosive-zombie .item-list .item-name {
   margin: 0;
 }
-
-.worldbuilding .item-list .item-controls {
+.explosive-zombie .item-list .item-controls {
   flex: 0 0 36px;
 }
-
-.worldbuilding .item-list .item-buttons {
+.explosive-zombie .item-list .item-buttons {
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
@@ -986,27 +750,23 @@ body {
   flex: 2;
   justify-content: flex-start;
 }
-
-.worldbuilding .item-list .item-button {
+.explosive-zombie .item-list .item-button {
   line-height: 1;
   font-size: 11px;
   flex: none;
   width: auto;
 }
-
-.worldbuilding .attributes {
+.explosive-zombie .attributes {
   position: relative;
 }
-
-.worldbuilding .attributes .attribute-control,
-.worldbuilding .attributes .group-control {
+.explosive-zombie .attributes .attribute-control,
+.explosive-zombie .attributes .group-control {
   flex: 0 0 20px;
   text-align: center;
   line-height: 28px;
   border: none;
 }
-
-.worldbuilding .attributes .attribute-roll {
+.explosive-zombie .attributes .attribute-roll {
   flex: 0 0 20px;
   text-align: center;
   border-bottom: none;
@@ -1014,13 +774,11 @@ body {
   align-items: center;
   justify-content: center;
 }
-
-.worldbuilding .attributes .group-prefix {
+.explosive-zombie .attributes .group-prefix {
   height: 31px;
   margin-right: 10px;
 }
-
-.worldbuilding .attributes .button {
+.explosive-zombie .attributes .button {
   width: 100%;
   flex: 1;
   margin: 0;
@@ -1031,13 +789,11 @@ body {
   line-height: 28px;
   display: block;
 }
-
-.worldbuilding .attributes .attribute-key {
+.explosive-zombie .attributes .attribute-key {
   background: transparent;
   border: none;
 }
-
-.worldbuilding .attributes-header {
+.explosive-zombie .attributes-header {
   position: sticky;
   top: 0;
   left: 0;
@@ -1051,14 +807,12 @@ body {
   font-weight: bold;
   z-index: 1;
 }
-
-.worldbuilding .attributes-list {
+.explosive-zombie .attributes-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-
-.worldbuilding .attributes-list li>* {
+.explosive-zombie .attributes-list li > * {
   margin: 0 3px;
   height: 28px;
   line-height: 24px;
@@ -1067,56 +821,47 @@ body {
   border-radius: 0;
   border-bottom: 1px solid #AAA;
 }
-
-.worldbuilding .attributes-list .attribute-col label {
+.explosive-zombie .attributes-list .attribute-col label {
   font-size: 10px;
   text-align: center;
   line-height: 1;
 }
-
-.worldbuilding .attributes-list .attribute-col input {
+.explosive-zombie .attributes-list .attribute-col input {
   font-size: 11px;
   text-align: center;
   line-height: 1;
   height: 50%;
 }
-
-.worldbuilding .attribute input[type="text"]::placeholder,
-.worldbuilding .group-header input[type="text"]::placeholder {
+.explosive-zombie .attribute input[type="text"]::placeholder,
+.explosive-zombie .group-header input[type="text"]::placeholder {
   opacity: 0;
   transition: opacity 0.25s ease-in-out;
 }
-
-.worldbuilding .attribute input[type="text"]:focus::placeholder,
-.worldbuilding .group-header input[type="text"]:focus::placeholder {
+.explosive-zombie .attribute input[type="text"]:focus::placeholder,
+.explosive-zombie .group-header input[type="text"]:focus::placeholder {
   opacity: 1;
 }
-
-.worldbuilding .group-controls {
+.explosive-zombie .group-controls {
   margin: 5px;
 }
-
-.worldbuilding .groups-list {
+.explosive-zombie .groups-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-
-.worldbuilding .group {
+.explosive-zombie .group {
   margin: 5px 0 0;
   padding: 0;
 }
-
-.worldbuilding .group-header {
+.explosive-zombie .group-header {
   align-items: center;
   background: rgba(0, 0, 0, 0.05);
   border: 1px solid #AAA;
   border-radius: 2px;
   padding: 2px 5px;
 }
-
-.worldbuilding .group-key,
-.worldbuilding .group-label {
+.explosive-zombie .group-key,
+.explosive-zombie .group-label {
   font-weight: bold;
   border: none;
   border-bottom: 1px solid #AAA;
@@ -1124,27 +869,22 @@ body {
   border-radius: 0;
   margin-right: 6px;
 }
-
-.worldbuilding .group-key {
+.explosive-zombie .group-key {
   opacity: 0.75;
 }
-
-.worldbuilding .group-label {
+.explosive-zombie .group-label {
   flex: 2;
 }
-
-.worldbuilding .group-dtype {
+.explosive-zombie .group-dtype {
   height: 24px;
   flex: 0 0 116px;
   margin: 0 5px;
 }
-
-.worldbuilding.sheet.actor {
+.explosive-zombie.sheet.actor {
   min-width: 560px;
   min-height: 420px;
 }
-
-.worldbuilding.sheet.item {
+.explosive-zombie.sheet.item {
   min-width: 460px;
   min-height: 400px;
 }

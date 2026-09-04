@@ -85,45 +85,7 @@ export class EntitySheetHelper {
     }
   }
 
-  /* -------------------------------------------- */
 
-  /** @override */
-  static onSubmit(event) {
-    // Closing the form/sheet will also trigger a submit, so only evaluate if this is an event.
-    if (event.currentTarget) {
-      // Exit early if this isn't a named attribute.
-      if ((event.currentTarget.tagName.toLowerCase() === 'input') && !event.currentTarget.hasAttribute('name')) {
-        return false;
-      }
-
-      let attr = false;
-      // If this is the attribute key, we need to make a note of it so that we can restore focus when its recreated.
-      const el = event.currentTarget;
-      if (el.classList.contains("attribute-key")) {
-        let val = el.value;
-        let oldVal = el.closest(".attribute").dataset.attribute;
-        let attrError = false;
-        // Prevent attributes that already exist as groups.
-        let groups = document.querySelectorAll('.group-key');
-        for (let i = 0; i < groups.length; i++) {
-          if (groups[i].value === val) {
-            ui.notifications.error(game.i18n.localize("SIMPLE.NotifyAttrDuplicate") + ` (${val})`);
-            el.value = oldVal;
-            attrError = true;
-            break;
-          }
-        }
-        // Handle value and name replacement otherwise.
-        if (!attrError) {
-          oldVal = oldVal.includes('.') ? oldVal.split('.')[1] : oldVal;
-          attr = $(el).attr('name').replace(oldVal, val);
-        }
-      }
-
-      // Return the attribute key if set, or true to confirm the submission should be triggered.
-      return attr ? attr : true;
-    }
-  }
 
   /* -------------------------------------------- */
 
@@ -331,7 +293,7 @@ export class EntitySheetHelper {
     // Append the form element and submit the form.
     newKey = newKey.children[0];
     form.appendChild(newKey);
-    await app._onSubmit(event);
+    await app.submit();
   }
 
   /**
@@ -345,7 +307,7 @@ export class EntitySheetHelper {
     const li = a.closest(".attribute");
     if (li) {
       li.parentElement.removeChild(li);
-      await app._onSubmit(event);
+      await app.submit();
     }
   }
 
@@ -368,7 +330,7 @@ export class EntitySheetHelper {
       // Append the form element and submit the form.
       newKey = newKey.children[0];
       form.appendChild(newKey);
-      await app._onSubmit(event);
+      await app.submit();
     }
   }
 
@@ -395,7 +357,7 @@ export class EntitySheetHelper {
           label: game.i18n.localize("Yes"),
           callback: async () => {
             groupContainer.parentElement.removeChild(groupContainer);
-            await app._onSubmit(event);
+            await app.submit();
           }
         },
         cancel: {

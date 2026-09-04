@@ -208,6 +208,7 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       }
     });
 
+    html.find('.slot-box.filled').on('click', this._onSlotBoxClick.bind(this));
     html.find('.slot-box').on('contextmenu', this._onClearSlot.bind(this));
     html.find('.box.free-space').on('click', this._onOpenFreeSpaceOverlay.bind(this));
     this._updateFreeSpaceOverlay();
@@ -470,6 +471,16 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       }, false);
     });
 
+    dialogElem.find('.slot-box').off('click').on('click', ev => {
+      if ($(ev.target).closest('.remove-free-item').length) return;
+      ev.preventDefault();
+      const itemId = ev.currentTarget.dataset.itemId;
+      if (itemId) {
+        const item = this.actor.items.get(itemId);
+        if (item) item.sheet.render(true);
+      }
+    });
+
     dialogElem.find('.remove-free-item').off('click').on('click', async ev => {
       ev.preventDefault();
       ev.stopPropagation();
@@ -478,6 +489,21 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         await this._removeItemFromInventory(itemId, "backpack");
       }
     });
+  }
+
+  /**
+   * Handle left click on an inventory slot box to open the item sheet
+   * @param {Event} event
+   * @private
+   */
+  _onSlotBoxClick(event) {
+    event.preventDefault();
+    const itemId = event.currentTarget.dataset.itemId;
+    if (!itemId) return;
+    const item = this.actor.items.get(itemId);
+    if (item) {
+      item.sheet.render(true);
+    }
   }
 
   /* -------------------------------------------- */

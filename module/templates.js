@@ -16,7 +16,8 @@ export const preloadHandlebarsTemplates = async function () {
     "systems/explosive-zombie/templates/parts/actor-tab-edit.html",
     "systems/explosive-zombie/templates/parts/actor-tab-items.html",
     "systems/explosive-zombie/templates/parts/actor-tab-attributes.html",
-    "systems/explosive-zombie/templates/parts/zombie-tab-sheet.html"
+    "systems/explosive-zombie/templates/parts/zombie-tab-sheet.html",
+    "systems/explosive-zombie/templates/parts/chest-tab-sheet.html"
   ];
 
   // Load the template parts

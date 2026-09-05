@@ -2,7 +2,8 @@
   "Actor": {
     "types": [
       "character",
-      "zombie"
+      "zombie",
+      "chest"
     ],
     "htmlFields": [
       "biography",
@@ -59,6 +60,12 @@
       "actionNumber": 2,
       "thresholdDice": 6,
       "diceNumber": 1,
+      "notes": ""
+    },
+    "chest": {
+      "name": "",
+      "foodRations": 0,
+      "fuel": 0,
       "notes": ""
     }
   },

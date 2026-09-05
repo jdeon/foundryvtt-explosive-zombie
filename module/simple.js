@@ -9,6 +9,7 @@ import { SimpleItem } from "./item.js";
 import { SimpleItemSheet } from "./item-sheet.js";
 import { CharacterActorSheet } from "./actor-sheet.js";
 import { ZombieActorSheet } from "./zombie-sheet.js";
+import { ChestActorSheet } from "./chest-sheet.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { createWorldbuildingMacro } from "./macro.js";
 import { SimpleToken, SimpleTokenDocument } from "./token.js";
@@ -35,6 +36,7 @@ Hooks.once("init", async function () {
   game.explosiveZombie = {
     CharacterActor,
     ZombieActorSheet,
+    ChestActorSheet,
     createWorldbuildingMacro
   };
 
@@ -48,6 +50,7 @@ Hooks.once("init", async function () {
   Actors.unregisterSheet("core", ActorSheet);
   Actors.registerSheet("explosive-zombie", CharacterActorSheet, { types: ["character"], makeDefault: true, label: "SIMPLE.SheetCharacter" });
   Actors.registerSheet("explosive-zombie", ZombieActorSheet, { types: ["zombie"], makeDefault: true, label: "SIMPLE.SheetZombie" });
+  Actors.registerSheet("explosive-zombie", ChestActorSheet, { types: ["chest"], makeDefault: true, label: "SIMPLE.SheetChest" });
   Items.unregisterSheet("core", ItemSheet);
   Items.registerSheet("explosive-zombie", SimpleItemSheet, { makeDefault: true });
 

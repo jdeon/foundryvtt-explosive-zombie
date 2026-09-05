@@ -56,10 +56,12 @@
 
   "TYPES.Actor.character": "Personnage",
   "TYPES.Actor.zombie": "Zombie",
+  "TYPES.Actor.chest": "Coffre",
   "TYPES.Item.item": "Objet",
 
   "SIMPLE.SheetCharacter": "Fiche Personnage",
   "SIMPLE.SheetZombie": "Fiche Zombie",
+  "SIMPLE.SheetChest": "Fiche Coffre",
   "SIMPLE.ZombieSheetTitle": "Fiche Zombie",
   "SIMPLE.ZombieNameLabel": "Nom du Zombie",
   "SIMPLE.ZombieNamePlaceholder": "Nom du zombie...",
@@ -70,5 +72,15 @@
   "SIMPLE.ZombieDiceNumber": "Nombre de dés lancés",
   "SIMPLE.ZombieRollAction": "Lancer les dés d'action",
   "SIMPLE.ZombieNotes": "Notes & Capacité spéciale",
-  "SIMPLE.ZombieNotesPlaceholder": "Entrez les détails ou notes concernant ce zombie..."
+  "SIMPLE.ZombieNotesPlaceholder": "Entrez les détails ou notes concernant ce zombie...",
+
+  "SIMPLE.ChestSheetTitle": "Fiche Coffre",
+  "SIMPLE.ChestNameLabel": "Nom du Coffre",
+  "SIMPLE.ChestNamePlaceholder": "Nom du coffre / conteneur...",
+  "SIMPLE.ChestFoodRations": "Rations de nourriture",
+  "SIMPLE.ChestFuel": "Carburant",
+  "SIMPLE.ChestItemsList": "Contenu du coffre",
+  "SIMPLE.ChestEmptyNotice": "Ce coffre est vide. Glissez des objets ici ou cliquez sur 'Créer un objet'.",
+  "SIMPLE.ChestNotes": "Notes du coffre",
+  "SIMPLE.ChestNotesPlaceholder": "Notes, serrures, ou pièges du coffre..."
 }

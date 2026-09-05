@@ -94,7 +94,7 @@
                         {{#if (lookup ../inventory.belt.contain index)}}
                         <div class="box data-val slot-box filled" data-inventory-section="belt"
                             data-slot-index="{{index}}"
-                            data-item-id="{{lookup (lookup ../inventory.belt.contain index) "item"}}"
+                            data-item-id="{{lookup (lookup ../inventory.belt.contain index) 'item'}}"
                             title="Glisser pour déplacer / Clic gauche pour voir la fiche / Clic droit pour vider">
                             {{lookup (lookup ../inventory.belt.contain index) "title"}}</div>
                         {{else}}
@@ -127,7 +127,7 @@
                         {{#if (lookup ../inventory.backpack.contain index)}}
                         <div class="box data-val slot-box filled" data-inventory-section="backpack"
                             data-slot-index="{{index}}"
-                            data-item-id="{{lookup (lookup ../inventory.backpack.contain index) "item"}}"
+                            data-item-id="{{lookup (lookup ../inventory.backpack.contain index) 'item'}}"
                             title="Glisser pour déplacer / Clic gauche pour voir la fiche / Clic droit pour vider">
                             {{lookup (lookup ../inventory.backpack.contain index) "title"}}</div>
                         {{else}}
@@ -136,7 +136,8 @@
                         {{/if}}
                         {{/repeat}}
                         <!--TODO text to big for the box-->
-                        <div class="box free-space data-val" data-action="free-space" title="{{localize "SIMPLE.FreeSpaceTitle"}} (Cliquer pour ouvrir)">Petits objets :
+                        <div class="box free-space data-val" data-action="free-space" title="{{localize "
+                            SIMPLE.FreeSpaceTitle"}} (Cliquer pour ouvrir)">Petits objets :
                             {{#each inventory.backpack.freeSpace}}
                             <span class="data-val">
                                 {{#unless (eq @index 0)}}, {{/unless}}
@@ -159,7 +160,7 @@
                     {{#if (lookup ../inventory.equipped.contain index)}}
                     <div class="box data-val slot-box filled" data-inventory-section="equipped"
                         data-slot-index="{{index}}"
-                        data-item-id="{{lookup (lookup ../inventory.equipped.contain index) "item"}}"
+                        data-item-id="{{lookup (lookup ../inventory.equipped.contain index) 'item'}}"
                         title="Glisser pour déplacer / Clic gauche pour voir la fiche / Clic droit pour vider">
                         {{lookup (lookup ../inventory.equipped.contain index) "title"}}</div>
                     {{else}}

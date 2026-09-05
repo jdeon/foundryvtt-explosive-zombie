@@ -1,10 +1,12 @@
 {
   "Actor": {
     "types": [
-      "character"
+      "character",
+      "zombie"
     ],
     "htmlFields": [
-      "biography"
+      "biography",
+      "notes"
     ],
     "character": {
       "name": "",
@@ -46,6 +48,18 @@
           "contain": []
         }
       }
+    },
+    "zombie": {
+      "name": "",
+      "hp": {
+        "value": 1,
+        "max": 1
+      },
+      "speed": 5,
+      "actionNumber": 2,
+      "thresholdDice": 6,
+      "diceNumber": 1,
+      "notes": ""
     }
   },
   "Item": {

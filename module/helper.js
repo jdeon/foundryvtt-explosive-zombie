@@ -509,15 +509,21 @@ export class EntitySheetHelper {
     const label = game.i18n.localize(this.metadata.label);
     const title = game.i18n.format("DOCUMENT.Create", { type: label });
 
-    // Identify the template Actor types
+    // Identify the Document types and template Actor types
     const collection = game.collections.get(this.documentName);
-    const templates = collection.filter(a => a.getFlag("explosive-zombie", "isTemplate"));
-    const defaultType = this.TYPES.filter(t => t !== CONST.BASE_DOCUMENT_TYPE)[0] ?? CONST.BASE_DOCUMENT_TYPE;
-    const types = {
-      [defaultType]: game.i18n.localize("SIMPLE.NoTemplate")
+    const templates = collection.filter(a => a?.getFlag?.("explosive-zombie", "isTemplate"));
+    const types = {};
+
+    // Add standard document types from system schema
+    for (let type of this.TYPES) {
+      if (type === CONST.BASE_DOCUMENT_TYPE) continue;
+      const labelKey = `TYPES.${this.documentName}.${type}`;
+      types[type] = game.i18n.has(labelKey) ? game.i18n.localize(labelKey) : type.charAt(0).toUpperCase() + type.slice(1);
     }
+
+    // Add custom template actors if any exist
     for (let a of templates) {
-      types[a.id] = a.name;
+      types[a.id] = `[Template] ${a.name}`;
     }
 
     // Render the document creation form
@@ -527,9 +533,9 @@ export class EntitySheetHelper {
       folder: data.folder,
       folders: folders,
       hasFolders: folders.length > 1,
-      type: data.type || templates[0]?.id || "",
+      type: data.type || this.TYPES[0] || "",
       types: types,
-      hasTypes: true
+      hasTypes: Object.keys(types).length > 0
     });
 
     // Render the confirmation dialog window
@@ -544,12 +550,17 @@ export class EntitySheetHelper {
         const fd = new FormDataExtended(form);
         let createData = fd.object;
 
-        // Merge with template data
-        const template = collection.get(form.type.value);
-        if (template) {
-          createData = foundry.utils.mergeObject(template.toObject(), createData);
-          createData.type = template.type;
-          delete createData.flags.explosive - zombie.isTemplate;
+        // Merge with template data if a template actor was selected
+        const selectedType = form.type?.value;
+        const templateActor = collection.get(selectedType);
+        if (templateActor) {
+          createData = foundry.utils.mergeObject(templateActor.toObject(), createData);
+          createData.type = templateActor.type;
+          if (createData.flags?.["explosive-zombie"]) {
+            delete createData.flags["explosive-zombie"].isTemplate;
+          }
+        } else if (selectedType) {
+          createData.type = selectedType;
         }
 
         // Merge provided override data

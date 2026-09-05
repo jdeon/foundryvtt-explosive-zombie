@@ -1,0 +1,59 @@
+<div class="zombie-sheet-content">
+    <header class="zombie-header">
+        <div class="zombie-portrait-box">
+            <img class="profile-img" src="{{portraitUrl}}" data-edit="img" title="{{actor.name}}" />
+        </div>
+        <div class="zombie-title-box">
+            <label class="zombie-label">{{localize "SIMPLE.ZombieNameLabel"}}</label>
+            <input class="zombie-name-input" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "SIMPLE.ZombieNamePlaceholder"}}" />
+        </div>
+    </header>
+
+    <div class="zombie-stats-grid">
+        <div class="zombie-stat-card hp-card">
+            <div class="stat-card-title"><i class="fas fa-heartbeat"></i> {{localize "SIMPLE.ZombieHP"}}</div>
+            <div class="stat-card-inputs">
+                <input type="number" name="system.hp.value" value="{{system.hp.value}}" min="0" placeholder="Actuel" />
+                <span class="sep">/</span>
+                <input type="number" name="system.hp.max" value="{{system.hp.max}}" min="0" placeholder="Max" />
+            </div>
+        </div>
+
+        <div class="zombie-stat-card">
+            <div class="stat-card-title"><i class="fas fa-running"></i> {{localize "SIMPLE.ZombieSpeed"}}</div>
+            <div class="stat-card-inputs">
+                <input type="number" name="system.speed" value="{{system.speed}}" min="0" />
+            </div>
+        </div>
+
+        <div class="zombie-stat-card">
+            <div class="stat-card-title"><i class="fas fa-bolt"></i> {{localize "SIMPLE.ZombieActionNumber"}}</div>
+            <div class="stat-card-inputs">
+                <input type="number" name="system.actionNumber" value="{{system.actionNumber}}" min="0" />
+            </div>
+        </div>
+
+        <div class="zombie-stat-card">
+            <div class="stat-card-title"><i class="fas fa-bullseye"></i> {{localize "SIMPLE.ZombieThresholdDice"}}</div>
+            <div class="stat-card-inputs">
+                <input type="number" name="system.thresholdDice" value="{{system.thresholdDice}}" min="1" max="6" />
+            </div>
+        </div>
+
+        <div class="zombie-stat-card">
+            <div class="stat-card-title"><i class="fas fa-dice-d6"></i> {{localize "SIMPLE.ZombieDiceNumber"}}</div>
+            <div class="stat-card-inputs">
+                <input type="number" name="system.diceNumber" value="{{system.diceNumber}}" min="1" />
+            </div>
+        </div>
+    </div>
+
+    <div class="zombie-action-bar">
+        <button type="button" class="zombie-roll-btn"><i class="fas fa-dice"></i> {{localize "SIMPLE.ZombieRollAction"}}</button>
+    </div>
+
+    <div class="zombie-notes-section">
+        <label class="notes-label"><i class="fas fa-sticky-note"></i> {{localize "SIMPLE.ZombieNotes"}}</label>
+        <textarea name="system.notes" rows="6" placeholder="{{localize "SIMPLE.ZombieNotesPlaceholder"}}">{{system.notes}}</textarea>
+    </div>
+</div>

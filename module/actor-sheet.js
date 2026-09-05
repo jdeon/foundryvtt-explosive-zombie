@@ -8,7 +8,7 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
  * Extend the basic ActorSheetV2 with custom tabbed sheet layout and inventory management
  * @extends {ActorSheetV2}
  */
-export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
+export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   /** @override */
   static DEFAULT_OPTIONS = {
@@ -26,7 +26,7 @@ export class SimpleActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     },
     tag: "form",
     form: {
-      handler: SimpleActorSheet.#onSubmitForm,
+      handler: CharacterActorSheet.#onSubmitForm,
       submitOnChange: true,
       closeOnSubmit: false
     }

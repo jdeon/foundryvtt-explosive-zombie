@@ -4,10 +4,11 @@
  */
 
 // Import Modules
-import { SimpleActor } from "./actor.js";
+import { CharacterActor } from "./actor.js";
 import { SimpleItem } from "./item.js";
 import { SimpleItemSheet } from "./item-sheet.js";
-import { SimpleActorSheet } from "./actor-sheet.js";
+import { CharacterActorSheet } from "./actor-sheet.js";
+import { ZombieActorSheet } from "./zombie-sheet.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { createWorldbuildingMacro } from "./macro.js";
 import { SimpleToken, SimpleTokenDocument } from "./token.js";
@@ -32,19 +33,21 @@ Hooks.once("init", async function () {
   };
 
   game.explosiveZombie = {
-    SimpleActor,
+    CharacterActor,
+    ZombieActorSheet,
     createWorldbuildingMacro
   };
 
   // Define custom Document classes
-  CONFIG.Actor.documentClass = SimpleActor;
+  CONFIG.Actor.documentClass = CharacterActor;
   CONFIG.Item.documentClass = SimpleItem;
   CONFIG.Token.documentClass = SimpleTokenDocument;
   CONFIG.Token.objectClass = SimpleToken;
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("explosive-zombie", SimpleActorSheet, { makeDefault: true });
+  Actors.registerSheet("explosive-zombie", CharacterActorSheet, { types: ["character"], makeDefault: true, label: "SIMPLE.SheetCharacter" });
+  Actors.registerSheet("explosive-zombie", ZombieActorSheet, { types: ["zombie"], makeDefault: true, label: "SIMPLE.SheetZombie" });
   Items.unregisterSheet("core", ItemSheet);
   Items.registerSheet("explosive-zombie", SimpleItemSheet, { makeDefault: true });
 

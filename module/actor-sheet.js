@@ -762,27 +762,45 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
 
     if (!lootEntryActor) return;
 
-    let targetActor = lootEntryActor;
+    let targetActor = null;
 
-    // Place a token for the chest at the deleting character's coordinates on the active scene
+    // Check canvas scene for existing chest token on same cell or neighbor cell
     if (canvas?.scene) {
       const activeTokens = this.actor.getActiveTokens();
       const sourceToken = activeTokens[0] || (canvas.tokens?.placeables ? canvas.tokens.placeables.find(t => t.actor?.id === this.actor.id) : null);
       if (sourceToken) {
-        const tokenData = await lootEntryActor.getTokenDocument({
-          x: sourceToken.document?.x ?? sourceToken.x,
-          y: sourceToken.document?.y ?? sourceToken.y,
-          elevation: sourceToken.document?.elevation ?? 0
+        const gridSize = canvas.grid.size || 100;
+        // Find existing chest token on same cell or direct neighbor cell (<= 1.5 grid spaces away)
+        const nearbyChestToken = canvas.tokens.placeables.find(t => {
+          if (t.actor?.type !== "chest") return false;
+          const dx = Math.abs(sourceToken.x - t.x);
+          const dy = Math.abs(sourceToken.y - t.y);
+          return dx <= (gridSize * 1.5) && dy <= (gridSize * 1.5);
         });
-        const createdTokenDocs = await canvas.scene.createEmbeddedDocuments("Token", [tokenData.toObject()]);
-        const createdTokenDoc = createdTokenDocs[0];
-        if (createdTokenDoc?.actor) {
-          targetActor = createdTokenDoc.actor;
+
+        if (nearbyChestToken?.actor) {
+          targetActor = nearbyChestToken.actor;
+        } else {
+          // Create a new chest token at sourceToken coordinates
+          const tokenData = await lootEntryActor.getTokenDocument({
+            x: sourceToken.document?.x ?? sourceToken.x,
+            y: sourceToken.document?.y ?? sourceToken.y,
+            elevation: sourceToken.document?.elevation ?? 0
+          });
+          const createdTokenDocs = await canvas.scene.createEmbeddedDocuments("Token", [tokenData.toObject()]);
+          const createdTokenDoc = createdTokenDocs[0];
+          if (createdTokenDoc?.actor) {
+            targetActor = createdTokenDoc.actor;
+          }
         }
       }
     }
 
-    // Stock the item in the token's synthetic actor (or base actor if no token created)
+    if (!targetActor) {
+      targetActor = lootEntryActor;
+    }
+
+    // Stock the item in the target token's synthetic actor
     if (targetActor && itemData) {
       const newItemData = foundry.utils.duplicate(itemData);
       delete newItemData._id;

@@ -70,9 +70,32 @@ export class ChestActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     const html = $(this.element);
 
+    // Edit portrait image
+    html.find('[data-edit="img"], .profile-img').click(this._onEditImage.bind(this));
+
     // Item Controls
     html.find('.item-control').click(this._onItemControl.bind(this));
     html.find('.item-name-click').click(this._onItemEdit.bind(this));
+  }
+
+  /**
+   * Handle editing the actor portrait image
+   * @param {Event} event
+   * @private
+   */
+  _onEditImage(event) {
+    const attr = event.currentTarget.dataset.edit || "img";
+    const current = foundry.utils.getProperty(this.document, attr);
+    const fp = new FilePicker({
+      type: "image",
+      current: current,
+      callback: path => {
+        this.document.update({ [attr]: path });
+      },
+      top: this.position.top + 40,
+      left: this.position.left + 10
+    });
+    return fp.browse();
   }
 
   /* -------------------------------------------- */

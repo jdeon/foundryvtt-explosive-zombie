@@ -660,11 +660,134 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     const container = inventory[section];
     if (!container || !Array.isArray(container.contain)) return;
 
-    //TODO add a confirm dialog
-    if (container.contain[index]?.item) {
-      this._removeItemFromInventory(container.contain[index].item, section);
+    const itemId = container.contain[index]?.item;
+    if (!itemId) return;
+
+    const item = this.actor.items.get(itemId);
+    const itemData = item ? item.toObject() : null;
+    const itemName = itemData ? itemData.name : (item ? item.name : "");
+
+    const title = game.i18n.localize("SIMPLE.ItemDelete");
+    const content = itemName
+      ? game.i18n.format("SIMPLE.ConfirmClearSlotContent", { name: itemName })
+      : game.i18n.localize("SIMPLE.ConfirmClearSlot");
+
+    const confirmed = await Dialog.confirm({
+      title: title,
+      content: `<p>${content}</p>`,
+      yes: () => true,
+      no: () => false,
+      defaultYes: true
+    });
+
+    if (!confirmed) return;
+
+    await this._removeItemFromInventory(itemId, section);
+
+    if (itemData) {
+      await this.chatMessageDeletedItem(itemData);
+      await this._generateLootActor(itemData);
     }
-    //TODO generate a chatmessage
+  }
+
+  async chatMessageDeletedItem(itemData) {
+    const img = itemData.img || itemData.system?.imageUrl || "icons/svg/item-bag.svg";
+    const name = itemData.name || game.i18n.localize("SIMPLE.ItemNew");
+    const description = itemData.system?.description || "";
+    const noticeText = game.i18n.format("SIMPLE.ItemRemovedNotice", { name }) || `Objet "${name}" retiré de l'inventaire.`;
+
+    const chatContent = `
+        <div class="explosive-zombie chat-card item-card">
+          <header class="card-header flexrow" style="display: flex; align-items: center; gap: 8px;">
+            <img src="${img}" title="${name}" width="36" height="36" style="border: 0; object-fit: contain;"/>
+            <h3 class="item-name" style="margin: 0;">${name}</h3>
+          </header>
+          <div class="card-content" style="margin-top: 8px;">
+            <p style="margin: 0; font-style: italic;">${noticeText}</p>
+            ${description ? `<div style="margin-top: 6px;">${description}</div>` : ""}
+          </div>
+        </div>
+      `;
+
+    await ChatMessage.create({
+      user: game.user.id,
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      content: chatContent
+    });
+  }
+
+  async _generateLootActor(itemData) {
+    // Check if a "Butin" chest actor already exists in the world
+    let lootEntryActor = game.actors.find(a => a.type === "chest" && a.name.toLowerCase() === "butin");
+
+    // If it does not exist, load template from compendium or create fallback
+    if (!lootEntryActor) {
+      let lootEntryActorData = null;
+      try {
+        for (const pack of game.packs) {
+          if (pack.metadata.type !== "Actor") continue;
+          const index = await pack.getIndex({ fields: ["type", "name"] });
+          const lootEntry = index.find(e => e.type === "chest" && e.name.toLowerCase() === "butin");
+          if (lootEntry) {
+            const doc = await pack.getDocument(lootEntry._id);
+            if (doc) {
+              lootEntryActorData = doc.toObject();
+              break;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to check compendium packs for chest prototype:", e);
+      }
+
+      //If lootEntryActorData does not exist in compendium pack, create a new chest actor
+      if (!lootEntryActorData) {
+        lootEntryActorData = {
+          name: "Butin",
+          type: "chest",
+          img: "icons/svg/chest.svg",
+          system: {
+            foodRations: 0,
+            fuel: 0,
+            notes: ''
+          }
+        };
+      } else {
+        delete lootEntryActorData._id;
+        lootEntryActorData.name = "Butin";
+      }
+
+      lootEntryActor = await Actor.create(lootEntryActorData);
+    }
+
+    if (!lootEntryActor) return;
+
+    let targetActor = lootEntryActor;
+
+    // Place a token for the chest at the deleting character's coordinates on the active scene
+    if (canvas?.scene) {
+      const activeTokens = this.actor.getActiveTokens();
+      const sourceToken = activeTokens[0] || (canvas.tokens?.placeables ? canvas.tokens.placeables.find(t => t.actor?.id === this.actor.id) : null);
+      if (sourceToken) {
+        const tokenData = await lootEntryActor.getTokenDocument({
+          x: sourceToken.document?.x ?? sourceToken.x,
+          y: sourceToken.document?.y ?? sourceToken.y,
+          elevation: sourceToken.document?.elevation ?? 0
+        });
+        const createdTokenDocs = await canvas.scene.createEmbeddedDocuments("Token", [tokenData.toObject()]);
+        const createdTokenDoc = createdTokenDocs[0];
+        if (createdTokenDoc?.actor) {
+          targetActor = createdTokenDoc.actor;
+        }
+      }
+    }
+
+    // Stock the item in the token's synthetic actor (or base actor if no token created)
+    if (targetActor && itemData) {
+      const newItemData = foundry.utils.duplicate(itemData);
+      delete newItemData._id;
+      await Item.create(newItemData, { parent: targetActor });
+    }
   }
 
   /**

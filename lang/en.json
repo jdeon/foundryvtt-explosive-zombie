@@ -53,6 +53,9 @@
   "SIMPLE.FreeSpaceTitle": "Petits objets (Sac à dos)",
   "SIMPLE.FreeSpaceItemTooltip": "Glisser pour déplacer / Supprimer pour vider",
   "SIMPLE.FreeSpaceEmpty": "Aucun petit objet dans le sac à dos.",
+  "SIMPLE.ConfirmClearSlot": "Voulez-vous vraiment retirer cet objet de l'inventaire ?",
+  "SIMPLE.ConfirmClearSlotContent": "Voulez-vous vraiment retirer \"{name}\" de l'inventaire ?",
+  "SIMPLE.ItemRemovedNotice": "Objet \"{name}\" retiré de l'inventaire.",
 
   "TYPES.Actor.character": "Personnage",
   "TYPES.Actor.zombie": "Zombie",

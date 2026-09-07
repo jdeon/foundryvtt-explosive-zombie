@@ -138,5 +138,6 @@
   "SIMPLE.EffectDescriptionPlaceholder": "Effet / Description",
   "SIMPLE.PassiveEffectPlaceholder": "Description de l'effet passif",
   "SIMPLE.NoActiveEffectsNotice": "Aucun effet actif. Cliquez sur \"Ajouter un effet\".",
-  "SIMPLE.NoPassiveEffectsNotice": "Aucun effet passif. Cliquez sur \"Ajouter un effet\"."
+  "SIMPLE.NoPassiveEffectsNotice": "Aucun effet passif. Cliquez sur \"Ajouter un effet\".",
+  "SIMPLE.ArmorBoxTooltip": "Cliquer pour changer d'état (Non équipé / Équipé / Brisé)"
 }

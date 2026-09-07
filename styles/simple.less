@@ -467,6 +467,35 @@
         cursor: pointer;
       }
     }
+
+    &.armor-box {
+      cursor: pointer;
+      transition: border-style 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+
+      &:hover {
+        border-color: #3b2818;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+        background-color: #f8f8f8;
+      }
+
+      &.unequipped {
+        border-style: dotted;
+        border-color: #7a6552;
+        background-color: rgba(255, 255, 255, 0.6);
+      }
+
+      &.equipped {
+        border-style: solid;
+        border-color: #3b2818;
+        background-color: #ffffff;
+      }
+
+      &.broken {
+        border-style: solid;
+        border-color: #b30000;
+        background-color: #fff0f0;
+      }
+    }
   }
 
   .box-checked {

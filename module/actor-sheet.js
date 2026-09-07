@@ -110,7 +110,18 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     context.notes = context.system.notes || "";
     context.stats = context.system.stats;
     context.healthPoints = context.system.healthPoints;
-    context.armors = context.system.armors;
+    context.armors = (context.system.armors || []).map((val, index) => {
+      const isEquipped = val === "equipped";
+      const isBroken = val === "broken" || val === "break" || val === "true" || val === true;
+      const state = isEquipped ? "equipped" : (isBroken ? "broken" : "unequipped");
+      return {
+        index,
+        state,
+        isUnequipped: state === "unequipped",
+        isEquipped,
+        isBroken
+      };
+    });
     context.skills = context.system.skills;
     context.inventory = context.system.inventory;
 
@@ -230,8 +241,38 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
 
     html.find('.slot-box.filled').on('click', this._onSlotBoxClick.bind(this));
     html.find('.slot-box').on('contextmenu', this._onClearSlot.bind(this));
+    html.find('.armor-box').on('click', this._onArmorBoxClick.bind(this));
     html.find('.box.free-space').on('click', this._onOpenFreeSpaceOverlay.bind(this));
     this._updateFreeSpaceOverlay();
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle clicking on an armor box to cycle its state:
+   * unequipped ("") -> equipped ("equipped") -> broken ("broken") -> unequipped ("")
+   * @param {Event} event
+   * @private
+   */
+  async _onArmorBoxClick(event) {
+    event.preventDefault();
+    const index = Number(event.currentTarget.dataset.armorIndex);
+    if (isNaN(index)) return;
+
+    const armors = Array.from(this.actor.system.armors || []);
+    const currentState = armors[index] || "";
+
+    let nextState = "";
+    if (!currentState || currentState === "unequipped") {
+      nextState = "equipped";
+    } else if (currentState === "equipped") {
+      nextState = "broken";
+    } else { // "broken", "break", "true", etc.
+      nextState = "";
+    }
+
+    armors[index] = nextState;
+    return this.actor.update({ "system.armors": armors });
   }
 
   /* -------------------------------------------- */

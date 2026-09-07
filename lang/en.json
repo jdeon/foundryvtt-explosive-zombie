@@ -138,5 +138,6 @@
   "SIMPLE.EffectDescriptionPlaceholder": "Effect / Description",
   "SIMPLE.PassiveEffectPlaceholder": "Passive effect description",
   "SIMPLE.NoActiveEffectsNotice": "No active effects. Click 'Add Effect'.",
-  "SIMPLE.NoPassiveEffectsNotice": "No passive effects. Click 'Add Effect'."
+  "SIMPLE.NoPassiveEffectsNotice": "No passive effects. Click 'Add Effect'.",
+  "SIMPLE.ArmorBoxTooltip": "Click to toggle state (Unequipped / Equipped / Broken)"
 }

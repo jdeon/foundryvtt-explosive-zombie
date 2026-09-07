@@ -86,7 +86,9 @@
                     <div class="health-title" style="margin-top: 5px;">{{localize "SIMPLE.ArmorAC"}}</div>
                     <div class="box-row">
                         {{#each armors}}
-                        <div class="box">{{#if this}}<span class="box-checked">X</span>{{/if}}</div>
+                        <div class="box armor-box {{this.state}}" data-armor-index="{{this.index}}" title="{{localize 'SIMPLE.ArmorBoxTooltip'}}">
+                            {{#if this.isBroken}}<span class="box-checked">X</span>{{/if}}
+                        </div>
                         {{/each}}
                     </div>
                 </div>

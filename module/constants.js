@@ -1,13 +1,12 @@
 export const ATTRIBUTE_TYPES = ["String", "Number", "Boolean", "Formula", "Resource"];
 
 export const INJURY_REASONS = {
-  "Blessure": "SIMPLE.InjuryReasonBlessure",
-  "Faim": "SIMPLE.InjuryReasonFaim",
-  "Morsure": "SIMPLE.InjuryReasonMorsure",
+  "Wound": "SIMPLE.InjuryReasonWound",
+  "Hunger": "SIMPLE.InjuryReasonHunger",
+  "Bite": "SIMPLE.InjuryReasonBite",
   "Zombification": "SIMPLE.InjuryReasonZombification",
-  "Saignement": "SIMPLE.InjuryReasonSaignement",
-  "Infection": "SIMPLE.HealthReasonInfection",
-  "Brûlure": "SIMPLE.HealthReasonBruleure",
-  "Poison": "SIMPLE.HealthReasonPoison",
-  "Épuisement": "SIMPLE.HealthReasonEpuisement"
+  "Bleeding": "SIMPLE.InjuryReasonBleeding",
+  "Burn": "SIMPLE.InjuryReasonBurn",
+  "Poison": "SIMPLE.InjuryReasonPoison",
+  "Exhaustion": "SIMPLE.InjuryReasonExhaustion"
 };

@@ -445,17 +445,17 @@
   margin-bottom: 25px;
   text-align: center;
 }
-.explosive-zombie .ceinture-boxes {
+.explosive-zombie .belt-boxes {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
   width: 100%;
 }
-.explosive-zombie .ceinture-boxes .box {
+.explosive-zombie .belt-boxes .box {
   font-size: 15px;
 }
-.explosive-zombie .sac-grid {
+.explosive-zombie .backpack-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
@@ -463,10 +463,10 @@
   justify-items: center;
   align-items: stretch;
 }
-.explosive-zombie .sac-grid .box {
+.explosive-zombie .backpack-grid .box {
   font-size: 15px;
 }
-.explosive-zombie .sac-grid .box.free-space {
+.explosive-zombie .backpack-grid .box.free-space {
   grid-column: 1 / -1;
   width: 100%;
   max-width: 100%;
@@ -477,7 +477,7 @@
   cursor: pointer;
   transition: background 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
-.explosive-zombie .sac-grid .box.free-space:hover {
+.explosive-zombie .backpack-grid .box.free-space:hover {
   background: #fff8e7;
   border-color: #5a3a31;
   box-shadow: 0 0 5px rgba(90, 58, 49, 0.3);

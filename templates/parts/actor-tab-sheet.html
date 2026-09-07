@@ -95,10 +95,10 @@
             <!-- INVENTAIRE ET COMPÉTENCES -->
             <div class="inventory-section">
 
-                <!-- Ceinture -->
+                <!-- Belt -->
                 <div class="side-col left" data-inventory-section="belt">
                     <div class="section-title">CEINTURE (1A)</div>
-                    <div class="ceinture-boxes" data-inventory-section="belt">
+                    <div class="belt-boxes" data-inventory-section="belt">
                         {{#repeat inventory.belt.size}}
                         {{#if (lookup ../inventory.belt.contain index)}}
                         <div class="box data-val slot-box filled" data-inventory-section="belt"
@@ -128,10 +128,10 @@
                     <div class="large-text-area data-val">{{notes}}</div>
                 </div>
 
-                <!-- Sac à dos -->
+                <!-- Backpack -->
                 <div class="side-col right" data-inventory-section="backpack">
                     <div class="section-title">SAC À DOS (3A)</div>
-                    <div class="sac-grid" data-inventory-section="backpack">
+                    <div class="backpack-grid" data-inventory-section="backpack">
                         {{#repeat inventory.backpack.size}}
                         {{#if (lookup ../inventory.backpack.contain index)}}
                         <div class="box data-val slot-box filled" data-inventory-section="backpack"

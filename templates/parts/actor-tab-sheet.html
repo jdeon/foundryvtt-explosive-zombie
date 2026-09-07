@@ -1,4 +1,3 @@
-<!--TODO update free space rendering to better responsive design also update other box-->
 <div class="tab sheet" data-group="primary" data-tab="sheet">
     <div class="sheet-outer">
         <div class="sheet-inner">
@@ -67,6 +66,7 @@
                     </div>
                 </div>
                 <div class="health-col">
+                    <!--TODO Update the health box to be select instead of text input and try to not show the "input style"-->
                     <div class="health-title">SANTÉ (PV)</div>
                     <div class="box-row">
                         {{#each healthPoints}}
@@ -135,16 +135,9 @@
                             data-slot-index="{{index}}"></div>
                         {{/if}}
                         {{/repeat}}
-                        <!--TODO text to big for the box-->
                         <div class="box free-space data-val" data-action="free-space" title="{{localize "
-                            SIMPLE.FreeSpaceTitle"}} (Cliquer pour ouvrir)">Petits objets :
-                            {{#each inventory.backpack.freeSpace}}
-                            <span class="data-val">
-                                {{#unless (eq @index 0)}}, {{/unless}}
-                                {{this.title}}
-                            </span>
-                            {{/each}}
-                        </div>
+                            SIMPLE.FreeSpaceTitle"}} (Cliquer pour ouvrir)">Petits objets : {{#if
+                            inventory.backpack.freeSpace}}{{inventory.backpack.freeSpace.length}}{{else}}0{{/if}}</div>
                     </div>
                 </div>
             </div>

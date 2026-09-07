@@ -1,4 +1,4 @@
-import {EntitySheetHelper} from "./helper.js";
+import { EntitySheetHelper } from "./helper.js";
 
 /**
  * Extend the base Item document to support attributes and groups with a custom template creation dialog.
@@ -17,7 +17,7 @@ export class SimpleItem extends Item {
   /* -------------------------------------------- */
 
   /** @override */
-  static async createDialog(data={}, options={}) {
+  static async createDialog(data = {}, options = {}) {
     return EntitySheetHelper.createDialog.call(this, data, options);
   }
 
@@ -28,6 +28,6 @@ export class SimpleItem extends Item {
    * @type {boolean}
    */
   get isTemplate() {
-    return !!this.getFlag("worldbuilding", "isTemplate");
+    return !!this.getFlag("explosive-zombie", "isTemplate");
   }
 }

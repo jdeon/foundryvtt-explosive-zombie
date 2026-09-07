@@ -1,0 +1,122 @@
+<div class="tab edit" data-group="primary" data-tab="edit">
+    <div class="classic-form">
+
+        <!-- Section Identity -->
+        <fieldset class="form-section">
+            <legend><i class="fas fa-user-id"></i> {{localize "SIMPLE.SectionIdentity"}}</legend>
+            <div class="form-group">
+                <label>{{localize "SIMPLE.CharacterName"}}</label>
+                <div class="form-fields">
+                    <input type="text" name="name" value="{{data.name}}" placeholder="{{localize 'SIMPLE.CharacterNamePlaceholder'}}" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label>{{localize "SIMPLE.AvatarURL"}}</label>
+                <div class="form-fields flexrow">
+                    <file-picker type="image" name="img" value="{{data.img}}"
+                        placeholder="{{ default.icon }}"></file-picker>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>{{localize "SIMPLE.CharacterDescription"}}</label>
+                <div class="form-fields">
+                    <input type="text" name="system.description" value="{{system.description}}"
+                        placeholder="{{localize 'SIMPLE.DescriptionPlaceholder'}}" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label>{{localize "SIMPLE.QuotesLabel"}}</label>
+                <div class="form-fields">
+                    <input type="text" name="system.quotes" value="{{system.quotes}}"
+                        placeholder="{{localize 'SIMPLE.QuotesPlaceholder'}}" />
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Section Caractéristiques -->
+        <fieldset class="form-section">
+            <legend><i class="fas fa-running"></i> {{localize "SIMPLE.SectionStats"}}</legend>
+            <div class="form-grid grid-4col">
+                <div class="form-group">
+                    <label>{{localize "SIMPLE.StatAgility"}}</label>
+                    <input type="number" name="system.stats.agility" value="{{system.stats.agility}}" />
+                </div>
+                <div class="form-group">
+                    <label>{{localize "SIMPLE.StatConstitution"}}</label>
+                    <input type="number" name="system.stats.constitution"
+                        value="{{system.stats.constitution}}" />
+                </div>
+                <div class="form-group">
+                    <label>{{localize "SIMPLE.StatMental"}}</label>
+                    <input type="number" name="system.stats.mental" value="{{system.stats.mental}}" />
+                </div>
+                <div class="form-group">
+                    <label>{{localize "SIMPLE.StatSpeed"}}</label>
+                    <input type="number" name="system.stats.speed" value="{{system.stats.speed}}" />
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Section Santé & Armure -->
+        <fieldset class="form-section">
+            <legend><i class="fas fa-heartbeat"></i> {{localize "SIMPLE.SectionHealthArmor"}}</legend>
+            <div class="form-grid grid-2col">
+                <div class="form-group">
+                    <label>{{localize "SIMPLE.HealthBoxesLabel"}}</label>
+                    <input type="number" class="health-control" value="{{healthPoints.length}}" />
+                </div>
+                <div class="form-group">
+                    <label>{{localize "SIMPLE.ArmorBoxesLabel"}}</label>
+                    <input type="number" class="armor-control" value="{{armors.length}}" />
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Section Compétences -->
+        <fieldset class="form-section">
+            <legend class="flexrow flex-between">
+                <span><i class="fas fa-brain"></i> {{localize "SIMPLE.Skills"}}</span>
+                <button type="button" class="skill-control btn-add" data-action="add"><i
+                        class="fas fa-plus"></i> {{localize "SIMPLE.SkillAdd"}}</button>
+            </legend>
+            <div class="skills-list-edit">
+                {{#each system.skills}}
+                <div class="skill-edit-row">
+                    <input type="text" name="system.skills.{{@index}}.label" value="{{this.label}}"
+                        placeholder="{{localize 'SIMPLE.SkillNamePlaceholder'}}" />
+                    <input type="number" name="system.skills.{{@index}}.value" value="{{this.value}}"
+                        class="skill-val-input" placeholder="{{localize 'SIMPLE.SkillValuePlaceholder'}}" />
+                    <a class="skill-control btn-del" data-action="delete" data-index="{{@index}}"
+                        title="{{localize 'SIMPLE.SkillDelete'}}"><i class="fas fa-trash"></i></a>
+                </div>
+                {{else}}
+                <p class="empty-msg">{{localize "SIMPLE.NoSkillsNotice"}}</p>
+                {{/each}}
+            </div>
+            <input type="text" name="system.notes" value="{{this.notes}}" placeholder="{{localize 'SIMPLE.PassiveSkillsPlaceholder'}}" />
+        </fieldset>
+
+        <!-- Section Inventaires -->
+        <fieldset class="form-section">
+            <legend><i class="fas fa-briefcase"></i> {{localize "SIMPLE.SectionInventoryCapacity"}}</legend>
+            <div class="form-grid grid-3col">
+                <div class="form-group">
+                    <label>{{localize "SIMPLE.BeltSizeLabel"}}</label>
+                    <input type="number" name="system.inventory.belt.size"
+                        value="{{system.inventory.belt.size}}" />
+                </div>
+                <div class="form-group">
+                    <label>{{localize "SIMPLE.BackpackSizeLabel"}}</label>
+                    <input type="number" name="system.inventory.backpack.size"
+                        value="{{system.inventory.backpack.size}}" />
+                </div>
+                <div class="form-group">
+                    <label>{{localize "SIMPLE.EquippedSizeLabel"}}</label>
+                    <input type="number" name="system.inventory.equipped.size"
+                        value="{{system.inventory.equipped.size}}" />
+                </div>
+            </div>
+        </fieldset>
+
+    </div>
+</div>

@@ -1,0 +1,179 @@
+<div class="tab sheet" data-group="primary" data-tab="sheet">
+    <div class="sheet-outer">
+        <div class="sheet-inner">
+
+            <!-- EN-TÊTE -->
+            <div class="header-section">
+                <div class="header-text">
+                    <div class="header-row">{{localize "SIMPLE.CharacterName"}} : <br />
+                        <span class="data-val">{{data.name}}</span>
+                    </div>
+                    <div class="dashed-line"></div>
+                    <div class="header-row" style="margin-top:10px">{{localize "SIMPLE.CharacterDescription"}} : <span
+                            class="data-val">{{description}}</span></div>
+                </div>
+                <div class="portrait-outer">
+                    <div class="portrait-inner" style="background-image: url('{{portraitUrl}}');"></div>
+                </div>
+            </div>
+
+            <!-- STATS ET SANTÉ -->
+            <div class="stats-section">
+                <div class="stats-col">
+                    <div class="stat-row">
+                        <span>{{localize "SIMPLE.StatAgility"}}</span>
+                        <div class="stat-bracket-box">
+                            <span class="bracket">[</span>
+                            <div class="stat-inner-stack">
+                                <span class="data-val">{{stats.agility}}</span>
+                                <span class="stat-underscores">___</span>
+                            </div>
+                            <span class="bracket">]</span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span>{{localize "SIMPLE.StatConstitution"}}</span>
+                        <div class="stat-bracket-box">
+                            <span class="bracket">[</span>
+                            <div class="stat-inner-stack">
+                                <span class="data-val">{{stats.constitution}}</span>
+                                <span class="stat-underscores">___</span>
+                            </div>
+                            <span class="bracket">]</span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span>{{localize "SIMPLE.StatMental"}}</span>
+                        <div class="stat-bracket-box">
+                            <span class="bracket">[</span>
+                            <div class="stat-inner-stack">
+                                <span class="data-val">{{stats.mental}}</span>
+                                <span class="stat-underscores">___</span>
+                            </div>
+                            <span class="bracket">]</span>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span>{{localize "SIMPLE.StatSpeed"}}</span>
+                        <div class="stat-bracket-box">
+                            <span class="bracket">[</span>
+                            <div class="stat-inner-stack">
+                                <span class="data-val">{{stats.speed}}</span>
+                                <span class="stat-underscores">___</span>
+                            </div>
+                            <span class="bracket">]</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="health-col">
+                    <div class="health-title">{{localize "SIMPLE.HealthHP"}}</div>
+                    <div class="box-row">
+                        {{#each healthPoints}}
+                        <div class="box health-box">
+                            <span class="health-letter">{{firstLetter this}}</span>
+                            <select name="system.healthPoints.{{@index}}" class="health-select"
+                                title="{{#if this}}{{this}}{{else}}{{localize "SIMPLE.HealthReasonHealthy"}}{{/if}}">
+                                <option value="" {{#if (eq ../this "" )}}selected{{/if}}></option>
+
+                                {{#each ../healthReasons}}
+                                <option value="{{this.value}}" {{#if (eq ../this this.value)}}selected{{/if}}>
+                                    {{this.label}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+                        {{/each}}
+                    </div>
+                    <div class="health-title" style="margin-top: 5px;">{{localize "SIMPLE.ArmorAC"}}</div>
+                    <div class="box-row">
+                        {{#each armors}}
+                        <div class="box armor-box {{this.state}}" data-armor-index="{{this.index}}" title="{{localize 'SIMPLE.ArmorBoxTooltip'}}">
+                            {{#if this.isBroken}}<span class="box-checked">X</span>{{/if}}
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
+            </div>
+
+            <!-- INVENTAIRE ET COMPÉTENCES -->
+            <div class="inventory-section">
+
+                <!-- Belt -->
+                <div class="side-col left" data-inventory-section="belt">
+                    <div class="section-title">{{localize "SIMPLE.Belt1A"}}</div>
+                    <div class="belt-boxes" data-inventory-section="belt">
+                        {{#repeat inventory.belt.size}}
+                        {{#if (lookup ../inventory.belt.contain index)}}
+                        <div class="box data-val slot-box filled" data-inventory-section="belt"
+                            data-slot-index="{{index}}"
+                            data-item-id="{{lookup (lookup ../inventory.belt.contain index) 'item'}}"
+                            title="{{localize 'SIMPLE.SlotTooltip'}}">
+                            {{lookup (lookup ../inventory.belt.contain index) "title"}}</div>
+                        {{else}}
+                        <div class="box data-val slot-box empty" data-inventory-section="belt"
+                            data-slot-index="{{index}}"></div>
+                        {{/if}}
+                        {{/repeat}}
+                    </div>
+                </div>
+
+                <!-- Compétences -->
+                <div class="center-col">
+                    <div class="section-title" style="font-size: 26px;">{{localize "SIMPLE.Skills"}}</div>
+                    <div class="skills-grid">
+                        {{#each skills}}
+                        <div class="skill-item">
+                            <div class="skill-rect data-val">{{this.label}}</div>
+                            <span class="skill-brackets">(<span class="data-val">{{this.value}}</span>)</span>
+                        </div>
+                        {{/each}}
+                    </div>
+                    <div class="large-text-area data-val">{{notes}}</div>
+                </div>
+
+                <!-- Backpack -->
+                <div class="side-col right" data-inventory-section="backpack">
+                    <div class="section-title">{{localize "SIMPLE.Backpack3A"}}</div>
+                    <div class="backpack-grid" data-inventory-section="backpack">
+                        {{#repeat inventory.backpack.size}}
+                        {{#if (lookup ../inventory.backpack.contain index)}}
+                        <div class="box data-val slot-box filled" data-inventory-section="backpack"
+                            data-slot-index="{{index}}"
+                            data-item-id="{{lookup (lookup ../inventory.backpack.contain index) 'item'}}"
+                            title="{{localize 'SIMPLE.SlotTooltip'}}">
+                            {{lookup (lookup ../inventory.backpack.contain index) "title"}}</div>
+                        {{else}}
+                        <div class="box data-val slot-box empty" data-inventory-section="backpack"
+                            data-slot-index="{{index}}"></div>
+                        {{/if}}
+                        {{/repeat}}
+                        <div class="box free-space data-val" data-action="free-space" title="{{localize "SIMPLE.FreeSpaceTitle"}} ({{localize 'SIMPLE.ClickToOpen'}})">{{localize "SIMPLE.SmallItems"}} : {{#if
+                            inventory.backpack.freeSpace}}{{inventory.backpack.freeSpace.length}}{{else}}0{{/if}}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PIED DE PAGE -->
+            <div class="footer-section">
+                <div class="dotted-line-container">
+                    <div class="dotted-line-text data-val">{{quotes}}</div>
+                </div>
+                <div class="equip-title">{{localize "SIMPLE.Equipped"}}</div>
+                <div class="equip-boxes" data-inventory-section="equipped">
+                    {{#repeat inventory.equipped.size}}
+                    {{#if (lookup ../inventory.equipped.contain index)}}
+                    <div class="box data-val slot-box filled" data-inventory-section="equipped"
+                        data-slot-index="{{index}}"
+                        data-item-id="{{lookup (lookup ../inventory.equipped.contain index) 'item'}}"
+                        title="{{localize 'SIMPLE.SlotTooltip'}}">
+                        {{lookup (lookup ../inventory.equipped.contain index) "title"}}</div>
+                    {{else}}
+                    <div class="box data-val slot-box empty" data-inventory-section="equipped"
+                        data-slot-index="{{index}}"></div>
+                    {{/if}}
+                    {{/repeat}}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

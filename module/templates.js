@@ -3,13 +3,21 @@
  * Pre-loaded templates are compiled and cached for fast access when rendering
  * @return {Promise}
  */
-export const preloadHandlebarsTemplates = async function() {
+export const preloadHandlebarsTemplates = async function () {
 
   // Define template paths to load
   const templatePaths = [
-    // Attribute list partial.
-    "systems/worldbuilding/templates/parts/sheet-attributes.html",
-    "systems/worldbuilding/templates/parts/sheet-groups.html"
+    "systems/explosive-zombie/templates/parts/sheet-attributes.html",
+    "systems/explosive-zombie/templates/parts/sheet-groups.html",
+    "systems/explosive-zombie/templates/parts/item-tab-sheet.html",
+    "systems/explosive-zombie/templates/parts/item-tab-edit.html",
+    "systems/explosive-zombie/templates/parts/item-tab-attributes.html",
+    "systems/explosive-zombie/templates/parts/actor-tab-sheet.html",
+    "systems/explosive-zombie/templates/parts/actor-tab-edit.html",
+    "systems/explosive-zombie/templates/parts/actor-tab-items.html",
+    "systems/explosive-zombie/templates/parts/actor-tab-attributes.html",
+    "systems/explosive-zombie/templates/parts/zombie-tab-sheet.html",
+    "systems/explosive-zombie/templates/parts/chest-tab-sheet.html"
   ];
 
   // Load the template parts

@@ -1,18 +1,24 @@
 {
-  "id": "worldbuilding",
-  "version": "0.8.2",
-  "title": "Simple World-Building",
-  "url": "https://github.com/foundryvtt/worldbuilding/",
-  "description": "A minimalist game system which provides configurable Actor and Item templates to support free-form system agnostic game-play.",
+  "id": "explosive-zombie",
+  "version": "0.1.0",
+  "title": "Explosive Zombie",
+  "description": "A simple game system for Foundry VTT using explosive d6 as main check.",
   "license": "LICENSE.txt",
   "authors": [
     {
       "name": "Atropos",
       "url": "https://foundryvtt.com"
+    },
+    {
+      "name": "Jdeon"
     }
   ],
-  "esmodules": ["module/simple.js"],
-  "styles": ["styles/simple.css"],
+  "esmodules": [
+    "module/simple.js"
+  ],
+  "styles": [
+    "styles/simple.css"
+  ],
   "packs": [],
   "languages": [
     {
@@ -21,21 +27,22 @@
       "path": "lang/en.json"
     },
     {
-      "lang": "pl",
-      "name": "Polski",
-      "path": "lang/pl.json"
+      "lang": "fr",
+      "name": "Français",
+      "path": "lang/fr.json"
     }
   ],
   "compatibility": {
-    "minimum": "10",
-    "verified": "11"
+    "minimum": "13",
+    "verified": "13"
   },
   "grid": {
-    "distance": 5,
-    "units": "ft"
+    "distance": 1,
+    "units": "m"
   },
   "primaryTokenAttribute": "health",
   "secondaryTokenAttribute": "power",
-  "manifest": "https://raw.githubusercontent.com/foundryvtt/worldbuilding/master/system.json",
-  "download": "https://github.com/foundryvtt/worldbuilding/archive/refs/tags/release-082.zip"
+  "url": "https://github.com/jdeon/foundryvtt-explosive-zombie",
+  "manifest": "https://github.com/jdeon/foundryvtt-explosive-zombie/releases/latest/download/module.json",
+  "download": "https://github.com/jdeon/foundryvtt-explosive-zombie/releases/download/VERSION_PATHHOLDER/module.zip"
 }

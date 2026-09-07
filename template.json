@@ -1,32 +1,105 @@
 {
-"Actor": {
-  "types": ["character"],
-  "htmlFields": ["biography"],
-  "character": {
-    "biography": "",
-    "health": {
-      "value": 10,
-      "min": 0,
-      "max": 10
+  "Actor": {
+    "types": [
+      "character",
+      "zombie",
+      "chest"
+    ],
+    "htmlFields": [
+      "biography",
+      "notes"
+    ],
+    "character": {
+      "name": "",
+      "description": "",
+      "quotes": "",
+      "portraitUrl": "",
+      "stats": {
+        "agility": 2,
+        "constitution": 2,
+        "mental": 2,
+        "speed": 5
+      },
+      "healthPoints": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "armors": [],
+      "skills": [
+        {
+          "label": "",
+          "value": 0
+        }
+      ],
+      "notes": "",
+      "inventory": {
+        "belt": {
+          "size": 3,
+          "contain": []
+        },
+        "backpack": {
+          "size": 6,
+          "contain": [],
+          "freeSpace": []
+        },
+        "equipped": {
+          "size": 2,
+          "contain": []
+        }
+      }
     },
-    "power": {
-      "value": 5,
-      "min": 0,
-      "max": 5
+    "zombie": {
+      "name": "",
+      "hp": {
+        "value": 1,
+        "max": 1
+      },
+      "speed": 5,
+      "actionNumber": 2,
+      "thresholdDice": 6,
+      "diceNumber": 1,
+      "notes": ""
     },
-    "attributes": {},
-    "groups": {}
+    "chest": {
+      "name": "",
+      "foodRations": 0,
+      "fuel": 0,
+      "notes": ""
+    }
+  },
+  "Item": {
+    "types": [
+      "item"
+    ],
+    "htmlFields": [
+      "description"
+    ],
+    "item": {
+      "name": "",
+      "imageUrl": "",
+      "requiredSlots": 1,
+      "activeEffects": [
+        {
+          "actionNumber": "",
+          "dice": "",
+          "threshold": "",
+          "ammo": "",
+          "description": ""
+        }
+      ],
+      "passiveEffects": [
+        {
+          "description": ""
+        }
+      ],
+      "munitions": {
+        "capacity": 0,
+        "loadAmmo": 0,
+        "remainingAmmo": 0
+      },
+      "slotType": ""
+    }
   }
-},
-"Item": {
-  "types": ["item"],
-  "htmlFields": ["description"],
-  "item": {
-    "description": "",
-    "quantity": 1,
-    "weight": 0,
-    "attributes": {},
-    "groups": {}
-  }
-}
 }

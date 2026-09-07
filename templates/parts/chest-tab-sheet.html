@@ -1,0 +1,59 @@
+<div class="chest-sheet-content">
+    <header class="chest-header">
+        <div class="chest-portrait-box">
+            <img class="profile-img" src="{{portraitUrl}}" data-edit="img" title="{{actor.name}}" />
+        </div>
+        <div class="chest-title-box">
+            <label class="chest-label">{{localize "SIMPLE.ChestNameLabel"}}</label>
+            <input class="chest-name-input" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "SIMPLE.ChestNamePlaceholder"}}" />
+        </div>
+    </header>
+
+    <div class="chest-resources-grid">
+        <div class="chest-resource-card">
+            <div class="resource-card-title"><i class="fas fa-drumstick-bite"></i> {{localize "SIMPLE.ChestFoodRations"}}</div>
+            <div class="resource-card-input">
+                <input type="number" name="system.foodRations" value="{{system.foodRations}}" min="0" />
+            </div>
+        </div>
+
+        <div class="chest-resource-card">
+            <div class="resource-card-title"><i class="fas fa-gas-can"></i> {{localize "SIMPLE.ChestFuel"}}</div>
+            <div class="resource-card-input">
+                <input type="number" name="system.fuel" value="{{system.fuel}}" min="0" />
+            </div>
+        </div>
+    </div>
+
+    <div class="chest-items-section">
+        <div class="chest-section-header">
+            <div class="section-title"><i class="fas fa-box-open"></i> {{localize "SIMPLE.ChestItemsList"}} ({{items.length}})</div>
+            <a class="item-control add-item-btn" data-action="create" title="{{localize "SIMPLE.ItemCreate"}}">
+                <i class="fas fa-plus"></i> {{localize "SIMPLE.ItemCreate"}}
+            </a>
+        </div>
+
+        <ul class="chest-items-list">
+            {{#each items as |item|}}
+            <li class="chest-item-row" data-item-id="{{item._id}}">
+                <img class="item-icon item-name-click" src="{{item.img}}" title="{{item.name}}" />
+                <span class="item-name item-name-click">{{item.name}}</span>
+                <span class="item-slots-info">{{#if item.system.requiredSlots}}{{item.system.requiredSlots}} slot(s){{/if}}</span>
+                <div class="item-controls">
+                    <a class="item-control" data-action="edit" title="{{localize "SIMPLE.ItemEdit"}}"><i class="fas fa-edit"></i></a>
+                    <a class="item-control" data-action="delete" title="{{localize "SIMPLE.ItemDelete"}}"><i class="fas fa-trash"></i></a>
+                </div>
+            </li>
+            {{else}}
+            <li class="chest-empty-notice">
+                <i class="fas fa-inbox"></i> {{localize "SIMPLE.ChestEmptyNotice"}}
+            </li>
+            {{/each}}
+        </ul>
+    </div>
+
+    <div class="chest-notes-section">
+        <label class="notes-label"><i class="fas fa-sticky-note"></i> {{localize "SIMPLE.ChestNotes"}}</label>
+        <textarea name="system.notes" rows="4" placeholder="{{localize "SIMPLE.ChestNotesPlaceholder"}}">{{system.notes}}</textarea>
+    </div>
+</div>

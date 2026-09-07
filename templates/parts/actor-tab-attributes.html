@@ -1,0 +1,25 @@
+<div class="tab attributes" data-group="primary" data-tab="attributes">
+    <header class="attributes-header flexrow">
+        <span class="attribute-key">{{localize "SIMPLE.AttributeKey"}}</span>
+        <span class="attribute-value">{{localize "SIMPLE.AttributeValue"}}</span>
+        <span class="attribute-label">{{localize "SIMPLE.AttributeLabel"}}</span>
+        <span class="attribute-dtype">{{localize "SIMPLE.AttributeDtype"}}</span>
+        <a class="attribute-control" data-action="create" data-group="{{group}}"><i class="fas fa-plus"></i></a>
+    </header>
+
+    {{!-- Render the attribute list partial --}}
+    {{> "systems/explosive-zombie/templates/parts/sheet-attributes.html"
+    attributes=system.ungroupedAttributes
+    dtypes=dtypes}}
+
+    {{!-- Render the grouped attributes partial and control --}}
+    <div class="groups">
+        {{> "systems/explosive-zombie/templates/parts/sheet-groups.html" attributes=system.groupedAttributes
+        groups=system.groups dtypes=dtypes}}
+
+        <div class="group-controls flexrow">
+            <input class="group-prefix" type="text" value="" />
+            <a class="button group-control" data-action="create-group"><i class="fas fa-plus"></i>{{localize "SIMPLE.AddAttributeGroup"}}</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+<div class="tab sheet" data-group="primary" data-tab="sheet">
+    <div class="card-container">
+
+        <!-- Barre de Titre -->
+        <div class="metal-frame top-bar">
+            <div class="rivet"></div>
+            <div class="rivet"></div>
+            <div class="rivet"></div>
+            <div class="rivet"></div>
+            <div class="inner-box">
+                <div class="item-title-group">
+                    <span class="item-name">{{data.name}}</span>
+                </div>
+                {{#if system.munitions.capacity}}
+                <div class="item-munitions">
+                    <i class="fa-solid fa-gas-pump"></i>
+                    <span>{{system.munitions.loadAmmo}} / {{system.munitions.capacity}}</span>
+                    {{#if system.munitions.totalAmmo}}<span
+                        class="total-ammo">({{system.munitions.totalAmmo}})</span>{{/if}}
+                </div>
+                {{/if}}
+                <div class="item-title-group">
+                    <div class="box item-slot-box data-val">{{system.requiredSlots}}A</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Illustration -->
+        <div class="metal-frame image-box">
+            <div class="inner-box" style="background-image: url('{{imageUrl}}');"></div>
+        </div>
+
+        <!-- Tableau des effets -->
+        <div class="bottom-section">
+            <div class="rivet side-rivet sr-1"></div>
+            <div class="rivet side-rivet sr-2"></div>
+            <div class="rivet side-rivet sr-3"></div>
+            <div class="rivet side-rivet right sr-1"></div>
+            <div class="rivet side-rivet right sr-2"></div>
+            <div class="rivet side-rivet right sr-3"></div>
+
+            <div class="table-frame">
+                <div class="stats-table">
+
+                    <!-- Ligne d'En-tête (Icônes + Texte) -->
+                    <div class="table-header" style="display: contents;">
+                        <div class="cell"><i class="fa-solid fa-hand"></i></div>
+                        <div class="cell"><i class="fa-solid fa-crosshairs"></i></div>
+                        <div class="cell"><i class="fa-solid fa-dice"></i></div>
+                        <div class="cell"><i class="fa-solid fa-gas-pump"></i></div>
+                        <div class="cell header-effect">{{localize "SIMPLE.EffectHeader"}}</div>
+                    </div>
+
+                    <!-- Lignes de stats générées dynamiquement -->
+                    {{#each system.activeEffects}}
+                    <div class="table-row" style="display: contents;">
+                        <div class="cell data-val">{{this.actionNumber}}</div>
+                        <div class="cell data-val">{{this.threshold}}</div>
+                        <div class="cell data-val cell-dice">{{this.dice}}</div>
+                        <div class="cell data-val">{{this.ammo}}</div>
+                        <div class="cell data-val effect-text">{{this.description}}</div>
+                    </div>
+                    {{/each}}
+                    {{#each system.passiveEffects}}
+                    <div class="table-row" style="display: contents;">
+                        <div class="cell data-val effect-text"
+                            style="grid-column: 1 / -1; justify-content: flex-start; padding-left: 12px;">
+                            {{this.description}}</div>
+                    </div>
+                    {{/each}}
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

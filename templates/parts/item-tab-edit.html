@@ -3,15 +3,15 @@
 
         <!-- Section Identité -->
         <fieldset class="form-section">
-            <legend><i class="fas fa-tag"></i> Identité & Apparence</legend>
+            <legend><i class="fas fa-tag"></i> {{localize "SIMPLE.SectionIdentity"}}</legend>
             <div class="form-group">
-                <label>Nom de l'Objet</label>
+                <label>{{localize "SIMPLE.ItemNameLabel"}}</label>
                 <div class="form-fields">
-                    <input type="text" name="name" value="{{data.name}}" placeholder="Nom de l'objet" />
+                    <input type="text" name="name" value="{{data.name}}" placeholder="{{localize 'SIMPLE.ItemNamePlaceholder'}}" />
                 </div>
             </div>
             <div class="form-group">
-                <label>Image / Icone</label>
+                <label>{{localize "SIMPLE.ImageIconLabel"}}</label>
                 <div class="form-fields flexrow">
                     <file-picker type="image" name="img" value="{{data.img}}"
                         placeholder="icons/svg/item-bag.svg"></file-picker>
@@ -19,21 +19,21 @@
             </div>
             <div class="form-grid grid-4col">
                 <div class="form-group">
-                    <label>Emplacements Requis (A)</label>
+                    <label>{{localize "SIMPLE.RequiredSlotsLabel"}}</label>
                     <input type="number" name="system.requiredSlots" value="{{system.requiredSlots}}" />
                 </div>
                 <div class="form-group">
-                    <label>Capacité Chargeur</label>
+                    <label>{{localize "SIMPLE.AmmoCapacityLabel"}}</label>
                     <input type="number" name="system.munitions.capacity"
                         value="{{system.munitions.capacity}}" />
                 </div>
                 <div class="form-group">
-                    <label>Munitions Chargées</label>
+                    <label>{{localize "SIMPLE.LoadAmmoLabel"}}</label>
                     <input type="number" name="system.munitions.loadAmmo"
                         value="{{system.munitions.loadAmmo}}" />
                 </div>
                 <div class="form-group">
-                    <label>Munitions Restantes</label>
+                    <label>{{localize "SIMPLE.RemainingAmmoLabel"}}</label>
                     <input type="number" name="system.munitions.remainingAmmo"
                         value="{{system.munitions.remainingAmmo}}" />
                 </div>
@@ -43,29 +43,29 @@
         <!-- Section Effets Actifs -->
         <fieldset class="form-section">
             <legend class="flexrow flex-between">
-                <span><i class="fas fa-bolt"></i> Effets Actifs</span>
+                <span><i class="fas fa-bolt"></i> {{localize "SIMPLE.ActiveEffects"}}</span>
                 <button type="button" class="effect-control btn-add" data-action="add"
-                    data-type="activeEffects"><i class="fas fa-plus"></i> Ajouter un effet</button>
+                    data-type="activeEffects"><i class="fas fa-plus"></i> {{localize "SIMPLE.AddEffect"}}</button>
             </legend>
             <div class="effects-list-edit">
                 {{#each system.activeEffects}}
                 <div class="effect-edit-row"
                     style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 2fr 30px; gap: 6px; margin-bottom: 8px; align-items: center;">
                     <input type="text" name="system.activeEffects.{{@index}}.actionNumber"
-                        value="{{this.actionNumber}}" placeholder="Nombre Action" />
+                        value="{{this.actionNumber}}" placeholder="{{localize 'SIMPLE.ActionNumberPlaceholder'}}" />
                     <input type="text" name="system.activeEffects.{{@index}}.threshold"
-                        value="{{this.threshold}}" placeholder="Seuil" />
+                        value="{{this.threshold}}" placeholder="{{localize 'SIMPLE.ThresholdPlaceholder'}}" />
                     <input type="text" name="system.activeEffects.{{@index}}.dice" value="{{this.dice}}"
-                        placeholder="Dés" />
+                        placeholder="{{localize 'SIMPLE.DicePlaceholder'}}" />
                     <input type="text" name="system.activeEffects.{{@index}}.ammo" value="{{this.ammo}}"
-                        placeholder="Munitions" />
+                        placeholder="{{localize 'SIMPLE.AmmoPlaceholder'}}" />
                     <input type="text" name="system.activeEffects.{{@index}}.description"
-                        value="{{this.description}}" placeholder="Effet / Description" />
+                        value="{{this.description}}" placeholder="{{localize 'SIMPLE.EffectDescriptionPlaceholder'}}" />
                     <a class="effect-control btn-del" data-action="delete" data-type="activeEffects"
-                        data-index="{{@index}}" title="Supprimer"><i class="fas fa-trash"></i></a>
+                        data-index="{{@index}}" title="{{localize 'SIMPLE.ItemDelete'}}"><i class="fas fa-trash"></i></a>
                 </div>
                 {{else}}
-                <p class="empty-msg">Aucun effet actif. Cliquez sur "Ajouter un effet".</p>
+                <p class="empty-msg">{{localize "SIMPLE.NoActiveEffectsNotice"}}</p>
                 {{/each}}
             </div>
         </fieldset>
@@ -73,21 +73,21 @@
         <!-- Section Effets Passifs -->
         <fieldset class="form-section">
             <legend class="flexrow flex-between">
-                <span><i class="fas fa-shield-alt"></i> Effets Passifs</span>
+                <span><i class="fas fa-shield-alt"></i> {{localize "SIMPLE.PassiveEffects"}}</span>
                 <button type="button" class="effect-control btn-add" data-action="add"
-                    data-type="passiveEffects"><i class="fas fa-plus"></i> Ajouter un effet</button>
+                    data-type="passiveEffects"><i class="fas fa-plus"></i> {{localize "SIMPLE.AddEffect"}}</button>
             </legend>
             <div class="effects-list-edit">
                 {{#each system.passiveEffects}}
                 <div class="effect-edit-row"
                     style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
                     <input type="text" name="system.passiveEffects.{{@index}}.description"
-                        value="{{this.description}}" placeholder="Description de l'effet passif" />
+                        value="{{this.description}}" placeholder="{{localize 'SIMPLE.PassiveEffectPlaceholder'}}" />
                     <a class="effect-control btn-del" data-action="delete" data-type="passiveEffects"
-                        data-index="{{@index}}" title="Supprimer"><i class="fas fa-trash"></i></a>
+                        data-index="{{@index}}" title="{{localize 'SIMPLE.ItemDelete'}}"><i class="fas fa-trash"></i></a>
                 </div>
                 {{else}}
-                <p class="empty-msg">Aucun effet passif. Cliquez sur "Ajouter un effet".</p>
+                <p class="empty-msg">{{localize "SIMPLE.NoPassiveEffectsNotice"}}</p>
                 {{/each}}
             </div>
         </fieldset>

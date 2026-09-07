@@ -3,12 +3,10 @@
   "SETTINGS.SimpleMacroShorthandL": "Enable a shortened macro syntax which allows referencing attributes directly, for example @str instead of @attributes.str.value. Disable this setting if you need the ability to reference the full attribute model, for example @attributes.str.label.",
   "SETTINGS.SimpleInitFormulaN": "Initiative Formula",
   "SETTINGS.SimpleInitFormulaL": "Enter an initiative formula, such as d20+@dex",
-
   "SIMPLE.ItemCreate": "Create Item",
   "SIMPLE.ItemEdit": "Edit Item",
   "SIMPLE.ItemDelete": "Delete Item",
   "SIMPLE.ItemNew": "New Item",
-
   "SIMPLE.NotifyInitFormulaUpdated": "Initiative formula was updated to",
   "SIMPLE.NotifyInitFormulaInvalid": "Initiative formula was invalid",
   "SIMPLE.NotifyGroupDuplicate": "Attribute group already exists.",
@@ -17,26 +15,20 @@
   "SIMPLE.NotifyGroupReserved": "Attribute group \"{key}\" is reserved and cannot be used.",
   "SIMPLE.NotifyAttrDuplicate": "Attribute key already exists as a group.",
   "SIMPLE.NotifyAttrInvalid": "Attribute keys may not contain spaces or periods.",
-
   "SIMPLE.ResourceMin": "Min",
   "SIMPLE.ResourceValue": "Value",
   "SIMPLE.ResourceMax": "Max",
-
   "SIMPLE.DefineTemplate": "Define as Template",
   "SIMPLE.UnsetTemplate": "Unset Template",
   "SIMPLE.NoTemplate": "No Template",
-
   "SIMPLE.AttributeKey": "Attribute Key",
   "SIMPLE.AttributeValue": "Value",
   "SIMPLE.AttributeLabel": "Label",
   "SIMPLE.AttributeDtype": "Data Type",
-
   "SIMPLE.DeleteGroup": "Delete group?",
   "SIMPLE.DeleteGroupContent": "Do you wish to delete this group? This will delete the following group and all attributes included in it: ",
-
   "SIMPLE.Create": "Create",
   "SIMPLE.New": "New",
-
   "SIMPLE.TabSheet": "Fiche",
   "SIMPLE.TabEdit": "Formulaire",
   "SIMPLE.TabItems": "Objets",
@@ -56,12 +48,10 @@
   "SIMPLE.ConfirmClearSlot": "Voulez-vous vraiment retirer cet objet de l'inventaire ?",
   "SIMPLE.ConfirmClearSlotContent": "Voulez-vous vraiment retirer \"{name}\" de l'inventaire ?",
   "SIMPLE.ItemRemovedNotice": "Objet \"{name}\" retiré de l'inventaire.",
-
   "TYPES.Actor.character": "Personnage",
   "TYPES.Actor.zombie": "Zombie",
   "TYPES.Actor.chest": "Coffre",
   "TYPES.Item.item": "Objet",
-
   "SIMPLE.SheetCharacter": "Fiche Personnage",
   "SIMPLE.SheetZombie": "Fiche Zombie",
   "SIMPLE.SheetChest": "Fiche Coffre",
@@ -76,7 +66,6 @@
   "SIMPLE.ZombieRollAction": "Lancer les dés d'action",
   "SIMPLE.ZombieNotes": "Notes & Capacité spéciale",
   "SIMPLE.ZombieNotesPlaceholder": "Entrez les détails ou notes concernant ce zombie...",
-
   "SIMPLE.ChestSheetTitle": "Fiche Coffre",
   "SIMPLE.ChestNameLabel": "Nom du Coffre",
   "SIMPLE.ChestNamePlaceholder": "Nom du coffre / conteneur...",
@@ -85,5 +74,14 @@
   "SIMPLE.ChestItemsList": "Contenu du coffre",
   "SIMPLE.ChestEmptyNotice": "Ce coffre est vide. Glissez des objets ici ou cliquez sur 'Créer un objet'.",
   "SIMPLE.ChestNotes": "Notes du coffre",
-  "SIMPLE.ChestNotesPlaceholder": "Notes, serrures, ou pièges du coffre..."
+  "SIMPLE.ChestNotesPlaceholder": "Notes, serrures, ou pièges du coffre...",
+  "SIMPLE.InjuryReasonBlessure": "Blessure",
+  "SIMPLE.InjuryReasonFaim": "Faim",
+  "SIMPLE.InjuryReasonMorsure": "Morsure",
+  "SIMPLE.InjuryReasonZombification": "Zombification",
+  "SIMPLE.InjuryReasonSaignement": "Saignement",
+  "SIMPLE.InjuryReasonInfection": "Infection",
+  "SIMPLE.HealthReasonBruleure": "Brûlure",
+  "SIMPLE.HealthReasonPoison": "Poison",
+  "SIMPLE.HealthReasonEpuisement": "Épuisement"
 }

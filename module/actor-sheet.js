@@ -1,5 +1,5 @@
 import { EntitySheetHelper } from "./helper.js";
-import { ATTRIBUTE_TYPES } from "./constants.js";
+import { ATTRIBUTE_TYPES, INJURY_REASONS } from "./constants.js";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -113,6 +113,26 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     context.armors = context.system.armors;
     context.skills = context.system.skills;
     context.inventory = context.system.inventory;
+
+    // Prepare localized health loss reasons list for select options
+    const defaultReasonKeys = new Set(Object.keys(INJURY_REASONS));
+    const customReasons = new Set();
+    for (const hp of (context.healthPoints || [])) {
+      if (hp && !defaultReasonKeys.has(hp)) {
+        customReasons.add(hp);
+      }
+    }
+
+    const healthReasonsList = Object.entries(INJURY_REASONS).map(([val, labelKey]) => ({
+      value: val,
+      label: labelKey ? game.i18n.localize(labelKey) : ""
+    }));
+
+    for (const custom of customReasons) {
+      healthReasonsList.push({ value: custom, label: custom });
+    }
+
+    context.healthReasons = healthReasonsList;
 
     // Categorize items by slotType for divided tab view
     const itemsBySlot = [

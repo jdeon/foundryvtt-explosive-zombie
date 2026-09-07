@@ -66,11 +66,20 @@
                     </div>
                 </div>
                 <div class="health-col">
-                    <!--TODO Update the health box to be select instead of text input and try to not show the "input style"-->
                     <div class="health-title">SANTÉ (PV)</div>
                     <div class="box-row">
                         {{#each healthPoints}}
-                        <div class="box"><input type="text" name="system.healthPoints.{{@index}}" value="{{this}}" />
+                        <div class="box health-box">
+                            <span class="health-letter">{{firstLetter this}}</span>
+                            <select name="system.healthPoints.{{@index}}" class="health-select"
+                                title="{{#if this}}{{this}}{{else}}{{localize " SIMPLE.HealthReasonHealthy"}}{{/if}}">
+                                <option value="" {{#if (eq ../this "" )}}selected{{/if}}></option>
+
+                                {{#each ../healthReasons}}
+                                <option value="{{this.value}}" {{#if (eq ../this this.value)}}selected{{/if}}>
+                                    {{this.label}}</option>
+                                {{/each}}
+                            </select>
                         </div>
                         {{/each}}
                     </div>

@@ -13,6 +13,7 @@ import { ChestActorSheet } from "./chest-sheet.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { createWorldbuildingMacro } from "./macro.js";
 import { SimpleToken, SimpleTokenDocument } from "./token.js";
+import { INJURY_REASONS } from "./constants.js";
 
 /* -------------------------------------------- */
 /*  Foundry VTT Initialization                  */
@@ -98,6 +99,15 @@ Hooks.once("init", async function () {
    */
   Handlebars.registerHelper('slugify', function (value) {
     return value.slugify({ strict: true });
+  });
+
+  Handlebars.registerHelper('firstLetter', function (value) {
+    if (!value || typeof value !== 'string') return '';
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+    const labelKey = INJURY_REASONS[trimmed];
+    const localized = labelKey ? game.i18n.localize(labelKey) : trimmed;
+    return (localized || trimmed).trim().charAt(0).toUpperCase();
   });
 
   Handlebars.registerHelper('repeat', function (count, options) {

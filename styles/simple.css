@@ -316,6 +316,54 @@
   justify-content: center;
   gap: 10px;
 }
+.explosive-zombie .health-col .health-box {
+  position: relative;
+  width: 45px;
+  height: 45px;
+}
+.explosive-zombie .health-col .health-box .health-letter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-data, cursive);
+  font-size: 34px;
+  font-weight: bold;
+  color: #b30000;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+.explosive-zombie .health-col .health-box .health-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: transparent;
+  outline: none;
+  box-shadow: none;
+  cursor: pointer;
+}
+.explosive-zombie .health-col .health-box .health-select:focus,
+.explosive-zombie .health-col .health-box .health-select:hover {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+.explosive-zombie .health-col .health-box .health-select option {
+  font-family: var(--font-main, sans-serif);
+  font-size: 15px;
+  color: #1a1a1a;
+  background: #ffffff;
+  padding: 4px 8px;
+}
 .explosive-zombie .health-title {
   font-size: 26px;
   margin-bottom: 5px;

@@ -1,19 +1,19 @@
 {
   "name": "explosive-zombie",
   "version": "1.0.0",
-  "description": "CSS compiler for the system",
+  "description": "CSS compiler for the system and package to handle packs on release",
   "scripts": {
     "css": "gulp css",
     "watch": "gulp",
-    "gulp": "gulp"
+    "gulp": "gulp",
+    "unpack": "node ./ci/unpackLdb.mjs",
+    "pack": "node ./ci/packLdb.mjs"
   },
-  "browserslist": [
-    "last 3 versions"
-  ],
-  "author": "",
+  "author": "jdeon",
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@foundryvtt/foundryvtt-cli": "^3.0.3",
     "gulp": "^4.0.2",
     "gulp-less": "^4.0.1"
   },

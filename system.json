@@ -19,7 +19,20 @@
   "styles": [
     "styles/simple.css"
   ],
-  "packs": [],
+  "packs": [
+    {
+      "label": "Macro",
+      "type": "Macro",
+      "name": "macro",
+      "path": "packs/macro",
+      "system": "explosive-zombie",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "flags": {}
+    }
+  ],
   "languages": [
     {
       "lang": "en",

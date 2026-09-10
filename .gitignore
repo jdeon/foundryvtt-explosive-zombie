@@ -2,5 +2,9 @@
 .idea/
 .vs/
 
+# Foundry
+packs/*
+!packs/_source
+
 # Node Modules
 node_modules/

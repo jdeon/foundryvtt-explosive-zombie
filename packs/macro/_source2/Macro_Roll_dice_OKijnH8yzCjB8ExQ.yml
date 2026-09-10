@@ -1,0 +1,150 @@
+name: Roll dice
+type: script
+command: |-
+  /**
+   * Macro Foundry VTT - Jet de dés explosifs (Explosive Zombie)
+   * 
+   * Demande le nombre de dés et le seuil, puis applique les règles :
+   * - Seuil < 2 : ramené à 2, différence ajoutée au nombre de dés.
+   * - Seuil > 6 : ramené à 6, différence soustraite du nombre de dés.
+   * - Si le nombre de dés devient < 1 : 0 dé lancé, chaque dé manquant sous 1 applique une pénalité de -1 aux succès.
+   * - Les dés explosent s'ils atteignent ou dépassent le seuil.
+   */
+
+  new Dialog({
+    title: "Lancer de dés explosifs",
+    content: `
+      <form style="margin-bottom: 10px;">
+        <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center;">
+          <label style="flex: 1; font-weight: bold;">Nombre de dés :</label>
+          <input type="number" id="dice-count" value="3" min="1" style="flex: 1; text-align: center;" />
+        </div>
+        <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center;">
+          <label style="flex: 1; font-weight: bold;">Seuil de réussite :</label>
+          <input type="number" id="threshold" value="4" style="flex: 1; text-align: center;" />
+        </div>
+      </form>
+    `,
+    buttons: {
+      roll: {
+        icon: '<i class="fas fa-dice-d6"></i>',
+        label: "Lancer les dés",
+        callback: async (html) => {
+          const inputDice = parseInt(html.find('#dice-count').val()) || 1;
+          const inputThreshold = parseInt(html.find('#threshold').val()) || 4;
+
+          let finalThreshold = inputThreshold;
+          let finalDice = inputDice;
+          let successPenalty = 0;
+
+          // 1. Si le seuil est inférieur à 2
+          if (inputThreshold < 2) {
+            const diff = 2 - inputThreshold;
+            finalThreshold = 2;
+            finalDice = inputDice + diff;
+          } 
+          // 2. Si le seuil est supérieur à 6
+          else if (inputThreshold > 6) {
+            const diff = inputThreshold - 6;
+            finalThreshold = 6;
+            finalDice = inputDice - diff;
+          }
+
+          // 3. Si le nombre de dés est inférieur à 1
+          let diceToRoll = finalDice;
+          if (finalDice < 1) {
+            // Calcule la pénalité sur les succès (1 dé sous 1 = -1 succès, 2 dés sous 1 = -2 succès, etc.)
+            successPenalty = 1 - finalDice;
+            diceToRoll = 1;
+          }
+
+          let roll;
+          let diceSuccesses = 0;
+
+          if (diceToRoll > 0) {
+            // Formule Foundry : "Xd6x>=Tcs>=T"
+            // - x>=T : explose sur chaque résultat >= T
+            // - cs>=T : compte 1 succès pour chaque dé >= T
+            const formula = `${diceToRoll}d6x>=${finalThreshold}cs>=${finalThreshold}`;
+            roll = new Roll(formula);
+            await roll.evaluate();
+            diceSuccesses = roll.total;
+          } else {
+            // Aucun dé lancé (0 dé)
+            roll = new Roll("0d6");
+            await roll.evaluate();
+            diceSuccesses = 0;
+          }
+
+          // Nombre de succès final après pénalité éventuelle
+          const finalSuccesses = diceSuccesses - successPenalty;
+
+          // Formatage de la carte de Chat
+          let penaltyNotice = "";
+          if (successPenalty > 0) {
+            penaltyNotice = `<p style="color: #c0392b; font-weight: bold; margin: 4px 0;">
+              <i class="fas fa-exclamation-triangle"></i> Nombre de dés inférieur à 1 (${finalDice}) : Pénalité de -${successPenalty} succès.
+            </p>`;
+          }
+
+          let adjustmentNotice = "";
+          if (inputThreshold !== finalThreshold || inputDice !== finalDice) {
+            adjustmentNotice = `
+              <div style="background: rgba(0, 0, 0, 0.05); padding: 6px 8px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em;">
+                <strong>Ajustements appliqués :</strong><br/>
+                • Seuil : <code>${inputThreshold}</code> → <code>${finalThreshold}</code><br/>
+                • Dés : <code>${inputDice}</code> → <code>${finalDice}</code> (Effectifs lancés : <code>${diceToRoll}</code>)
+              </div>
+            `;
+          }
+
+          const flavor = `
+            <div class="explosive-roll-card">
+              <h3 style="border-bottom: 2px solid #7a0000; padding-bottom: 4px; margin-bottom: 8px;">
+                <i class="fas fa-bomb"></i> Jet de Dés Explosifs
+              </h3>
+              ${adjustmentNotice}
+              ${penaltyNotice}
+              <p style="font-size: 1.1em; margin: 4px 0;">
+                <strong>Succès totaux :</strong> 
+                <span style="color: ${finalSuccesses > 0 ? '#27ae60' : '#c0392b'}; font-weight: bold; font-size: 1.2em;">
+                  ${finalSuccesses}
+                </span>
+              </p>
+            </div>
+          `;
+
+          await roll.toMessage({
+            speaker: ChatMessage.getSpeaker({ actor: canvas.tokens.controlled[0]?.actor || game.user.character }),
+            flavor: flavor
+          });
+        }
+      },
+      cancel: {
+        icon: '<i class="fas fa-times"></i>',
+        label: "Annuler"
+      }
+    },
+    default: "roll"
+  }).render(true);
+img: icons/svg/dice-target.svg
+author: dlzQRtTeoPUIvh4P
+scope: global
+folder: null
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: explosive-zombie
+  systemVersion: 0.1.0
+  createdTime: 1788996060864
+  modifiedTime: 1788996072956
+  lastModifiedBy: dlzQRtTeoPUIvh4P
+ownership:
+  default: 0
+  dlzQRtTeoPUIvh4P: 3
+_id: OKijnH8yzCjB8ExQ
+sort: 0
+_key: '!macros!OKijnH8yzCjB8ExQ'

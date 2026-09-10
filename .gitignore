@@ -3,8 +3,9 @@
 .vs/
 
 # Foundry
-packs/*
-!packs/_source
+packs/**
+!packs/**/
+!packs/**/_source*/**
 
 # Node Modules
 node_modules/

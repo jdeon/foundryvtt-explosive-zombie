@@ -78,8 +78,19 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
   /* -------------------------------------------- */
 
   /** @override */
+  _configureRenderOptions(options) {
+    super._configureRenderOptions(options);
+    if (!game.user?.isGM) {
+      options.parts = ["sheet"];
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
+    context.isGM = game.user?.isGM;
     context.actor = this.document;
     context.data = this.document.toObject(false);
     context.shorthand = !!game.settings.get("explosive-zombie", "macroShorthand");
@@ -176,18 +187,16 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
   _onRender(context, options) {
     super._onRender(context, options);
 
-    // Activate current tab content
-    const activeTab = this.tabGroups.primary || "sheet";
-    this.changeTab(activeTab, "primary", { force: true });
-
     const html = $(this.element);
 
-    // Tab navigation click handling
-    html.find('.sheet-tabs .item, [data-action="tab"]').on('click', ev => {
-      ev.preventDefault();
-      const tab = ev.currentTarget.dataset.tab;
-      if (tab) this.changeTab(tab, "primary");
-    });
+    if (game.user?.isGM) {
+      // Tab navigation click handling
+      html.find('.sheet-tabs .item, [data-action="tab"]').on('click', ev => {
+        ev.preventDefault();
+        const tab = ev.currentTarget.dataset.tab;
+        if (tab) this.changeTab(tab, "primary");
+      });
+    }
 
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;

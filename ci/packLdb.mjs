@@ -1,7 +1,6 @@
 import { compilePack } from '@foundryvtt/foundryvtt-cli';
 import { promises as fs } from 'fs';
 
-const s_MODULE_ID = "particule-fx"
 const yaml = true;
 const folders = true;
 

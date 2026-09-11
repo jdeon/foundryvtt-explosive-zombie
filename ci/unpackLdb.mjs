@@ -2,7 +2,7 @@ import { extractPack } from "@foundryvtt/foundryvtt-cli";
 import { promises as fs } from "fs";
 import path from "path";
 
-const s_MODULE_ID = "particule-fx"
+const s_MODULE_ID = "explosive-zombie"
 const yaml = true;
 const expandAdventures = true;
 const folders = true;
@@ -13,7 +13,7 @@ for (const pack of packs) {
   console.log("Unpacking " + pack);
   await extractPack(
     `packs/${pack}`,
-    `packs/${pack}/_source2`,
+    `packs/${pack}/_source`,
     {
       yaml,
       transformName,
@@ -33,6 +33,6 @@ function transformName(doc, context) {
   const prefix = ["Actor", "Item"].includes(context.documentType) ? doc.type : context.documentType;
 
   let name = `${doc.name ? `${prefix}_${safeFileName}_${doc._id}` : doc._id}.${yaml ? "yml" : "json"}`;
-  if ( context.folder ) name = path.join(context.folder, name);
+  if (context.folder) name = path.join(context.folder, name);
   return name;
 }

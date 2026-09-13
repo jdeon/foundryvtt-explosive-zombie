@@ -166,7 +166,8 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   }
 
   /**
-   * Resolve a raw stat string (e.g. "AGI", "MEN", "CON", "3") to character stats (agility, mental, constitution).
+   * Resolve a raw stat formula or string (e.g. "AGI", "AGI + 1", "AGI + CON", "3") to a numeric value.
+   * Handles flat numbers, stat references, and basic arithmetic (+, -, *, /).
    * @param {string|number} rawValue
    * @param {Actor} [actor]
    * @param {number} [defaultValue=1]
@@ -178,21 +179,47 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     const str = String(rawValue).trim();
     if (!str) return defaultValue;
 
-    // Direct number check
+    // Direct single number check
     const numericDirect = Number(str);
     if (!isNaN(numericDirect)) return numericDirect;
 
-    if (!actor) return defaultValue;
+    const stats = actor?.system?.stats || {};
+    let formula = str;
 
-    const stats = actor.system?.stats || {};
-    const upper = str.toUpperCase();
-
-    const statProp = STAT_MAPPING[upper];
-    if (statProp && stats[statProp] !== undefined && !isNaN(Number(stats[statProp]))) {
-      return Number(stats[statProp]);
+    // Replace stat tokens (AGI, MEN, CON, SPD, etc.) with values from actor.system.stats
+    const statKeys = Object.keys(STAT_MAPPING).sort((a, b) => b.length - a.length);
+    for (const key of statKeys) {
+      const prop = STAT_MAPPING[key];
+      const val = (stats[prop] !== undefined && !isNaN(Number(stats[prop]))) ? Number(stats[prop]) : 0;
+      const regex = new RegExp(`\\b${key}\\b`, "gi");
+      formula = formula.replace(regex, String(val));
     }
 
-    const parsed = parseInt(str);
+    // Try evaluating with Foundry's Roll engine if deterministic
+    try {
+      const roll = new Roll(formula);
+      if (roll.isDeterministic) {
+        roll.evaluateSync();
+        const total = Number(roll.total);
+        if (!isNaN(total)) return Math.round(total);
+      }
+    } catch (e) {
+      // Fall through to safe Function eval if roll parsing fails
+    }
+
+    // Safe arithmetic fallback for expressions containing only numbers, operators, and parentheses
+    if (/^[0-9+\-*/().\s]+$/.test(formula)) {
+      try {
+        const result = Function(`"use strict"; return (${formula})`)();
+        if (typeof result === "number" && !isNaN(result)) {
+          return Math.round(result);
+        }
+      } catch (e) {
+        console.warn(`SimpleItemSheet | Error evaluating stat expression "${formula}":`, e);
+      }
+    }
+
+    const parsed = parseInt(formula);
     if (!isNaN(parsed)) return parsed;
 
     return defaultValue;

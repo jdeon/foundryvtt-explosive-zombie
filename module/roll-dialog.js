@@ -10,13 +10,17 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
   constructor(diceNumber, threshold, options = {}) {
     const content = `
       <form style="margin-bottom: 10px;">
-        <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center;">
+        <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 4px;">
           <label style="flex: 1; font-weight: bold;">Nombre de dés :</label>
-          <input type="number" id="dice-count" name="diceCount" value="${diceNumber}" style="flex: 1; text-align: center;" />
+          <button type="button" class="spin-btn" data-action="decrease" data-target="#dice-count" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-minus"></i></button>
+          <input type="number" id="dice-count" name="diceCount" value="${diceNumber}" style="width: 50px; text-align: center;" />
+          <button type="button" class="spin-btn" data-action="increase" data-target="#dice-count" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-plus"></i></button>
         </div>
-        <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center;">
+        <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 4px;">
           <label style="flex: 1; font-weight: bold;">Seuil de réussite :</label>
-          <input type="number" id="threshold" name="threshold" value="${threshold}" style="flex: 1; text-align: center;" />
+          <button type="button" class="spin-btn" data-action="decrease" data-target="#threshold" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-minus"></i></button>
+          <input type="number" id="threshold" name="threshold" value="${threshold}" style="width: 50px; text-align: center;" />
+          <button type="button" class="spin-btn" data-action="increase" data-target="#threshold" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-plus"></i></button>
         </div>
       </form>
     `;
@@ -50,12 +54,40 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     };
   }
 
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    const html = this.element;
+    if (!html) return;
+
+    html.querySelectorAll('.spin-btn').forEach(btn => {
+      btn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        const targetId = btn.dataset.target;
+        const action = btn.dataset.action;
+        const input = html.querySelector(targetId);
+        if (!input) return;
+        let val = parseInt(input.value);
+        if (isNaN(val)) val = action === 'increase' ? 1 : 0;
+        else if (action === 'increase') val += 1;
+        else if (action === 'decrease') val -= 1;
+
+        const min = input.getAttribute('min');
+        const max = input.getAttribute('max');
+        if (min !== null && val < parseInt(min)) val = parseInt(min);
+        if (max !== null && val > parseInt(max)) val = parseInt(max);
+
+        input.value = val;
+      });
+    });
+  }
+
   _executeDialog = async (event, _button, dialog) => {
     const element = dialog?.element ?? (event?.target ? event.target.closest(".window-content, form, dialog") : null) ?? this.element;
     const inputDice = parseInt(element?.querySelector('#dice-count')?.value);
     const inputThreshold = parseInt(element?.querySelector('#threshold')?.value);
 
-    if (inputDice === undefined || inputThreshold === undefined) {
+    if (isNaN(inputDice) || isNaN(inputThreshold)) {
       ui.notifications.error("Veuillez entrer un nombre de dés et un seuil de réussite");
       return;
     }
@@ -146,3 +178,4 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     return flavor;
   }
 }
+

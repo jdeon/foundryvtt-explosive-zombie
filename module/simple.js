@@ -10,6 +10,7 @@ import { SimpleItemSheet } from "./item-sheet.js";
 import { CharacterActorSheet } from "./actor-sheet.js";
 import { ZombieActorSheet } from "./zombie-sheet.js";
 import { ChestActorSheet } from "./chest-sheet.js";
+import { RollDialog } from "./roll-dialog.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { createWorldbuildingMacro } from "./macro.js";
 import { SimpleToken, SimpleTokenDocument } from "./token.js";
@@ -38,6 +39,7 @@ Hooks.once("init", async function () {
     CharacterActor,
     ZombieActorSheet,
     ChestActorSheet,
+    RollDialog,
     createWorldbuildingMacro
   };
 

@@ -29,7 +29,7 @@ jobs:
         replace: ${{ steps.get-version.outputs.version }}
 
     # create a zip file with all files required by the module to add to the release
-    - run: zip -r module.zip . -x '*.git*' "node_modules/*" "package.json" "package-lock.json"
+    - run: zip -r module.zip . -x '*.git*' "ci/*" "node_modules/*" "package.json" "package-lock.json"
     
     # Create a release for this specific version
     - name: Create Release

@@ -1,5 +1,6 @@
 import { EntitySheetHelper } from "./helper.js";
-import { ATTRIBUTE_TYPES } from "./constants.js";
+import { ATTRIBUTE_TYPES, STAT_MAPPING } from "./constants.js";
+import { RollDialog } from "./roll-dialog.js";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -110,6 +111,9 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
     const html = $(this.element);
 
+    // Active effect click to open prefilled RollDialog
+    html.find(".active-effect-rollable").on("click", this._onActiveEffectRoll.bind(this));
+
     if (game.user?.isGM) {
       // Tab navigation click handling
       html.find('.sheet-tabs .item, [data-action="tab"]').on('click', ev => {
@@ -138,6 +142,60 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         ev.dataTransfer.setData('text/plain', JSON.stringify(dragData));
       }, false);
     });
+  }
+
+  /**
+   * Handle click on active effect row to open prefilled RollDialog
+   * @param {Event} event
+   * @private
+   */
+  _onActiveEffectRoll(event) {
+    event.preventDefault();
+    const row = event.currentTarget.closest(".active-effect-rollable");
+    if (!row) return;
+
+    const actor = this.item.actor || canvas.tokens?.controlled[0]?.actor || game.user?.character;
+
+    const rawDice = row.dataset.dice;
+    const rawThreshold = row.dataset.threshold;
+
+    const diceNumber = this._resolveStatValue(rawDice, actor, 1);
+    const threshold = this._resolveStatValue(rawThreshold, actor, 4);
+
+    new RollDialog(diceNumber, threshold).render(true);
+  }
+
+  /**
+   * Resolve a raw stat string (e.g. "AGI", "MEN", "CON", "3") to character stats (agility, mental, constitution).
+   * @param {string|number} rawValue
+   * @param {Actor} [actor]
+   * @param {number} [defaultValue=1]
+   * @returns {number}
+   * @private
+   */
+  _resolveStatValue(rawValue, actor, defaultValue = 1) {
+    if (rawValue === undefined || rawValue === null) return defaultValue;
+    const str = String(rawValue).trim();
+    if (!str) return defaultValue;
+
+    // Direct number check
+    const numericDirect = Number(str);
+    if (!isNaN(numericDirect)) return numericDirect;
+
+    if (!actor) return defaultValue;
+
+    const stats = actor.system?.stats || {};
+    const upper = str.toUpperCase();
+
+    const statProp = STAT_MAPPING[upper];
+    if (statProp && stats[statProp] !== undefined && !isNaN(Number(stats[statProp]))) {
+      return Number(stats[statProp]);
+    }
+
+    const parsed = parseInt(str);
+    if (!isNaN(parsed)) return parsed;
+
+    return defaultValue;
   }
 
   /* -------------------------------------------- */

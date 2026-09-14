@@ -163,11 +163,19 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
     const rawDice = row.dataset.dice;
     const rawThreshold = row.dataset.threshold;
+    const rawAmmoCost = row.dataset.ammo;
 
     const diceNumber = this._resolveStatValue(rawDice, actor, 1);
     const threshold = this._resolveStatValue(rawThreshold, actor, 4);
+    const ammoCost = Number(row.dataset.ammo)
 
-    new RollDialog(diceNumber, threshold).render(true);
+    new RollDialog(diceNumber, threshold, {
+      item: this.item,
+      ammoCost,
+      window: {
+        title: this.item.name
+      }
+    }).render(true);
   }
 
   /**

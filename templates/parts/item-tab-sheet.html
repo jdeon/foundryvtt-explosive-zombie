@@ -14,9 +14,10 @@
                 {{#if system.munitions.capacity}}
                 <div class="item-munitions">
                     <i class="fa-solid fa-boxes-stacked"></i>
-                    <span>{{system.munitions.loadAmmo}} / {{system.munitions.capacity}}</span>
-                    {{#if system.munitions.totalAmmo}}<span
-                        class="total-ammo">({{system.munitions.totalAmmo}})</span>{{/if}}
+                    <span>{{system.munitions.loadAmmo}}</span>
+                    <span>/</span>
+                    <span>{{system.munitions.capacity}}</span>
+                    {{#if system.munitions.remainingAmmo}}<span>(+{{system.munitions.remainingAmmo}})</span>{{/if}}
                 </div>
                 {{/if}}
                 <div class="item-title-group">

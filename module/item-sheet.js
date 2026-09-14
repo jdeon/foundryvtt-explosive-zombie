@@ -122,6 +122,9 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
 
+    // Reduce loaded ammo on left click
+    html.find('.item-munitions').click(this._onClickMunitions.bind(this));
+
     // Effect management in Classic Form
     html.find('.effect-control').click(this._onEffectControl.bind(this));
 
@@ -184,5 +187,19 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       if (!isNaN(index)) effects.splice(index, 1);
     }
     return this.item.update({ [`system.${type}`]: effects });
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle left click on item munitions to reduce loadAmmo by 1
+   * @param {Event} event
+   * @private
+   */
+  async _onClickMunitions(event) {
+    event.preventDefault();
+    const currentAmmo = Number(this.item.system.munitions?.loadAmmo || 0);
+    if (currentAmmo <= 0) return;
+    return this.item.update({ "system.munitions.loadAmmo": currentAmmo - 1 });
   }
 }

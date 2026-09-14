@@ -150,11 +150,55 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   }
 
   /**
+   * Prompt user to enter X value for variable ammo
+   * @param {number} availableAmmo
+   * @returns {Promise<number|null>}
+   */
+  static async askVariableAmmo(availableAmmo) {
+    return new Promise((resolve) => {
+      new foundry.applications.api.DialogV2({
+        window: { title: "Choix des munitions (X)" },
+        content: `
+          <form style="margin-bottom: 10px;">
+            <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 6px;">
+              <label style="flex: 1; font-weight: bold;">Munitions à consommer (X) :</label>
+              <input type="number" id="x-ammo-input" value="1" min="1" max="${availableAmmo}" style="width: 60px; text-align: center;" />
+            </div>
+            <div style="font-size: 0.85em; color: #666; text-align: right;">
+              Munitions chargées disponibles : <strong>${availableAmmo}</strong>
+            </div>
+          </form>
+        `,
+        buttons: [
+          {
+            action: "confirm",
+            label: "Valider",
+            icon: "fas fa-check",
+            default: true,
+            callback: (event, button, dialog) => {
+              const input = dialog.element.querySelector('#x-ammo-input');
+              const val = parseInt(input?.value);
+              resolve(isNaN(val) ? 1 : val);
+            }
+          },
+          {
+            action: "cancel",
+            label: "Annuler",
+            icon: "fas fa-times",
+            callback: () => resolve(null)
+          }
+        ],
+        close: () => resolve(null)
+      }).render(true);
+    });
+  }
+
+  /**
    * Handle click on active effect row to open prefilled RollDialog
    * @param {Event} event
    * @private
    */
-  _onActiveEffectRoll(event) {
+  async _onActiveEffectRoll(event) {
     event.preventDefault();
     const row = event.currentTarget.closest(".active-effect-rollable");
     if (!row) return;
@@ -163,11 +207,31 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
     const rawDice = row.dataset.dice;
     const rawThreshold = row.dataset.threshold;
-    const rawAmmoCost = row.dataset.ammo;
+    const rawAmmo = String(row.dataset.ammo || "").trim();
 
-    const diceNumber = this._resolveStatValue(rawDice, actor, 1);
-    const threshold = this._resolveStatValue(rawThreshold, actor, 4);
-    const ammoCost = Number(row.dataset.ammo)
+    const customValue = {};
+
+    let ammoCost;
+
+    if (rawAmmo.toUpperCase() === "X") {
+      const availableAmmo = Number(this.item.system?.munitions?.loadAmmo || 0);
+      if (availableAmmo <= 0) {
+        ui.notifications.warn("Munitions chargées insuffisantes ! (0 disponible)");
+        return;
+      }
+      const chosenX = await SimpleItemSheet.askVariableAmmo(availableAmmo);
+      if (chosenX === null || chosenX === undefined) return; // User cancelled
+
+      ammoCost = Math.min(Math.max(1, chosenX), availableAmmo);
+      customValue.X = chosenX;
+    } else if (rawAmmo) {
+      ammoCost = Number(rawAmmo);
+    } else {
+      ammoCost = 0
+    }
+
+    const diceNumber = this._resolveStatValue(rawDice, actor, 1, customValue);
+    const threshold = this._resolveStatValue(rawThreshold, actor, 4, customValue);
 
     new RollDialog(diceNumber, threshold, {
       item: this.item,
@@ -184,10 +248,11 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
    * @param {string|number} rawValue
    * @param {Actor} [actor]
    * @param {number} [defaultValue=1]
+   * @param {Object} [customValue={}]
    * @returns {number}
    * @private
    */
-  _resolveStatValue(rawValue, actor, defaultValue = 1) {
+  _resolveStatValue(rawValue, actor, defaultValue = 1, customValue = {}) {
     if (rawValue === undefined || rawValue === null) return defaultValue;
     const str = String(rawValue).trim();
     if (!str) return defaultValue;
@@ -204,6 +269,13 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     for (const key of statKeys) {
       const prop = STAT_MAPPING[key];
       const val = (stats[prop] !== undefined && !isNaN(Number(stats[prop]))) ? Number(stats[prop]) : 0;
+      const regex = new RegExp(`\\b${key}\\b`, "gi");
+      formula = formula.replace(regex, String(val));
+    }
+
+    // Replace custom values (X, etc.)
+    for (const key of Object.keys(customValue)) {
+      const val = customValue[key];
       const regex = new RegExp(`\\b${key}\\b`, "gi");
       formula = formula.replace(regex, String(val));
     }

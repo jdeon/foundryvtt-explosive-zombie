@@ -1,15 +1,33 @@
 
-//TODO add arrow to update dice number and threshold on form
 export class RollDialog extends foundry.applications.api.DialogV2 {
 
   /**
    * @param {number|object} [diceNumber=1] Number of dice or options object
    * @param {number} [threshold=4] Success threshold
-   * @param {object} [options={}] Additional DialogV2 options
+   * @param {object} [options={}] Additional DialogV2 options (e.g. item, ammoCost)
    */
   constructor(diceNumber, threshold, options = {}) {
+    const item = options.item || null;
+    const ammoCost = Number(options.ammoCost) || 0;
+    const availableAmmo = item ? Number(item.system?.munitions?.loadAmmo || 0) : 0;
+
+    let ammoFieldHtml = "";
+    if (ammoCost > 0) {
+      const isEnough = availableAmmo >= ammoCost;
+      ammoFieldHtml = `
+        <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.05); padding: 6px 8px; border-radius: 4px; font-size: 0.9em;">
+          <i class="fa-solid fa-boxes-stacked" style="color: #555;"></i>
+          <label style="flex: 1; font-weight: bold;">Coût en munitions :</label>
+          <span style="font-weight: bold; color: ${isEnough ? '#27ae60' : '#c0392b'};">
+            ${ammoCost} ${item ? `(Chargées : ${availableAmmo})` : ''}
+          </span>
+        </div>
+      `;
+    }
+
     const content = `
       <form style="margin-bottom: 10px;">
+        ${ammoFieldHtml}
         <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 4px;">
           <label style="flex: 1; font-weight: bold;">Nombre de dés :</label>
           <button type="button" class="spin-btn" data-action="decrease" data-target="#dice-count" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-minus"></i></button>
@@ -48,6 +66,8 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
 
     super(dialogOptions);
 
+    this.item = item;
+    this.ammoCost = ammoCost;
     this.input = {
       diceNumber,
       threshold
@@ -90,6 +110,17 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     if (isNaN(inputDice) || isNaN(inputThreshold)) {
       ui.notifications.error("Veuillez entrer un nombre de dés et un seuil de réussite");
       return;
+    }
+
+    if (this.item && this.ammoCost > 0) {
+      const currentLoad = Number(this.item.system?.munitions?.loadAmmo || 0);
+      if (currentLoad < this.ammoCost) {
+        ui.notifications.warn(`Munitions chargées insuffisantes ! (Chargées : ${currentLoad}, Requis : ${this.ammoCost})`);
+        return;
+      }
+      await this.item.update({
+        "system.munitions.loadAmmo": currentLoad - this.ammoCost
+      });
     }
 
     const { diceToRoll, finalThreshold, finalDice, successPenalty } = this._computedRollData(inputThreshold, inputDice);
@@ -149,6 +180,15 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
             </p>`;
     }
 
+    let ammoNotice = "";
+    if (this.ammoCost > 0) {
+      ammoNotice = `
+        <div style="background: rgba(0, 0, 0, 0.05); padding: 4px 8px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em; color: #555;">
+          <i class="fa-solid fa-boxes-stacked"></i> <strong>Munitions utilisées :</strong> ${this.ammoCost}
+        </div>
+      `;
+    }
+
     let adjustmentNotice = "";
     if (inputThreshold !== finalThreshold || inputDice !== finalDice) {
       adjustmentNotice = `
@@ -165,6 +205,7 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
               <h3 style="border-bottom: 2px solid #7a0000; padding-bottom: 4px; margin-bottom: 8px;">
                 <i class="fas fa-bomb"></i> Jet de Dés Explosifs
               </h3>
+              ${ammoNotice}
               ${adjustmentNotice}
               ${penaltyNotice}
               <p style="font-size: 1.1em; margin: 4px 0;">

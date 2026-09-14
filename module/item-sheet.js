@@ -126,6 +126,11 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
 
+    // Reduce loaded ammo on left click, reload on right click
+    html.find('.item-munitions')
+      .on('click', this._onClickMunitions.bind(this))
+      .on('contextmenu', this._onRightClickMunitions.bind(this));
+
     // Effect management in Classic Form
     html.find('.effect-control').click(this._onEffectControl.bind(this));
 
@@ -145,11 +150,55 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   }
 
   /**
+   * Prompt user to enter X value for variable ammo
+   * @param {number} availableAmmo
+   * @returns {Promise<number|null>}
+   */
+  static async askVariableAmmo(availableAmmo) {
+    return new Promise((resolve) => {
+      new foundry.applications.api.DialogV2({
+        window: { title: "Choix des munitions (X)" },
+        content: `
+          <form style="margin-bottom: 10px;">
+            <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 6px;">
+              <label style="flex: 1; font-weight: bold;">Munitions à consommer (X) :</label>
+              <input type="number" id="x-ammo-input" value="1" min="1" max="${availableAmmo}" style="width: 60px; text-align: center;" />
+            </div>
+            <div style="font-size: 0.85em; color: #666; text-align: right;">
+              Munitions chargées disponibles : <strong>${availableAmmo}</strong>
+            </div>
+          </form>
+        `,
+        buttons: [
+          {
+            action: "confirm",
+            label: "Valider",
+            icon: "fas fa-check",
+            default: true,
+            callback: (event, button, dialog) => {
+              const input = dialog.element.querySelector('#x-ammo-input');
+              const val = parseInt(input?.value);
+              resolve(isNaN(val) ? 1 : val);
+            }
+          },
+          {
+            action: "cancel",
+            label: "Annuler",
+            icon: "fas fa-times",
+            callback: () => resolve(null)
+          }
+        ],
+        close: () => resolve(null)
+      }).render(true);
+    });
+  }
+
+  /**
    * Handle click on active effect row to open prefilled RollDialog
    * @param {Event} event
    * @private
    */
-  _onActiveEffectRoll(event) {
+  async _onActiveEffectRoll(event) {
     event.preventDefault();
     const row = event.currentTarget.closest(".active-effect-rollable");
     if (!row) return;
@@ -158,11 +207,39 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
     const rawDice = row.dataset.dice;
     const rawThreshold = row.dataset.threshold;
+    const rawAmmo = String(row.dataset.ammo || "").trim();
 
-    const diceNumber = this._resolveStatValue(rawDice, actor, 1);
-    const threshold = this._resolveStatValue(rawThreshold, actor, 4);
+    const customValue = {};
 
-    new RollDialog(diceNumber, threshold).render(true);
+    let ammoCost;
+
+    if (rawAmmo.toUpperCase() === "X") {
+      const availableAmmo = Number(this.item.system?.munitions?.loadAmmo || 0);
+      if (availableAmmo <= 0) {
+        ui.notifications.warn("Munitions chargées insuffisantes ! (0 disponible)");
+        return;
+      }
+      const chosenX = await SimpleItemSheet.askVariableAmmo(availableAmmo);
+      if (chosenX === null || chosenX === undefined) return; // User cancelled
+
+      ammoCost = Math.min(Math.max(1, chosenX), availableAmmo);
+      customValue.X = chosenX;
+    } else if (rawAmmo) {
+      ammoCost = Number(rawAmmo);
+    } else {
+      ammoCost = 0
+    }
+
+    const diceNumber = this._resolveStatValue(rawDice, actor, 1, customValue);
+    const threshold = this._resolveStatValue(rawThreshold, actor, 4, customValue);
+
+    new RollDialog(diceNumber, threshold, {
+      item: this.item,
+      ammoCost,
+      window: {
+        title: this.item.name
+      }
+    }).render(true);
   }
 
   /**
@@ -171,10 +248,11 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
    * @param {string|number} rawValue
    * @param {Actor} [actor]
    * @param {number} [defaultValue=1]
+   * @param {Object} [customValue={}]
    * @returns {number}
    * @private
    */
-  _resolveStatValue(rawValue, actor, defaultValue = 1) {
+  _resolveStatValue(rawValue, actor, defaultValue = 1, customValue = {}) {
     if (rawValue === undefined || rawValue === null) return defaultValue;
     const str = String(rawValue).trim();
     if (!str) return defaultValue;
@@ -191,6 +269,13 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     for (const key of statKeys) {
       const prop = STAT_MAPPING[key];
       const val = (stats[prop] !== undefined && !isNaN(Number(stats[prop]))) ? Number(stats[prop]) : 0;
+      const regex = new RegExp(`\\b${key}\\b`, "gi");
+      formula = formula.replace(regex, String(val));
+    }
+
+    // Replace custom values (X, etc.)
+    for (const key of Object.keys(customValue)) {
+      const val = customValue[key];
       const regex = new RegExp(`\\b${key}\\b`, "gi");
       formula = formula.replace(regex, String(val));
     }
@@ -269,5 +354,42 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       if (!isNaN(index)) effects.splice(index, 1);
     }
     return this.item.update({ [`system.${type}`]: effects });
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle left click on item munitions to reduce loadAmmo by 1
+   * @param {Event} event
+   * @private
+   */
+  async _onClickMunitions(event) {
+    event.preventDefault();
+    const currentAmmo = Number(this.item.system.munitions?.loadAmmo || 0);
+    if (currentAmmo <= 0) return;
+    return this.item.update({ "system.munitions.loadAmmo": currentAmmo - 1 });
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle right click on item munitions to reload loadAmmo using remainingAmmo up to capacity
+   * @param {Event} event
+   * @private
+   */
+  async _onRightClickMunitions(event) {
+    event.preventDefault();
+    const capacity = Number(this.item.system.munitions?.capacity || 0);
+    const currentLoad = Number(this.item.system.munitions?.loadAmmo || 0);
+    const remaining = Number(this.item.system.munitions?.remainingAmmo || 0);
+
+    const needed = capacity - currentLoad;
+    if (needed <= 0 || remaining <= 0) return;
+
+    const toReload = Math.min(needed, remaining);
+    return this.item.update({
+      "system.munitions.loadAmmo": currentLoad + toReload,
+      "system.munitions.remainingAmmo": remaining - toReload
+    });
   }
 }

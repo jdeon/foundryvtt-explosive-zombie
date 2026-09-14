@@ -122,8 +122,10 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
 
-    // Reduce loaded ammo on left click
-    html.find('.item-munitions').click(this._onClickMunitions.bind(this));
+    // Reduce loaded ammo on left click, reload on right click
+    html.find('.item-munitions')
+      .on('click', this._onClickMunitions.bind(this))
+      .on('contextmenu', this._onRightClickMunitions.bind(this));
 
     // Effect management in Classic Form
     html.find('.effect-control').click(this._onEffectControl.bind(this));
@@ -201,5 +203,28 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     const currentAmmo = Number(this.item.system.munitions?.loadAmmo || 0);
     if (currentAmmo <= 0) return;
     return this.item.update({ "system.munitions.loadAmmo": currentAmmo - 1 });
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle right click on item munitions to reload loadAmmo using remainingAmmo up to capacity
+   * @param {Event} event
+   * @private
+   */
+  async _onRightClickMunitions(event) {
+    event.preventDefault();
+    const capacity = Number(this.item.system.munitions?.capacity || 0);
+    const currentLoad = Number(this.item.system.munitions?.loadAmmo || 0);
+    const remaining = Number(this.item.system.munitions?.remainingAmmo || 0);
+
+    const needed = capacity - currentLoad;
+    if (needed <= 0 || remaining <= 0) return;
+
+    const toReload = Math.min(needed, remaining);
+    return this.item.update({
+      "system.munitions.loadAmmo": currentLoad + toReload,
+      "system.munitions.remainingAmmo": remaining - toReload
+    });
   }
 }

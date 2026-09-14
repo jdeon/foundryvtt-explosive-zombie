@@ -1,5 +1,6 @@
 import { EntitySheetHelper } from "./helper.js";
-import { ATTRIBUTE_TYPES } from "./constants.js";
+import { ATTRIBUTE_TYPES, STAT_MAPPING } from "./constants.js";
+import { RollDialog } from "./roll-dialog.js";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -110,6 +111,9 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
     const html = $(this.element);
 
+    // Active effect click to open prefilled RollDialog
+    html.find(".active-effect-rollable").on("click", this._onActiveEffectRoll.bind(this));
+
     if (game.user?.isGM) {
       // Tab navigation click handling
       html.find('.sheet-tabs .item, [data-action="tab"]').on('click', ev => {
@@ -143,6 +147,87 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         ev.dataTransfer.setData('text/plain', JSON.stringify(dragData));
       }, false);
     });
+  }
+
+  /**
+   * Handle click on active effect row to open prefilled RollDialog
+   * @param {Event} event
+   * @private
+   */
+  _onActiveEffectRoll(event) {
+    event.preventDefault();
+    const row = event.currentTarget.closest(".active-effect-rollable");
+    if (!row) return;
+
+    const actor = this.item.actor || canvas.tokens?.controlled[0]?.actor || game.user?.character;
+
+    const rawDice = row.dataset.dice;
+    const rawThreshold = row.dataset.threshold;
+
+    const diceNumber = this._resolveStatValue(rawDice, actor, 1);
+    const threshold = this._resolveStatValue(rawThreshold, actor, 4);
+
+    new RollDialog(diceNumber, threshold).render(true);
+  }
+
+  /**
+   * Resolve a raw stat formula or string (e.g. "AGI", "AGI + 1", "AGI + CON", "3") to a numeric value.
+   * Handles flat numbers, stat references, and basic arithmetic (+, -, *, /).
+   * @param {string|number} rawValue
+   * @param {Actor} [actor]
+   * @param {number} [defaultValue=1]
+   * @returns {number}
+   * @private
+   */
+  _resolveStatValue(rawValue, actor, defaultValue = 1) {
+    if (rawValue === undefined || rawValue === null) return defaultValue;
+    const str = String(rawValue).trim();
+    if (!str) return defaultValue;
+
+    // Direct single number check
+    const numericDirect = Number(str);
+    if (!isNaN(numericDirect)) return numericDirect;
+
+    const stats = actor?.system?.stats || {};
+    let formula = str;
+
+    // Replace stat tokens (AGI, MEN, CON, SPD, etc.) with values from actor.system.stats
+    const statKeys = Object.keys(STAT_MAPPING).sort((a, b) => b.length - a.length);
+    for (const key of statKeys) {
+      const prop = STAT_MAPPING[key];
+      const val = (stats[prop] !== undefined && !isNaN(Number(stats[prop]))) ? Number(stats[prop]) : 0;
+      const regex = new RegExp(`\\b${key}\\b`, "gi");
+      formula = formula.replace(regex, String(val));
+    }
+
+    // Try evaluating with Foundry's Roll engine if deterministic
+    try {
+      const roll = new Roll(formula);
+      if (roll.isDeterministic) {
+        roll.evaluateSync();
+        const total = Number(roll.total);
+        if (!isNaN(total)) return Math.round(total);
+      }
+    } catch (e) {
+      // Fall through to safe Function eval if roll parsing fails
+    }
+
+    // Safe arithmetic fallback for expressions containing only numbers, operators, and parentheses
+    if (/^[0-9+\-*/().\s]+$/.test(formula)) {
+      try {
+        const result = Function(`"use strict"; return (${formula})`)();
+        if (typeof result === "number" && !isNaN(result)) {
+          return Math.round(result);
+        }
+      } catch (e) {
+        console.warn(`SimpleItemSheet | Error evaluating stat expression "${formula}":`, e);
+      }
+    }
+
+    const parsed = parseInt(formula);
+    if (!isNaN(parsed)) return parsed;
+
+    return defaultValue;
   }
 
   /* -------------------------------------------- */

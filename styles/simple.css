@@ -287,6 +287,10 @@
 .explosive-zombie .stat-bracket-box {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 60px;
+  margin-left: auto;
+  flex-shrink: 0;
   gap: 2px;
 }
 .explosive-zombie .stat-bracket-box .bracket {

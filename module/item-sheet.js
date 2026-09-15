@@ -157,22 +157,22 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   static async askVariableAmmo(availableAmmo) {
     return new Promise((resolve) => {
       new foundry.applications.api.DialogV2({
-        window: { title: "Choix des munitions (X)" },
+        window: { title: game.i18n.localize("itemSheet.variableAmmoTitle") },
         content: `
           <form style="margin-bottom: 10px;">
             <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 6px;">
-              <label style="flex: 1; font-weight: bold;">Munitions à consommer (X) :</label>
+              <label style="flex: 1; font-weight: bold;">${game.i18n.localize("itemSheet.variableAmmoCostLabel")}</label>
               <input type="number" id="x-ammo-input" value="1" min="1" max="${availableAmmo}" style="width: 60px; text-align: center;" />
             </div>
             <div style="font-size: 0.85em; color: #666; text-align: right;">
-              Munitions chargées disponibles : <strong>${availableAmmo}</strong>
+              ${game.i18n.format("itemSheet.variableAmmoAvailableLabel")} <strong>${availableAmmo}</strong>
             </div>
           </form>
         `,
         buttons: [
           {
             action: "confirm",
-            label: "Valider",
+            label: game.i18n.localize("common.confirm"),
             icon: "fas fa-check",
             default: true,
             callback: (event, button, dialog) => {
@@ -183,7 +183,7 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
           },
           {
             action: "cancel",
-            label: "Annuler",
+            label: game.i18n.localize("common.cancel"),
             icon: "fas fa-times",
             callback: () => resolve(null)
           }
@@ -216,7 +216,7 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     if (rawAmmo.toUpperCase() === "X") {
       const availableAmmo = Number(this.item.system?.munitions?.loadAmmo || 0);
       if (availableAmmo <= 0) {
-        ui.notifications.warn("Munitions chargées insuffisantes ! (0 disponible)");
+        ui.notifications.warn(game.i18n.localize("notifications.noAmmoAvailable"));
         return;
       }
       const chosenX = await SimpleItemSheet.askVariableAmmo(availableAmmo);

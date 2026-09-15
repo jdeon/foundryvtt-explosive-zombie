@@ -56,7 +56,7 @@
                     {{#each system.activeEffects}}
                     <div class="table-row active-effect-rollable" data-dice="{{this.dice}}"
                         data-threshold="{{this.threshold}}" data-ammo="{{this.ammo}}"
-                        style="display: contents; cursor: pointer;" title="Lancer les dés pour cet effet">
+                        style="display: contents; cursor: pointer;" title="{{localize 'itemSheet.rollEffectTooltip'}}">
                         <div class="cell data-val">{{this.actionNumber}}</div>
                         <div class="cell data-val">{{this.threshold}}</div>
                         <div class="cell data-val cell-dice">{{this.dice}}</div>

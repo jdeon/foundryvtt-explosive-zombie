@@ -787,8 +787,10 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
   }
 
   async _generateLootActor(itemData) {
-    // Check if a "Butin" chest actor already exists in the world
-    let lootEntryActor = game.actors.find(a => a.type === "chest" && a.name.toLowerCase() === "butin");
+    const defaultLootName = game.i18n.localize("chestSheet.lootName");
+
+    // Check if a loot chest actor already exists in the world
+    let lootEntryActor = game.actors.find(a => a.type === "chest" && (a.name.toLowerCase() === defaultLootName.toLowerCase() || a.name.toLowerCase() === "butin"));
 
     // If it does not exist, load template from compendium or create fallback
     if (!lootEntryActor) {
@@ -797,7 +799,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
         for (const pack of game.packs) {
           if (pack.metadata.type !== "Actor") continue;
           const index = await pack.getIndex({ fields: ["type", "name"] });
-          const lootEntry = index.find(e => e.type === "chest" && e.name.toLowerCase() === "butin");
+          const lootEntry = index.find(e => e.type === "chest" && (e.name.toLowerCase() === defaultLootName.toLowerCase() || e.name.toLowerCase() === "butin"));
           if (lootEntry) {
             const doc = await pack.getDocument(lootEntry._id);
             if (doc) {
@@ -813,7 +815,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
       //If lootEntryActorData does not exist in compendium pack, create a new chest actor
       if (!lootEntryActorData) {
         lootEntryActorData = {
-          name: "Butin",
+          name: defaultLootName,
           type: "chest",
           img: "icons/svg/chest.svg",
           system: {
@@ -824,7 +826,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
         };
       } else {
         delete lootEntryActorData._id;
-        lootEntryActorData.name = "Butin";
+        lootEntryActorData.name = defaultLootName;
       }
 
       lootEntryActor = await Actor.create(lootEntryActorData);

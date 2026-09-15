@@ -159,5 +159,17 @@
   "rollDialog.totalSuccesses": "Succès totaux :",
   "characterSheet.healthReasonHealthy": "Sain",
   "characterSheet.actorSheetTitle": "Fiche Personnage",
-  "notifications.errorInventoryFull": "L'inventaire est plein ! Impossible d'ajouter l'objet."
+  "notifications.errorInventoryFull": "L'inventaire est plein ! Impossible d'ajouter l'objet.",
+  "zombieSheet.rollFlavorTitle": "Jet d'attaque / Action",
+  "zombieSheet.diceRolledLabel": "Dés lancés :",
+  "zombieSheet.thresholdLabel": "Seuil :",
+  "zombieSheet.successesLabel": "Succès :",
+  "itemSheet.variableAmmoTitle": "Choix des munitions (X)",
+  "itemSheet.variableAmmoCostLabel": "Munitions à consommer (X) :",
+  "itemSheet.variableAmmoAvailableLabel": "Munitions chargées disponibles :",
+  "itemSheet.rollEffectTooltip": "Lancer les dés pour cet effet",
+  "common.confirm": "Valider",
+  "notifications.noAmmoAvailable": "Munitions chargées insuffisantes ! (0 disponible)",
+  "chestSheet.lootName": "Butin",
+  "characterSheet.slotUnit": "emplacement(s)"
 }

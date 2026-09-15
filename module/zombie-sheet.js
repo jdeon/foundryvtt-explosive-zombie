@@ -129,9 +129,14 @@ export class ZombieActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       }
     }
 
-    const flavor = `<h3>${this.actor.name} - Jet d'attaque / Action</h3>` +
-      `<p><strong>Dés lancés :</strong> ${diceNumber}d6 | <strong>Seuil :</strong> ${threshold}+</p>` +
-      `<p><strong>Succès :</strong> ${successCount}</p>`;
+    const flavorTitle = game.i18n.localize("zombieSheet.rollFlavorTitle");
+    const diceRolledLabel = game.i18n.localize("zombieSheet.diceRolledLabel");
+    const thresholdLabel = game.i18n.localize("zombieSheet.thresholdLabel");
+    const successesLabel = game.i18n.localize("zombieSheet.successesLabel");
+
+    const flavor = `<h3>${this.actor.name} - ${flavorTitle}</h3>` +
+      `<p><strong>${diceRolledLabel}</strong> ${diceNumber}d6 | <strong>${thresholdLabel}</strong> ${threshold}+</p>` +
+      `<p><strong>${successesLabel}</strong> ${successCount}</p>`;
 
     return roll.toMessage({
       user: game.user.id,

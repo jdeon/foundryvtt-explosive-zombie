@@ -159,5 +159,17 @@
   "rollDialog.totalSuccesses": "Total successes:",
   "characterSheet.healthReasonHealthy": "Healthy",
   "characterSheet.actorSheetTitle": "Character Sheet",
-  "notifications.errorInventoryFull": "Inventory is full! Cannot add item."
+  "notifications.errorInventoryFull": "Inventory is full! Cannot add item.",
+  "zombieSheet.rollFlavorTitle": "Attack Roll / Action",
+  "zombieSheet.diceRolledLabel": "Dice rolled:",
+  "zombieSheet.thresholdLabel": "Threshold:",
+  "zombieSheet.successesLabel": "Successes:",
+  "itemSheet.variableAmmoTitle": "Choose variable ammo (X)",
+  "itemSheet.variableAmmoCostLabel": "Ammo to consume (X):",
+  "itemSheet.variableAmmoAvailableLabel": "Available loaded ammo:",
+  "itemSheet.rollEffectTooltip": "Roll dice for this effect",
+  "common.confirm": "Confirm",
+  "notifications.noAmmoAvailable": "Insufficient loaded ammo! (0 available)",
+  "chestSheet.lootName": "Loot",
+  "characterSheet.slotUnit": "slot(s)"
 }

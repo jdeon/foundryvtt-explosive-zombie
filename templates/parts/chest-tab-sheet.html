@@ -4,21 +4,21 @@
             <img class="profile-img" src="{{portraitUrl}}" data-edit="img" title="{{actor.name}}" />
         </div>
         <div class="chest-title-box">
-            <label class="chest-label">{{localize "SIMPLE.ChestNameLabel"}}</label>
-            <input class="chest-name-input" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "SIMPLE.ChestNamePlaceholder"}}" />
+            <label class="chest-label">{{localize "chestSheet.nameLabel"}}</label>
+            <input class="chest-name-input" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "chestSheet.namePlaceholder"}}" />
         </div>
     </header>
 
     <div class="chest-resources-grid">
         <div class="chest-resource-card">
-            <div class="resource-card-title"><i class="fas fa-drumstick-bite"></i> {{localize "SIMPLE.ChestFoodRations"}}</div>
+            <div class="resource-card-title"><i class="fas fa-drumstick-bite"></i> {{localize "chestSheet.foodRations"}}</div>
             <div class="resource-card-input">
                 <input type="number" name="system.foodRations" value="{{system.foodRations}}" min="0" />
             </div>
         </div>
 
         <div class="chest-resource-card">
-            <div class="resource-card-title"><i class="fas fa-gas-can"></i> {{localize "SIMPLE.ChestFuel"}}</div>
+            <div class="resource-card-title"><i class="fas fa-gas-can"></i> {{localize "chestSheet.fuel"}}</div>
             <div class="resource-card-input">
                 <input type="number" name="system.fuel" value="{{system.fuel}}" min="0" />
             </div>
@@ -27,9 +27,9 @@
 
     <div class="chest-items-section">
         <div class="chest-section-header">
-            <div class="section-title"><i class="fas fa-box-open"></i> {{localize "SIMPLE.ChestItemsList"}} ({{items.length}})</div>
-            <a class="item-control add-item-btn" data-action="create" title="{{localize "SIMPLE.ItemCreate"}}">
-                <i class="fas fa-plus"></i> {{localize "SIMPLE.ItemCreate"}}
+            <div class="section-title"><i class="fas fa-box-open"></i> {{localize "chestSheet.itemsList"}} ({{items.length}})</div>
+            <a class="item-control add-item-btn" data-action="create" title="{{localize "itemSheet.create"}}">
+                <i class="fas fa-plus"></i> {{localize "itemSheet.create"}}
             </a>
         </div>
 
@@ -40,20 +40,20 @@
                 <span class="item-name item-name-click">{{item.name}}</span>
                 <span class="item-slots-info">{{#if item.system.requiredSlots}}{{item.system.requiredSlots}} slot(s){{/if}}</span>
                 <div class="item-controls">
-                    <a class="item-control" data-action="edit" title="{{localize "SIMPLE.ItemEdit"}}"><i class="fas fa-edit"></i></a>
-                    <a class="item-control" data-action="delete" title="{{localize "SIMPLE.ItemDelete"}}"><i class="fas fa-trash"></i></a>
+                    <a class="item-control" data-action="edit" title="{{localize "itemSheet.edit"}}"><i class="fas fa-edit"></i></a>
+                    <a class="item-control" data-action="delete" title="{{localize "itemSheet.delete"}}"><i class="fas fa-trash"></i></a>
                 </div>
             </li>
             {{else}}
             <li class="chest-empty-notice">
-                <i class="fas fa-inbox"></i> {{localize "SIMPLE.ChestEmptyNotice"}}
+                <i class="fas fa-inbox"></i> {{localize "chestSheet.emptyNotice"}}
             </li>
             {{/each}}
         </ul>
     </div>
 
     <div class="chest-notes-section">
-        <label class="notes-label"><i class="fas fa-sticky-note"></i> {{localize "SIMPLE.ChestNotes"}}</label>
-        <textarea name="system.notes" rows="4" placeholder="{{localize "SIMPLE.ChestNotesPlaceholder"}}">{{system.notes}}</textarea>
+        <label class="notes-label"><i class="fas fa-sticky-note"></i> {{localize "chestSheet.notes"}}</label>
+        <textarea name="system.notes" rows="4" placeholder="{{localize "chestSheet.notesPlaceholder"}}">{{system.notes}}</textarea>
     </div>
 </div>

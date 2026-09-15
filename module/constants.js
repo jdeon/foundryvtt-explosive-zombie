@@ -8,12 +8,12 @@ export const STAT_MAPPING = {
 };
 
 export const INJURY_REASONS = {
-  "Wound": "SIMPLE.InjuryReasonWound",
-  "Hunger": "SIMPLE.InjuryReasonHunger",
-  "Bite": "SIMPLE.InjuryReasonBite",
-  "Zombification": "SIMPLE.InjuryReasonZombification",
-  "Bleeding": "SIMPLE.InjuryReasonBleeding",
-  "Burn": "SIMPLE.InjuryReasonBurn",
-  "Poison": "SIMPLE.InjuryReasonPoison",
-  "Exhaustion": "SIMPLE.InjuryReasonExhaustion"
+  "Wound": "characterSheet.injuryReasonWound",
+  "Hunger": "characterSheet.injuryReasonHunger",
+  "Bite": "characterSheet.injuryReasonBite",
+  "Zombification": "characterSheet.injuryReasonZombification",
+  "Bleeding": "characterSheet.injuryReasonBleeding",
+  "Burn": "characterSheet.injuryReasonBurn",
+  "Poison": "characterSheet.injuryReasonPoison",
+  "Exhaustion": "characterSheet.injuryReasonExhaustion"
 };

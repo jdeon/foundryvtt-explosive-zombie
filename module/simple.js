@@ -51,9 +51,9 @@ Hooks.once("init", async function () {
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("explosive-zombie", CharacterActorSheet, { types: ["character"], makeDefault: true, label: "SIMPLE.SheetCharacter" });
-  Actors.registerSheet("explosive-zombie", ZombieActorSheet, { types: ["zombie"], makeDefault: true, label: "SIMPLE.SheetZombie" });
-  Actors.registerSheet("explosive-zombie", ChestActorSheet, { types: ["chest"], makeDefault: true, label: "SIMPLE.SheetChest" });
+  Actors.registerSheet("explosive-zombie", CharacterActorSheet, { types: ["character"], makeDefault: true, label: "characterSheet.sheetTitle" });
+  Actors.registerSheet("explosive-zombie", ZombieActorSheet, { types: ["zombie"], makeDefault: true, label: "zombieSheet.sheetTitle" });
+  Actors.registerSheet("explosive-zombie", ChestActorSheet, { types: ["chest"], makeDefault: true, label: "chestSheet.sheetTitle" });
   Items.unregisterSheet("core", ItemSheet);
   Items.registerSheet("explosive-zombie", SimpleItemSheet, { makeDefault: true });
 
@@ -90,7 +90,7 @@ Hooks.once("init", async function () {
   function _simpleUpdateInit(formula, notify = false) {
     const isValid = Roll.validate(formula);
     if (!isValid) {
-      if (notify) ui.notifications.error(`${game.i18n.localize("SIMPLE.NotifyInitFormulaInvalid")}: ${formula}`);
+      if (notify) ui.notifications.error(`${game.i18n.localize("notifications.initFormulaInvalid")}: ${formula}`);
       return;
     }
     CONFIG.Combat.initiative.formula = formula;
@@ -139,7 +139,7 @@ Hooks.on("getActorDirectoryEntryContext", (html, options) => {
 
   // Define an actor as a template.
   options.push({
-    name: game.i18n.localize("SIMPLE.DefineTemplate"),
+    name: game.i18n.localize("attributes.defineTemplate"),
     icon: '<i class="fas fa-stamp"></i>',
     condition: li => {
       const actor = game.actors.get(li.data("documentId"));
@@ -153,7 +153,7 @@ Hooks.on("getActorDirectoryEntryContext", (html, options) => {
 
   // Undefine an actor as a template.
   options.push({
-    name: game.i18n.localize("SIMPLE.UnsetTemplate"),
+    name: game.i18n.localize("attributes.unsetTemplate"),
     icon: '<i class="fas fa-times"></i>',
     condition: li => {
       const actor = game.actors.get(li.data("documentId"));
@@ -173,7 +173,7 @@ Hooks.on("getItemDirectoryEntryContext", (html, options) => {
 
   // Define an item as a template.
   options.push({
-    name: game.i18n.localize("SIMPLE.DefineTemplate"),
+    name: game.i18n.localize("attributes.defineTemplate"),
     icon: '<i class="fas fa-stamp"></i>',
     condition: li => {
       const item = game.items.get(li.data("documentId"));
@@ -187,7 +187,7 @@ Hooks.on("getItemDirectoryEntryContext", (html, options) => {
 
   // Undefine an item as a template.
   options.push({
-    name: game.i18n.localize("SIMPLE.UnsetTemplate"),
+    name: game.i18n.localize("attributes.unsetTemplate"),
     icon: '<i class="fas fa-times"></i>',
     condition: li => {
       const item = game.items.get(li.data("documentId"));

@@ -13,11 +13,11 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     let ammoFieldHtml = "";
     if (ammoCost > 0) {
       const isEnough = availableAmmo >= ammoCost;
-      const loadedText = item ? `(${game.i18n.format("SIMPLE.RollLoadedAmmo", { count: availableAmmo })})` : '';
+      const loadedText = item ? `(${game.i18n.format("rollDialog.loadedAmmo", { count: availableAmmo })})` : '';
       ammoFieldHtml = `
         <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.05); padding: 6px 8px; border-radius: 4px; font-size: 0.9em;">
           <i class="fa-solid fa-boxes-stacked" style="color: #555;"></i>
-          <label style="flex: 1; font-weight: bold;">${game.i18n.localize("SIMPLE.RollAmmoCost")}</label>
+          <label style="flex: 1; font-weight: bold;">${game.i18n.localize("rollDialog.ammoCost")}</label>
           <span style="font-weight: bold; color: ${isEnough ? '#27ae60' : '#c0392b'};">
             ${ammoCost} ${loadedText}
           </span>
@@ -29,13 +29,13 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
       <form style="margin-bottom: 10px;">
         ${ammoFieldHtml}
         <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 4px;">
-          <label style="flex: 1; font-weight: bold;">${game.i18n.localize("SIMPLE.RollDiceCount")}</label>
+          <label style="flex: 1; font-weight: bold;">${game.i18n.localize("rollDialog.diceCount")}</label>
           <button type="button" class="spin-btn" data-action="decrease" data-target="#dice-count" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-minus"></i></button>
           <input type="number" id="dice-count" name="diceCount" value="${diceNumber}" style="width: 50px; text-align: center;" />
           <button type="button" class="spin-btn" data-action="increase" data-target="#dice-count" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-plus"></i></button>
         </div>
         <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 4px;">
-          <label style="flex: 1; font-weight: bold;">${game.i18n.localize("SIMPLE.RollThreshold")}</label>
+          <label style="flex: 1; font-weight: bold;">${game.i18n.localize("rollDialog.threshold")}</label>
           <button type="button" class="spin-btn" data-action="decrease" data-target="#threshold" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-minus"></i></button>
           <input type="number" id="threshold" name="threshold" value="${threshold}" style="width: 50px; text-align: center;" />
           <button type="button" class="spin-btn" data-action="increase" data-target="#threshold" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-plus"></i></button>
@@ -45,21 +45,21 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
 
     const dialogOptions = foundry.utils.mergeObject({
       window: {
-        title: game.i18n.localize("SIMPLE.RollDialogTitle")
+        title: game.i18n.localize("rollDialog.title")
       },
       content,
       buttons: [
         {
           action: "roll",
           icon: "fas fa-dice-d6",
-          label: game.i18n.localize("SIMPLE.RollAction"),
+          label: game.i18n.localize("rollDialog.action"),
           default: true,
           callback: (event, button, dialog) => this._executeDialog(event, button, dialog)
         },
         {
           action: "cancel",
           icon: "fas fa-times",
-          label: game.i18n.localize("SIMPLE.Cancel")
+          label: game.i18n.localize("common.cancel")
         }
       ]
     }, options);
@@ -108,14 +108,14 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     const inputThreshold = parseInt(element?.querySelector('#threshold')?.value);
 
     if (isNaN(inputDice) || isNaN(inputThreshold)) {
-      ui.notifications.error(game.i18n.localize("SIMPLE.NotifyRollInvalid"));
+      ui.notifications.error(game.i18n.localize("notifications.rollInvalid"));
       return;
     }
 
     if (this.item && this.ammoCost > 0) {
       const currentLoad = Number(this.item.system?.munitions?.loadAmmo || 0);
       if (currentLoad < this.ammoCost) {
-        ui.notifications.warn(game.i18n.format("SIMPLE.NotifyInsufficientAmmo", { load: currentLoad, cost: this.ammoCost }));
+        ui.notifications.warn(game.i18n.format("notifications.insufficientAmmo", { load: currentLoad, cost: this.ammoCost }));
         return;
       }
       await this.item.update({
@@ -176,7 +176,7 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     let penaltyNotice = "";
     if (successPenalty > 0) {
       penaltyNotice = `<p style="color: #c0392b; font-weight: bold; margin: 4px 0;">
-              <i class="fas fa-exclamation-triangle"></i> ${game.i18n.format("SIMPLE.RollPenaltyNotice", { finalDice, penalty: successPenalty })}
+              <i class="fas fa-exclamation-triangle"></i> ${game.i18n.format("rollDialog.penaltyNotice", { finalDice, penalty: successPenalty })}
             </p>`;
     }
 
@@ -184,19 +184,19 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     if (this.ammoCost > 0) {
       ammoNotice = `
         <div style="background: rgba(0, 0, 0, 0.05); padding: 4px 8px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em; color: #555;">
-          <i class="fa-solid fa-boxes-stacked"></i> <strong>${game.i18n.localize("SIMPLE.RollAmmoUsed")}</strong> ${this.ammoCost}
+          <i class="fa-solid fa-boxes-stacked"></i> <strong>${game.i18n.localize("rollDialog.ammoUsed")}</strong> ${this.ammoCost}
         </div>
       `;
     }
 
     let adjustmentNotice = "";
     if (inputThreshold !== finalThreshold || inputDice !== finalDice) {
-      const actualDiceStr = game.i18n.format("SIMPLE.RollActualDice", { count: diceToRoll });
+      const actualDiceStr = game.i18n.format("rollDialog.actualDice", { count: diceToRoll });
       adjustmentNotice = `
               <div style="background: rgba(0, 0, 0, 0.05); padding: 6px 8px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em;">
-                <strong>${game.i18n.localize("SIMPLE.RollAdjustmentsTitle")}</strong><br/>
-                • ${game.i18n.localize("SIMPLE.RollThresholdLabel")} <code>${inputThreshold}</code> → <code>${finalThreshold}</code><br/>
-                • ${game.i18n.localize("SIMPLE.RollDiceLabel")} <code>${inputDice}</code> → <code>${finalDice}</code> ${actualDiceStr}
+                <strong>${game.i18n.localize("rollDialog.adjustmentsTitle")}</strong><br/>
+                • ${game.i18n.localize("rollDialog.thresholdLabel")} <code>${inputThreshold}</code> → <code>${finalThreshold}</code><br/>
+                • ${game.i18n.localize("rollDialog.diceLabel")} <code>${inputDice}</code> → <code>${finalDice}</code> ${actualDiceStr}
               </div>
             `;
     }
@@ -204,13 +204,13 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     const flavor = `
             <div class="explosive-roll-card">
               <h3 style="border-bottom: 2px solid #7a0000; padding-bottom: 4px; margin-bottom: 8px;">
-                <i class="fas fa-bomb"></i> ${game.i18n.localize("SIMPLE.RollCardTitle")}
+                <i class="fas fa-bomb"></i> ${game.i18n.localize("rollDialog.cardTitle")}
               </h3>
               ${ammoNotice}
               ${adjustmentNotice}
               ${penaltyNotice}
               <p style="font-size: 1.1em; margin: 4px 0;">
-                <strong>${game.i18n.localize("SIMPLE.RollTotalSuccesses")}</strong> 
+                <strong>${game.i18n.localize("rollDialog.totalSuccesses")}</strong> 
                 <span style="color: ${finalSuccesses > 0 ? '#27ae60' : '#c0392b'}; font-weight: bold; font-size: 1.2em;">
                   ${finalSuccesses}
                 </span>

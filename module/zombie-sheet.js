@@ -16,7 +16,7 @@ export class ZombieActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     },
     window: {
       resizable: true,
-      title: 'SIMPLE.ZombieSheetTitle'
+      title: 'zombieSheet.title'
     },
     tag: "form",
     form: {

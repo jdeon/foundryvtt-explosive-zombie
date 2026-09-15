@@ -31,9 +31,9 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   static TABS = {
     primary: {
       tabs: [
-        { id: 'sheet', group: 'primary', label: 'SIMPLE.TabSheet' },
-        { id: 'edit', group: 'primary', label: 'SIMPLE.TabEdit' },
-        { id: 'attributes', group: 'primary', label: 'SIMPLE.TabAttributes' }
+        { id: 'sheet', group: 'primary', label: 'common.tabSheet' },
+        { id: 'edit', group: 'primary', label: 'common.tabEdit' },
+        { id: 'attributes', group: 'primary', label: 'common.tabAttributes' }
       ],
       initial: 'sheet'
     }

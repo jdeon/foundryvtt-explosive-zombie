@@ -139,5 +139,22 @@
   "SIMPLE.PassiveEffectPlaceholder": "Passive effect description",
   "SIMPLE.NoActiveEffectsNotice": "No active effects. Click 'Add Effect'.",
   "SIMPLE.NoPassiveEffectsNotice": "No passive effects. Click 'Add Effect'.",
-  "SIMPLE.ArmorBoxTooltip": "Click to toggle state (Unequipped / Equipped / Broken)"
+  "SIMPLE.ArmorBoxTooltip": "Click to toggle state (Unequipped / Equipped / Broken)",
+  "SIMPLE.Cancel": "Cancel",
+  "SIMPLE.RollDialogTitle": "Explosive Dice Roll",
+  "SIMPLE.RollAction": "Roll Dice",
+  "SIMPLE.RollAmmoCost": "Ammo cost:",
+  "SIMPLE.RollLoadedAmmo": "Loaded: {count}",
+  "SIMPLE.RollDiceCount": "Number of dice:",
+  "SIMPLE.RollThreshold": "Success threshold:",
+  "SIMPLE.NotifyRollInvalid": "Please enter a valid number of dice and success threshold",
+  "SIMPLE.NotifyInsufficientAmmo": "Insufficient loaded ammo! (Loaded: {load}, Required: {cost})",
+  "SIMPLE.RollCardTitle": "Explosive Dice Roll",
+  "SIMPLE.RollAmmoUsed": "Ammo used:",
+  "SIMPLE.RollAdjustmentsTitle": "Adjustments applied:",
+  "SIMPLE.RollThresholdLabel": "Threshold:",
+  "SIMPLE.RollDiceLabel": "Dice:",
+  "SIMPLE.RollActualDice": "(Actual rolled: <code>{count}</code>)",
+  "SIMPLE.RollPenaltyNotice": "Number of dice less than 1 ({finalDice}): Penalty of -{penalty} successes.",
+  "SIMPLE.RollTotalSuccesses": "Total successes:"
 }

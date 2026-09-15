@@ -139,5 +139,22 @@
   "SIMPLE.PassiveEffectPlaceholder": "Description de l'effet passif",
   "SIMPLE.NoActiveEffectsNotice": "Aucun effet actif. Cliquez sur \"Ajouter un effet\".",
   "SIMPLE.NoPassiveEffectsNotice": "Aucun effet passif. Cliquez sur \"Ajouter un effet\".",
-  "SIMPLE.ArmorBoxTooltip": "Cliquer pour changer d'état (Non équipé / Équipé / Brisé)"
+  "SIMPLE.ArmorBoxTooltip": "Cliquer pour changer d'état (Non équipé / Équipé / Brisé)",
+  "SIMPLE.Cancel": "Annuler",
+  "SIMPLE.RollDialogTitle": "Lancer de dés explosifs",
+  "SIMPLE.RollAction": "Lancer les dés",
+  "SIMPLE.RollAmmoCost": "Coût en munitions :",
+  "SIMPLE.RollLoadedAmmo": "Chargées : {count}",
+  "SIMPLE.RollDiceCount": "Nombre de dés :",
+  "SIMPLE.RollThreshold": "Seuil de réussite :",
+  "SIMPLE.NotifyRollInvalid": "Veuillez entrer un nombre de dés et un seuil de réussite",
+  "SIMPLE.NotifyInsufficientAmmo": "Munitions chargées insuffisantes ! (Chargées : {load}, Requis : {cost})",
+  "SIMPLE.RollCardTitle": "Jet de Dés Explosifs",
+  "SIMPLE.RollAmmoUsed": "Munitions utilisées :",
+  "SIMPLE.RollAdjustmentsTitle": "Ajustements appliqués :",
+  "SIMPLE.RollThresholdLabel": "Seuil :",
+  "SIMPLE.RollDiceLabel": "Dés :",
+  "SIMPLE.RollActualDice": "(Effectifs lancés : <code>{count}</code>)",
+  "SIMPLE.RollPenaltyNotice": "Nombre de dés inférieur à 1 ({finalDice}) : Pénalité de -{penalty} succès.",
+  "SIMPLE.RollTotalSuccesses": "Succès totaux :"
 }

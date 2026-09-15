@@ -16,7 +16,7 @@ export class ChestActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     },
     window: {
       resizable: true,
-      title: 'SIMPLE.ChestSheetTitle'
+      title: 'chestSheet.title'
     },
     tag: "form",
     form: {
@@ -116,7 +116,7 @@ export class ChestActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     switch (action) {
       case "create":
         const cls = getDocumentClass("Item");
-        return cls.create({ name: game.i18n.localize("SIMPLE.ItemNew"), type: "item" }, { parent: this.actor });
+        return cls.create({ name: game.i18n.localize("itemSheet.new"), type: "item" }, { parent: this.actor });
       case "edit":
         if (item) return item.sheet.render(true);
         break;

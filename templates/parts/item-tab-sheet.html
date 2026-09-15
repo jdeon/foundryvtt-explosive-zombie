@@ -49,14 +49,14 @@
                         <div class="cell"><i class="fa-solid fa-crosshairs"></i></div>
                         <div class="cell"><i class="fa-solid fa-dice"></i></div>
                         <div class="cell"><i class="fa-solid fa-boxes-stacked"></i></div>
-                        <div class="cell header-effect">{{localize "SIMPLE.EffectHeader"}}</div>
+                        <div class="cell header-effect">{{localize "itemSheet.effectHeader"}}</div>
                     </div>
 
                     <!-- Lignes de stats générées dynamiquement -->
                     {{#each system.activeEffects}}
                     <div class="table-row active-effect-rollable" data-dice="{{this.dice}}"
                         data-threshold="{{this.threshold}}" data-ammo="{{this.ammo}}"
-                        style="display: contents; cursor: pointer;" title="Lancer les dés pour cet effet">
+                        style="display: contents; cursor: pointer;" title="{{localize 'itemSheet.rollEffectTooltip'}}">
                         <div class="cell data-val">{{this.actionNumber}}</div>
                         <div class="cell data-val">{{this.threshold}}</div>
                         <div class="cell data-val cell-dice">{{this.dice}}</div>

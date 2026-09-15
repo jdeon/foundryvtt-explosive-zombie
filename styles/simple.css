@@ -633,14 +633,14 @@
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
 }
 .explosive-zombie .top-bar {
-  height: 60px;
   display: flex;
+  min-height: 60px;
 }
 .explosive-zombie .top-bar .inner-box {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 15px;
+  padding: 6px 15px;
+  gap: 10px;
 }
 .explosive-zombie .top-bar .rivet:nth-child(2) {
   top: 4px;
@@ -662,18 +662,19 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+}
+.explosive-zombie .item-title-group:first-of-type {
+  flex: 1;
+  min-width: 0;
 }
 .explosive-zombie .item-name {
   font-family: var(--font-data);
   font-size: 34px;
   color: #222;
-}
-.explosive-zombie .item-slot-box {
-  width: 50px;
-  height: 38px;
-  font-size: 22px;
-  background-color: #fff;
-  flex-shrink: 0;
+  line-height: 1.1;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .explosive-zombie .item-munitions {
   display: flex;
@@ -688,10 +689,23 @@
   border: 1px solid #aaa;
   cursor: pointer;
   user-select: none;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 .explosive-zombie .item-munitions i {
   font-size: 16px;
   color: #555;
+}
+.explosive-zombie .item-slot-container {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.explosive-zombie .item-slot-box {
+  width: 50px;
+  height: 38px;
+  font-size: 22px;
+  background-color: #fff;
+  flex-shrink: 0;
 }
 .explosive-zombie .image-box {
   height: 350px;

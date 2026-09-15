@@ -725,14 +725,14 @@
   }
 
   .top-bar {
-    height: 60px;
     display: flex;
+    min-height: 60px;
 
     .inner-box {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 15px;
+      padding: 6px 15px;
+      gap: 10px;
     }
 
     .rivet:nth-child(2) {
@@ -760,20 +760,21 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    min-width: 0;
+
+    &:first-of-type {
+      flex: 1;
+      min-width: 0;
+    }
   }
 
   .item-name {
     font-family: var(--font-data);
     font-size: 34px;
     color: #222;
-  }
-
-  .item-slot-box {
-    width: 50px;
-    height: 38px;
-    font-size: 22px;
-    background-color: #fff;
-    flex-shrink: 0;
+    line-height: 1.1;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .item-munitions {
@@ -789,11 +790,26 @@
     border: 1px solid #aaa;
     cursor: pointer;
     user-select: none;
+    flex-shrink: 0;
+    margin-left: auto;
 
     i {
       font-size: 16px;
       color: #555;
     }
+  }
+
+  .item-slot-container {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
+  .item-slot-box {
+    width: 50px;
+    height: 38px;
+    font-size: 22px;
+    background-color: #fff;
+    flex-shrink: 0;
   }
 
   .image-box {

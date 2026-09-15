@@ -9,7 +9,7 @@
             <div class="rivet"></div>
             <div class="inner-box">
                 <div class="item-title-group">
-                    <span class="item-name">{{data.name}}</span>
+                    <span class="item-name" title="{{data.name}}">{{data.name}}</span>
                 </div>
                 {{#if system.munitions.capacity}}
                 <div class="item-munitions">
@@ -20,8 +20,8 @@
                     {{#if system.munitions.remainingAmmo}}<span>(+{{system.munitions.remainingAmmo}})</span>{{/if}}
                 </div>
                 {{/if}}
-                <div class="item-title-group">
-                    <div class="box item-slot-box data-val">{{system.requiredSlots}}A</div>
+                <div class="item-title-group item-slot-container">
+                    <div class="box item-slot-box data-val">{{system.requiredSlots}}</div>
                 </div>
             </div>
         </div>

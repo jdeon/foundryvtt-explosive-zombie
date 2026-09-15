@@ -387,9 +387,42 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     if (needed <= 0 || remaining <= 0) return;
 
     const toReload = Math.min(needed, remaining);
-    return this.item.update({
-      "system.munitions.loadAmmo": currentLoad + toReload,
-      "system.munitions.remainingAmmo": remaining - toReload
+    const newLoad = currentLoad + toReload;
+    const newRemaining = remaining - toReload;
+
+    await this.item.update({
+      "system.munitions.loadAmmo": newLoad,
+      "system.munitions.remainingAmmo": newRemaining
+    });
+
+    const img = this.item.img || this.item.system?.imageUrl || "icons/svg/item-bag.svg";
+    const name = this.item.name;
+    const reloadText = game.i18n.format("itemSheet.reloadChatMessage", {
+      reloaded: toReload,
+      newLoad: newLoad,
+      capacity: capacity
+    });
+
+    const chatContent = `
+      <div class="explosive-zombie chat-card item-card">
+        <header class="card-header flexrow" style="display: flex; align-items: center; gap: 8px;">
+          <img src="${img}" title="${name}" width="36" height="36" style="border: 0; object-fit: contain;"/>
+          <h3 class="item-name" style="margin: 0;">${name}</h3>
+        </header>
+        <div class="card-content" style="margin-top: 8px;">
+          <p style="margin: 0; font-weight: bold; color: #27ae60;">
+            <i class="fa-solid fa-boxes-stacked"></i> ${reloadText}
+          </p>
+        </div>
+      </div>
+    `;
+
+    const speaker = ChatMessage.getSpeaker({ actor: this.item.actor || canvas.tokens?.controlled[0]?.actor || game.user?.character });
+
+    return ChatMessage.create({
+      user: game.user.id,
+      speaker,
+      content: chatContent
     });
   }
 }

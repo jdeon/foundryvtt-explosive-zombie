@@ -171,5 +171,7 @@
   "common.confirm": "Valider",
   "notifications.noAmmoAvailable": "Munitions chargées insuffisantes ! (0 disponible)",
   "chestSheet.lootName": "Butin",
-  "characterSheet.slotUnit": "emplacement(s)"
+  "characterSheet.slotUnit": "emplacement(s)",
+  "itemSheet.reloadTitle": "Rechargement",
+  "itemSheet.reloadChatMessage": "Rechargement : +{reloaded} munitions ({newLoad}/{capacity})"
 }

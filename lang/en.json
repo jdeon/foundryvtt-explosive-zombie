@@ -171,5 +171,7 @@
   "common.confirm": "Confirm",
   "notifications.noAmmoAvailable": "Insufficient loaded ammo! (0 available)",
   "chestSheet.lootName": "Loot",
-  "characterSheet.slotUnit": "slot(s)"
+  "characterSheet.slotUnit": "slot(s)",
+  "itemSheet.reloadTitle": "Reload",
+  "itemSheet.reloadChatMessage": "Reloaded: +{reloaded} ammo ({newLoad}/{capacity})"
 }

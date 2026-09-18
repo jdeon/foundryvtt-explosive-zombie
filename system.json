@@ -1,14 +1,10 @@
 {
   "id": "explosive-zombie",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "Explosive Zombie",
   "description": "A simple game system for Foundry VTT using explosive d6 as main check.",
   "license": "LICENSE.txt",
   "authors": [
-    {
-      "name": "Atropos",
-      "url": "https://foundryvtt.com"
-    },
     {
       "name": "Jdeon"
     }

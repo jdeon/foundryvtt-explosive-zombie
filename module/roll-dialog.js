@@ -1,23 +1,41 @@
-
-//TODO add arrow to update dice number and threshold on form
 export class RollDialog extends foundry.applications.api.DialogV2 {
 
   /**
    * @param {number|object} [diceNumber=1] Number of dice or options object
    * @param {number} [threshold=4] Success threshold
-   * @param {object} [options={}] Additional DialogV2 options
+   * @param {object} [options={}] Additional DialogV2 options (e.g. item, ammoCost)
    */
   constructor(diceNumber, threshold, options = {}) {
+    const item = options.item || null;
+    const ammoCost = Number(options.ammoCost) || 0;
+    const availableAmmo = item ? Number(item.system?.munitions?.loadAmmo || 0) : 0;
+
+    let ammoFieldHtml = "";
+    if (ammoCost > 0) {
+      const isEnough = availableAmmo >= ammoCost;
+      const loadedText = item ? `(${game.i18n.format("rollDialog.loadedAmmo", { count: availableAmmo })})` : '';
+      ammoFieldHtml = `
+        <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.05); padding: 6px 8px; border-radius: 4px; font-size: 0.9em;">
+          <i class="fa-solid fa-boxes-stacked" style="color: #555;"></i>
+          <label style="flex: 1; font-weight: bold;">${game.i18n.localize("rollDialog.ammoCost")}</label>
+          <span style="font-weight: bold; color: ${isEnough ? '#27ae60' : '#c0392b'};">
+            ${ammoCost} ${loadedText}
+          </span>
+        </div>
+      `;
+    }
+
     const content = `
       <form style="margin-bottom: 10px;">
+        ${ammoFieldHtml}
         <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 4px;">
-          <label style="flex: 1; font-weight: bold;">Nombre de dés :</label>
+          <label style="flex: 1; font-weight: bold;">${game.i18n.localize("rollDialog.diceCount")}</label>
           <button type="button" class="spin-btn" data-action="decrease" data-target="#dice-count" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-minus"></i></button>
           <input type="number" id="dice-count" name="diceCount" value="${diceNumber}" style="width: 50px; text-align: center;" />
           <button type="button" class="spin-btn" data-action="increase" data-target="#dice-count" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-plus"></i></button>
         </div>
         <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 4px;">
-          <label style="flex: 1; font-weight: bold;">Seuil de réussite :</label>
+          <label style="flex: 1; font-weight: bold;">${game.i18n.localize("rollDialog.threshold")}</label>
           <button type="button" class="spin-btn" data-action="decrease" data-target="#threshold" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-minus"></i></button>
           <input type="number" id="threshold" name="threshold" value="${threshold}" style="width: 50px; text-align: center;" />
           <button type="button" class="spin-btn" data-action="increase" data-target="#threshold" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-plus"></i></button>
@@ -27,27 +45,29 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
 
     const dialogOptions = foundry.utils.mergeObject({
       window: {
-        title: "Lancer de dés explosifs"
+        title: game.i18n.localize("rollDialog.title")
       },
       content,
       buttons: [
         {
           action: "roll",
           icon: "fas fa-dice-d6",
-          label: "Lancer les dés",
+          label: game.i18n.localize("rollDialog.action"),
           default: true,
           callback: (event, button, dialog) => this._executeDialog(event, button, dialog)
         },
         {
           action: "cancel",
           icon: "fas fa-times",
-          label: "Annuler"
+          label: game.i18n.localize("common.cancel")
         }
       ]
     }, options);
 
     super(dialogOptions);
 
+    this.item = item;
+    this.ammoCost = ammoCost;
     this.input = {
       diceNumber,
       threshold
@@ -88,8 +108,19 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     const inputThreshold = parseInt(element?.querySelector('#threshold')?.value);
 
     if (isNaN(inputDice) || isNaN(inputThreshold)) {
-      ui.notifications.error("Veuillez entrer un nombre de dés et un seuil de réussite");
+      ui.notifications.error(game.i18n.localize("notifications.rollInvalid"));
       return;
+    }
+
+    if (this.item && this.ammoCost > 0) {
+      const currentLoad = Number(this.item.system?.munitions?.loadAmmo || 0);
+      if (currentLoad < this.ammoCost) {
+        ui.notifications.warn(game.i18n.format("notifications.insufficientAmmo", { load: currentLoad, cost: this.ammoCost }));
+        return;
+      }
+      await this.item.update({
+        "system.munitions.loadAmmo": currentLoad - this.ammoCost
+      });
     }
 
     const { diceToRoll, finalThreshold, finalDice, successPenalty } = this._computedRollData(inputThreshold, inputDice);
@@ -145,17 +176,27 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     let penaltyNotice = "";
     if (successPenalty > 0) {
       penaltyNotice = `<p style="color: #c0392b; font-weight: bold; margin: 4px 0;">
-              <i class="fas fa-exclamation-triangle"></i> Nombre de dés inférieur à 1 (${finalDice}) : Pénalité de -${successPenalty} succès.
+              <i class="fas fa-exclamation-triangle"></i> ${game.i18n.format("rollDialog.penaltyNotice", { finalDice, penalty: successPenalty })}
             </p>`;
+    }
+
+    let ammoNotice = "";
+    if (this.ammoCost > 0) {
+      ammoNotice = `
+        <div style="background: rgba(0, 0, 0, 0.05); padding: 4px 8px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em; color: #555;">
+          <i class="fa-solid fa-boxes-stacked"></i> <strong>${game.i18n.localize("rollDialog.ammoUsed")}</strong> ${this.ammoCost}
+        </div>
+      `;
     }
 
     let adjustmentNotice = "";
     if (inputThreshold !== finalThreshold || inputDice !== finalDice) {
+      const actualDiceStr = game.i18n.format("rollDialog.actualDice", { count: diceToRoll });
       adjustmentNotice = `
               <div style="background: rgba(0, 0, 0, 0.05); padding: 6px 8px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em;">
-                <strong>Ajustements appliqués :</strong><br/>
-                • Seuil : <code>${inputThreshold}</code> → <code>${finalThreshold}</code><br/>
-                • Dés : <code>${inputDice}</code> → <code>${finalDice}</code> (Effectifs lancés : <code>${diceToRoll}</code>)
+                <strong>${game.i18n.localize("rollDialog.adjustmentsTitle")}</strong><br/>
+                • ${game.i18n.localize("rollDialog.thresholdLabel")} <code>${inputThreshold}</code> → <code>${finalThreshold}</code><br/>
+                • ${game.i18n.localize("rollDialog.diceLabel")} <code>${inputDice}</code> → <code>${finalDice}</code> ${actualDiceStr}
               </div>
             `;
     }
@@ -163,12 +204,13 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     const flavor = `
             <div class="explosive-roll-card">
               <h3 style="border-bottom: 2px solid #7a0000; padding-bottom: 4px; margin-bottom: 8px;">
-                <i class="fas fa-bomb"></i> Jet de Dés Explosifs
+                <i class="fas fa-bomb"></i> ${game.i18n.localize("rollDialog.cardTitle")}
               </h3>
+              ${ammoNotice}
               ${adjustmentNotice}
               ${penaltyNotice}
               <p style="font-size: 1.1em; margin: 4px 0;">
-                <strong>Succès totaux :</strong> 
+                <strong>${game.i18n.localize("rollDialog.totalSuccesses")}</strong> 
                 <span style="color: ${finalSuccesses > 0 ? '#27ae60' : '#c0392b'}; font-weight: bold; font-size: 1.2em;">
                   ${finalSuccesses}
                 </span>
@@ -178,4 +220,3 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     return flavor;
   }
 }
-

@@ -36,9 +36,9 @@ export class SimpleTokenDocument extends TokenDocument {
 
 /**
  * Extend the base Token class to implement additional system-specific logic.
- * @extends {Token}
+ * @extends {foundry.canvas.placeables.Token}
  */
-export class SimpleToken extends Token {
+export class SimpleToken extends foundry.canvas.placeables.Token {
   _drawBar(number, bar, data) {
     if ( "min" in data ) {
       // Copy the data to avoid mutating what the caller gave us.

@@ -50,12 +50,12 @@ Hooks.once("init", async function () {
   CONFIG.Token.objectClass = SimpleToken;
 
   // Register sheet application classes
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("explosive-zombie", CharacterActorSheet, { types: ["character"], makeDefault: true, label: "characterSheet.sheetTitle" });
-  Actors.registerSheet("explosive-zombie", ZombieActorSheet, { types: ["zombie"], makeDefault: true, label: "zombieSheet.sheetTitle" });
-  Actors.registerSheet("explosive-zombie", ChestActorSheet, { types: ["chest"], makeDefault: true, label: "chestSheet.sheetTitle" });
-  Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("explosive-zombie", SimpleItemSheet, { makeDefault: true });
+  foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
+  foundry.documents.collections.Actors.registerSheet("explosive-zombie", CharacterActorSheet, { types: ["character"], makeDefault: true, label: "characterSheet.sheetTitle" });
+  foundry.documents.collections.Actors.registerSheet("explosive-zombie", ZombieActorSheet, { types: ["zombie"], makeDefault: true, label: "zombieSheet.sheetTitle" });
+  foundry.documents.collections.Actors.registerSheet("explosive-zombie", ChestActorSheet, { types: ["chest"], makeDefault: true, label: "chestSheet.sheetTitle" });
+  foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
+  foundry.documents.collections.Items.registerSheet("explosive-zombie", SimpleItemSheet, { makeDefault: true });
 
   // Register system settings
   game.settings.register("explosive-zombie", "macroShorthand", {

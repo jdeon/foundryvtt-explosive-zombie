@@ -1484,10 +1484,43 @@
    Noise Dice Counter Dialog Styling
    ========================================================================== */
 .noise-dice-window {
-  min-width: 190px !important;
-  width: auto !important;
   min-height: 0 !important;
   height: auto !important;
+}
+.noise-dice-window.is-gm {
+  width: 185px !important;
+  min-width: 180px !important;
+}
+.noise-dice-window.player-view {
+  width: 95px !important;
+  min-width: 90px !important;
+  max-width: 100px !important;
+}
+.noise-dice-window.player-view .window-header {
+  height: 24px !important;
+  min-height: 24px !important;
+  padding: 0 4px !important;
+  justify-content: center !important;
+}
+.noise-dice-window.player-view .window-header .window-title {
+  font-size: 11px !important;
+  line-height: 24px !important;
+  text-align: center !important;
+}
+.noise-dice-window.player-view .window-header .header-control {
+  display: none !important;
+}
+.noise-dice-window.player-view .window-content {
+  padding: 4px 6px !important;
+}
+.noise-dice-window.player-view .noise-dice-compact .noise-value-box {
+  min-width: 0 !important;
+  width: 100% !important;
+  padding: 2px 4px !important;
+  gap: 4px !important;
+}
+.noise-dice-window.player-view .noise-dice-compact .noise-value-box .noise-count {
+  font-size: 20px !important;
 }
 .noise-dice-window .window-header {
   display: flex !important;

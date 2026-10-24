@@ -36,7 +36,7 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       resizable: false
     },
     position: {
-      width: 190,
+      width: "auto",
       height: "auto",
       top: 100,
       left: 120
@@ -92,9 +92,15 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   _onRender(context, options) {
     super._onRender(context, options);
 
+    // Apply specific classes and width for GM vs Client (Player)
+    this.element.classList.toggle("is-gm", context.isGM);
+    this.element.classList.toggle("player-view", !context.isGM);
+
     // Enforce tight auto-sizing on window and content
     this.element.style.height = "auto";
     this.element.style.minHeight = "0";
+    this.element.style.width = context.isGM ? "185px" : "100px";
+
     const contentElem = this.element.querySelector(".window-content");
     if (contentElem) {
       contentElem.style.height = "auto";

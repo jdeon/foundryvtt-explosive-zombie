@@ -173,5 +173,10 @@
   "chestSheet.lootName": "Loot",
   "characterSheet.slotUnit": "slot(s)",
   "itemSheet.reloadTitle": "Reload",
-  "itemSheet.reloadChatMessage": "Reloaded: +{reloaded} ammo ({newLoad}/{capacity})"
+  "itemSheet.reloadChatMessage": "Reloaded: +{reloaded} ammo ({newLoad}/{capacity})",
+  "noiseDice.title": "Noise Dice",
+  "noiseDice.increase": "Increase Noise (+1)",
+  "noiseDice.decrease": "Decrease Noise (-1)",
+  "noiseDice.reset": "Reset Noise to 0",
+  "noiseDice.toggle": "Toggle Noise Dice Dialog"
 }

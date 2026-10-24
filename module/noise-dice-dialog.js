@@ -103,6 +103,12 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const html = $(this.element);
 
+    // Clicking on the number rolls that many d6
+    html.find('[data-action="roll"], .noise-value-box').off("click").on("click", (e) => {
+      e.preventDefault();
+      this._rollDice();
+    });
+
     if (context.isGM) {
       html.find('[data-action="increase"]').off("click").on("click", (e) => {
         e.preventDefault();
@@ -119,6 +125,29 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
         this._resetCount();
       });
     }
+  }
+
+  /**
+   * Roll the current number of d6 dice into chat
+   * @private
+   */
+  async _rollDice() {
+    const count = this.noiseCount;
+    if (count <= 0) return;
+
+    const scene = this.currentScene;
+    const roll = new Roll(`${count}d6`);
+    await roll.evaluate();
+
+    await this._resetCount();
+
+    const flavor = game.i18n.localize("noiseDice.title");
+    const speaker = ChatMessage.getSpeaker({ scene });
+
+    return roll.toMessage({
+      speaker,
+      flavor
+    });
   }
 
   /**

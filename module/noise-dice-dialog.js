@@ -36,7 +36,7 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       resizable: false
     },
     position: {
-      width: 175,
+      width: 190,
       height: "auto",
       top: 100,
       left: 120
@@ -102,6 +102,11 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     const html = $(this.element);
+
+    // Hide it:
+    if (this.window.close) {
+      this.window.close.hidden = true; // or this.window.close.remove();
+    }
 
     // Clicking on the number rolls that many d6
     html.find('[data-action="roll"], .noise-value-box').off("click").on("click", (e) => {

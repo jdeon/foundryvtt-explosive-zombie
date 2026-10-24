@@ -1724,15 +1724,53 @@
    Noise Dice Counter Dialog Styling
    ========================================================================== */
 .noise-dice-window {
-  min-width: 0 !important;
+  min-width: 190px !important;
+  width: auto !important;
   min-height: 0 !important;
   height: auto !important;
 
   .window-header {
-    height: 26px !important;
-    min-height: 26px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 6px !important;
+    height: 28px !important;
+    min-height: 28px !important;
     padding: 0 6px !important;
-    font-size: 12px !important;
+
+    .window-title {
+      flex: 1 1 auto !important;
+      min-width: 0 !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+      font-size: 12px !important;
+      margin: 0 !important;
+      line-height: 28px !important;
+    }
+
+    .header-control {
+      flex: 0 0 22px !important;
+      width: 22px !important;
+      height: 22px !important;
+      min-width: 22px !important;
+      min-height: 22px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      font-size: 13px !important;
+      color: inherit !important;
+      opacity: 0.8;
+      transition: opacity 0.15s ease-in-out, color 0.15s ease-in-out;
+
+      &:hover {
+        opacity: 1;
+        color: #c0392b !important;
+      }
+    }
   }
 
   .window-content {

@@ -210,3 +210,18 @@ Hooks.on("canvasReady", (canvas) => {
   }
 });
 
+/**
+ * Update noise dice dialog when scene flags or properties are modified
+ */
+Hooks.on("updateScene", (scene, change, options, userId) => {
+  NoiseDiceDialog.onUpdateScene(scene, change);
+});
+/**
+ * Ensure dialog is rendered once the world is ready if canvas is already loaded
+ */
+Hooks.once("ready", () => {
+  if (canvas?.ready && canvas?.scene) {
+    NoiseDiceDialog.onCanvasReady(canvas.scene);
+  }
+});
+

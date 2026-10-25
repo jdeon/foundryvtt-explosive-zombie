@@ -173,5 +173,11 @@
   "chestSheet.lootName": "Butin",
   "characterSheet.slotUnit": "emplacement(s)",
   "itemSheet.reloadTitle": "Rechargement",
-  "itemSheet.reloadChatMessage": "Rechargement : +{reloaded} munitions ({newLoad}/{capacity})"
+  "itemSheet.reloadChatMessage": "Rechargement : +{reloaded} munitions ({newLoad}/{capacity})",
+  "noiseDice.title": "Dés de bruit",
+  "noiseDice.increase": "Augmenter le bruit (+1)",
+  "noiseDice.decrease": "Diminuer le bruit (-1)",
+  "noiseDice.reset": "Réinitialiser le bruit à 0",
+  "noiseDice.rollTooltip": "Lancer les dés de bruit",
+  "noiseDice.toggle": "Afficher/Masquer les dés de bruit"
 }

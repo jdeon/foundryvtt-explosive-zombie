@@ -15,6 +15,7 @@ import { preloadHandlebarsTemplates } from "./templates.js";
 import { createWorldbuildingMacro } from "./macro.js";
 import { SimpleToken, SimpleTokenDocument } from "./token.js";
 import { INJURY_REASONS } from "./constants.js";
+import { NoiseDiceDialog } from "./noise-dice-dialog.js";
 
 /* -------------------------------------------- */
 /*  Foundry VTT Initialization                  */
@@ -40,6 +41,7 @@ Hooks.once("init", async function () {
     ZombieActorSheet,
     ChestActorSheet,
     RollDialog,
+    NoiseDiceDialog,
     createWorldbuildingMacro
   };
 
@@ -199,3 +201,27 @@ Hooks.on("getItemDirectoryEntryContext", (html, options) => {
     }
   });
 });
+/**
+ * Automatically open / update the noise dice dialog on each scene load
+ */
+Hooks.on("canvasReady", (canvas) => {
+  if (canvas.scene) {
+    NoiseDiceDialog.onCanvasReady(canvas.scene);
+  }
+});
+
+/**
+ * Use this to propagate change without socket
+ */
+Hooks.on("updateScene", (scene, change, options, userId) => {
+  NoiseDiceDialog.onUpdateScene(scene, change);
+});
+/**
+ * Ensure dialog is rendered once the world is ready if canvas is already loaded
+ */
+Hooks.once("ready", () => {
+  if (canvas?.ready && canvas?.scene) {
+    NoiseDiceDialog.onCanvasReady(canvas.scene);
+  }
+});
+

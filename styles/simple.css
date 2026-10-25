@@ -15,7 +15,6 @@
   --header-bg: #e5d4c0;
   --font-title: 'Yanone Kaffeesatz', sans-serif;
 }
-
 /* System Container Class for Actor and Item Sheets */
 .explosive-zombie {
   display: flex;
@@ -35,14 +34,12 @@
   /* Items List */
   /* Attributes */
 }
-
 .explosive-zombie,
 .explosive-zombie *,
 .explosive-zombie *::before,
 .explosive-zombie *::after {
   box-sizing: border-box;
 }
-
 .explosive-zombie .sheet-tabs.tabs {
   flex: 0 0 38px;
   border-bottom: 2px solid #333;
@@ -53,7 +50,6 @@
   border-radius: 6px 6px 0 0;
   padding: 4px 6px 0 6px;
 }
-
 .explosive-zombie .sheet-tabs.tabs .item {
   padding: 6px 14px;
   font-family: var(--font-main, sans-serif);
@@ -68,7 +64,6 @@
   cursor: pointer;
   transition: background 0.15s ease-in-out;
 }
-
 .explosive-zombie .sheet-tabs.tabs .item.active {
   background: #ffffff;
   color: #000000;
@@ -78,18 +73,15 @@
   font-weight: 800;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.08);
 }
-
 .explosive-zombie .tab {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
 }
-
 .explosive-zombie .editor,
 .explosive-zombie .editor-content {
   height: 100%;
 }
-
 .explosive-zombie .classic-form {
   padding: 12px;
   display: flex;
@@ -100,7 +92,6 @@
   border: 1px solid #ccc;
   color: #222;
 }
-
 .explosive-zombie .classic-form .form-section {
   border: 1px solid #bbb;
   border-radius: 6px;
@@ -108,21 +99,18 @@
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
-
 .explosive-zombie .classic-form .form-section legend {
   font-weight: bold;
   font-size: 14px;
   padding: 0 8px;
   color: #222;
 }
-
 .explosive-zombie .classic-form .form-group {
   margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-
 .explosive-zombie .classic-form .form-group label {
   font-weight: 600;
   font-size: 12px;
@@ -130,7 +118,6 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-
 .explosive-zombie .classic-form input[type="text"],
 .explosive-zombie .classic-form input[type="number"],
 .explosive-zombie .classic-form textarea {
@@ -142,7 +129,6 @@
   background: #fff;
   color: #111;
 }
-
 .explosive-zombie .classic-form input[type="text"]:focus,
 .explosive-zombie .classic-form input[type="number"]:focus,
 .explosive-zombie .classic-form textarea:focus {
@@ -150,29 +136,23 @@
   outline: none;
   box-shadow: 0 0 4px rgba(0, 118, 223, 0.3);
 }
-
 .explosive-zombie .classic-form .form-grid {
   display: grid;
   gap: 12px;
 }
-
 .explosive-zombie .classic-form .grid-2col {
   grid-template-columns: 1fr 1fr;
 }
-
 .explosive-zombie .classic-form .grid-3col {
   grid-template-columns: 1fr 1fr 1fr;
 }
-
 .explosive-zombie .classic-form .grid-4col {
   grid-template-columns: 1fr 1fr 1fr 1fr;
 }
-
 .explosive-zombie .classic-form .button-row {
   display: flex;
   gap: 8px;
 }
-
 .explosive-zombie .classic-form button {
   padding: 6px 12px;
   font-size: 12px;
@@ -183,34 +163,28 @@
   cursor: pointer;
   color: #222;
 }
-
 .explosive-zombie .classic-form button:hover {
   background: #e0e0e0;
 }
-
 .explosive-zombie .skills-list-edit {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-top: 8px;
 }
-
 .explosive-zombie .skill-edit-row {
   display: flex;
   gap: 8px;
   align-items: center;
 }
-
 .explosive-zombie .skill-edit-row input[type="text"] {
   flex: 1;
 }
-
 .explosive-zombie .skill-edit-row input.skill-val-input {
   width: 80px;
   flex: 0 0 80px;
   text-align: center;
 }
-
 .explosive-zombie .btn-add {
   font-size: 12px;
   padding: 4px 8px;
@@ -220,28 +194,23 @@
   border-radius: 4px;
   cursor: pointer;
 }
-
 .explosive-zombie .btn-add:hover {
   background: #1b5e20;
 }
-
 .explosive-zombie .btn-del {
   color: #d32f2f;
   padding: 6px;
   cursor: pointer;
 }
-
 .explosive-zombie .btn-del:hover {
   color: #b71c1c;
 }
-
 .explosive-zombie .empty-msg {
   font-style: italic;
   color: #777;
   font-size: 13px;
   margin: 4px 0;
 }
-
 .explosive-zombie .sheet-outer {
   width: 100%;
   max-width: 800px;
@@ -250,7 +219,6 @@
   padding: 6px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
-
 .explosive-zombie .sheet-inner {
   border: var(--thin);
   display: flex;
@@ -259,14 +227,12 @@
   font-family: var(--font-main);
   font-weight: bold;
 }
-
 .explosive-zombie .header-section {
   display: flex;
   justify-content: space-between;
   padding: 25px;
   border-bottom: var(--thick);
 }
-
 .explosive-zombie .header-text {
   flex: 1;
   display: flex;
@@ -274,19 +240,16 @@
   gap: 20px;
   padding-right: 20px;
 }
-
 .explosive-zombie .header-row {
   font-size: 28px;
   line-height: 1;
 }
-
 .explosive-zombie .dashed-line {
   width: 90%;
   height: 10px;
   border-bottom: 4px dashed black;
   margin-top: -10px;
 }
-
 .explosive-zombie .portrait-outer {
   width: 160px;
   height: 160px;
@@ -294,7 +257,6 @@
   padding: 4px;
   flex-shrink: 0;
 }
-
 .explosive-zombie .portrait-inner {
   width: 100%;
   height: 100%;
@@ -302,12 +264,10 @@
   background-size: cover;
   background-position: center;
 }
-
 .explosive-zombie .stats-section {
   display: flex;
   border-bottom: var(--thick);
 }
-
 .explosive-zombie .stats-col {
   width: 50%;
   border-right: var(--thick);
@@ -317,7 +277,6 @@
   gap: 15px;
   justify-content: center;
 }
-
 .explosive-zombie .stat-row {
   display: flex;
   justify-content: space-between;
@@ -325,7 +284,6 @@
   font-size: 26px;
   letter-spacing: 1px;
 }
-
 .explosive-zombie .stat-bracket-box {
   display: flex;
   align-items: center;
@@ -335,20 +293,17 @@
   flex-shrink: 0;
   gap: 2px;
 }
-
 .explosive-zombie .stat-bracket-box .bracket {
   font-size: 44px;
   font-weight: bold;
   line-height: 1;
 }
-
 .explosive-zombie .stat-inner-stack {
   display: flex;
   flex-direction: column;
   align-items: center;
   line-height: 1;
 }
-
 .explosive-zombie .stat-underscores {
   font-size: 18px;
   line-height: 0.5;
@@ -356,7 +311,6 @@
   letter-spacing: 5px;
   margin-right: -5px;
 }
-
 .explosive-zombie .health-col {
   width: 50%;
   padding: 20px;
@@ -366,13 +320,11 @@
   justify-content: center;
   gap: 10px;
 }
-
 .explosive-zombie .health-col .health-box {
   position: relative;
   width: 45px;
   height: 45px;
 }
-
 .explosive-zombie .health-col .health-box .health-letter {
   position: absolute;
   inset: 0;
@@ -387,7 +339,6 @@
   user-select: none;
   line-height: 1;
 }
-
 .explosive-zombie .health-col .health-box .health-select {
   appearance: none;
   -webkit-appearance: none;
@@ -403,7 +354,6 @@
   box-shadow: none;
   cursor: pointer;
 }
-
 .explosive-zombie .health-col .health-box .health-select:focus,
 .explosive-zombie .health-col .health-box .health-select:hover {
   outline: none;
@@ -411,7 +361,6 @@
   box-shadow: none;
   background: transparent;
 }
-
 .explosive-zombie .health-col .health-box .health-select option {
   font-family: var(--font-main, sans-serif);
   font-size: 15px;
@@ -419,18 +368,15 @@
   background: #ffffff;
   padding: 4px 8px;
 }
-
 .explosive-zombie .health-title {
   font-size: 26px;
   margin-bottom: 5px;
 }
-
 .explosive-zombie .box-row {
   display: flex;
   gap: 12px;
   margin-bottom: 10px;
 }
-
 .explosive-zombie .box {
   width: 45px;
   height: 45px;
@@ -446,7 +392,6 @@
   word-break: break-word;
   overflow-wrap: anywhere;
 }
-
 .explosive-zombie .box.slot-box {
   width: 100%;
   max-width: 100%;
@@ -462,66 +407,54 @@
   word-break: break-word;
   overflow-wrap: anywhere;
 }
-
 .explosive-zombie .box.slot-box:hover {
   border-color: #3b2818;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: #f8f8f8;
 }
-
 .explosive-zombie .box.slot-box.filled {
   cursor: grab;
 }
-
 .explosive-zombie .box.slot-box.filled:active {
   cursor: grabbing;
 }
-
 .explosive-zombie .box.slot-box.empty {
   cursor: pointer;
 }
-
 .explosive-zombie .box.armor-box {
   cursor: pointer;
   transition: border-style 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 }
-
 .explosive-zombie .box.armor-box:hover {
   border-color: #3b2818;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: #f8f8f8;
 }
-
 .explosive-zombie .box.armor-box.unequipped {
   border-style: dotted;
   border-color: #7a6552;
   background-color: rgba(255, 255, 255, 0.6);
 }
-
 .explosive-zombie .box.armor-box.equipped {
   border-style: solid;
   border-color: #3b2818;
   background-color: #ffffff;
 }
-
 .explosive-zombie .box.armor-box.broken {
   border-style: solid;
   border-color: #b30000;
   background-color: #fff0f0;
 }
-
 .explosive-zombie .box-checked {
   font-family: var(--font-data);
   font-size: 40px;
   color: #b30000;
   line-height: 0;
 }
-
 .explosive-zombie .inventory-section {
   display: flex;
   border-bottom: var(--thick);
 }
-
 .explosive-zombie .side-col {
   width: 25%;
   padding: 20px 10px;
@@ -529,21 +462,17 @@
   flex-direction: column;
   align-items: center;
 }
-
 .explosive-zombie .side-col.left {
   border-right: var(--thick);
 }
-
 .explosive-zombie .side-col.right {
   border-left: var(--thick);
 }
-
 .explosive-zombie .section-title {
   font-size: 22px;
   margin-bottom: 25px;
   text-align: center;
 }
-
 .explosive-zombie .belt-boxes {
   display: flex;
   flex-direction: column;
@@ -551,11 +480,9 @@
   gap: 12px;
   width: 100%;
 }
-
 .explosive-zombie .belt-boxes .box {
   font-size: 15px;
 }
-
 .explosive-zombie .backpack-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -564,11 +491,9 @@
   justify-items: center;
   align-items: stretch;
 }
-
 .explosive-zombie .backpack-grid .box {
   font-size: 15px;
 }
-
 .explosive-zombie .backpack-grid .box.free-space {
   grid-column: 1 / -1;
   width: 100%;
@@ -580,13 +505,11 @@
   cursor: pointer;
   transition: background 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
-
 .explosive-zombie .backpack-grid .box.free-space:hover {
   background: #fff8e7;
   border-color: #5a3a31;
   box-shadow: 0 0 5px rgba(90, 58, 49, 0.3);
 }
-
 .explosive-zombie .center-col {
   width: 50%;
   padding: 20px 25px;
@@ -594,7 +517,6 @@
   flex-direction: column;
   align-items: center;
 }
-
 .explosive-zombie .skills-grid {
   width: 100%;
   display: grid;
@@ -603,7 +525,6 @@
   margin-bottom: 20px;
   box-sizing: border-box;
 }
-
 .explosive-zombie .skill-item {
   display: flex;
   align-items: center;
@@ -611,7 +532,6 @@
   min-width: 0;
   width: 100%;
 }
-
 .explosive-zombie .skill-rect {
   flex: 1 1 0;
   min-width: 0;
@@ -627,16 +547,13 @@
   word-break: break-word;
   line-height: 1.2;
 }
-
 .explosive-zombie .skill-item .data-val {
   font-size: 16px;
 }
-
 .explosive-zombie .skill-brackets {
   flex-shrink: 0;
   white-space: nowrap;
 }
-
 .explosive-zombie .large-text-area {
   width: 100%;
   flex-grow: 1;
@@ -647,19 +564,16 @@
   font-size: 24px;
   white-space: pre-wrap;
 }
-
 .explosive-zombie .footer-section {
   padding: 30px 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
 .explosive-zombie .dotted-line-container {
   width: 100%;
   margin-bottom: 25px;
 }
-
 .explosive-zombie .dotted-line-text {
   border-bottom: 4px dashed black;
   min-height: 35px;
@@ -668,26 +582,22 @@
   align-items: flex-end;
   padding-left: 10px;
 }
-
 .explosive-zombie .equip-title {
   font-size: 28px;
   margin-bottom: 15px;
   margin-top: 10px;
 }
-
 .explosive-zombie .equip-boxes {
   display: flex;
   gap: 20px;
   width: 100%;
   justify-content: center;
 }
-
 .explosive-zombie .equip-boxes .box,
 .explosive-zombie .equip-boxes .equip-box {
   max-width: 220px;
   font-size: 15px;
 }
-
 .explosive-zombie .card-container {
   width: 450px;
   background-color: var(--bg-parchment);
@@ -701,7 +611,6 @@
   position: relative;
   overflow: hidden;
 }
-
 .explosive-zombie .metal-frame {
   background: linear-gradient(to bottom, var(--metal-light) 0%, var(--metal-mid) 20%, var(--metal-dark) 100%);
   border: 1px solid var(--metal-border);
@@ -710,7 +619,6 @@
   box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.8), inset 0 -1px 3px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.3);
   position: relative;
 }
-
 .explosive-zombie .inner-box {
   background-color: #fff;
   border: 2px solid #555;
@@ -719,7 +627,6 @@
   width: 100%;
   height: 100%;
 }
-
 .explosive-zombie .rivet {
   width: 8px;
   height: 8px;
@@ -729,51 +636,42 @@
   position: absolute;
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
 }
-
 .explosive-zombie .top-bar {
   display: flex;
   min-height: 60px;
 }
-
 .explosive-zombie .top-bar .inner-box {
   display: flex;
   align-items: center;
   padding: 6px 15px;
   gap: 10px;
 }
-
 .explosive-zombie .top-bar .rivet:nth-child(2) {
   top: 4px;
   left: 4px;
 }
-
 .explosive-zombie .top-bar .rivet:nth-child(3) {
   top: 4px;
   right: 4px;
 }
-
 .explosive-zombie .top-bar .rivet:nth-child(4) {
   bottom: 4px;
   left: 4px;
 }
-
 .explosive-zombie .top-bar .rivet:nth-child(5) {
   bottom: 4px;
   right: 4px;
 }
-
 .explosive-zombie .item-title-group {
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
 }
-
 .explosive-zombie .item-title-group:first-of-type {
   flex: 1;
   min-width: 0;
 }
-
 .explosive-zombie .item-name {
   font-family: var(--font-data);
   font-size: 34px;
@@ -782,7 +680,6 @@
   word-break: break-word;
   overflow-wrap: break-word;
 }
-
 .explosive-zombie .item-munitions {
   display: flex;
   align-items: center;
@@ -799,17 +696,14 @@
   flex-shrink: 0;
   margin-left: auto;
 }
-
 .explosive-zombie .item-munitions i {
   font-size: 16px;
   color: #555;
 }
-
 .explosive-zombie .item-slot-container {
   flex-shrink: 0;
   margin-left: auto;
 }
-
 .explosive-zombie .item-slot-box {
   width: 50px;
   height: 38px;
@@ -817,12 +711,10 @@
   background-color: #fff;
   flex-shrink: 0;
 }
-
 .explosive-zombie .image-box {
   height: 350px;
   padding: 8px;
 }
-
 .explosive-zombie .image-box .inner-box {
   background-color: #000;
   background-size: cover;
@@ -830,7 +722,6 @@
   border-radius: 6px;
   border: 3px solid #333;
 }
-
 .explosive-zombie .bottom-section {
   position: relative;
   margin: 0 -20px;
@@ -839,32 +730,26 @@
   border-top: 1px solid #a89f91;
   border-bottom: 1px solid #a89f91;
 }
-
 .explosive-zombie .side-rivet {
   width: 12px;
   height: 12px;
   position: absolute;
   left: 5px;
 }
-
 .explosive-zombie .side-rivet.right {
   left: auto;
   right: 5px;
 }
-
 .explosive-zombie .sr-1 {
   top: 15px;
 }
-
 .explosive-zombie .sr-2 {
   top: 50%;
   transform: translateY(-50%);
 }
-
 .explosive-zombie .sr-3 {
   bottom: 15px;
 }
-
 .explosive-zombie .table-frame {
   border: 2px solid var(--metal-border);
   border-radius: 4px;
@@ -872,7 +757,6 @@
   padding: 4px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
-
 .explosive-zombie .stats-table {
   display: grid;
   grid-template-columns: 35px 35px 90px 40px minmax(0, 1fr);
@@ -881,7 +765,6 @@
   border-radius: 2px;
   width: 100%;
 }
-
 .explosive-zombie .cell {
   border-right: 2px solid var(--table-border);
   border-bottom: 2px solid var(--table-border);
@@ -894,46 +777,37 @@
   word-break: break-word;
   overflow-wrap: anywhere;
 }
-
 .explosive-zombie .cell:last-child {
   border-right: none;
   justify-content: flex-start;
   padding-left: 12px;
 }
-
 .explosive-zombie .cell-dice {
   font-size: 18px !important;
   padding: 2px 4px;
 }
-
 .explosive-zombie .active-effect-rollable {
   cursor: pointer;
 }
-
 .explosive-zombie .active-effect-rollable .cell {
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
-
 .explosive-zombie .active-effect-rollable:hover .cell {
   background-color: rgba(255, 255, 255, 0.15);
 }
-
 .explosive-zombie .table-row:last-child .cell {
   border-bottom: none;
 }
-
 .explosive-zombie .table-header .cell {
   background-color: var(--header-bg);
   color: #4a3424;
   font-size: 18px;
   border-bottom: 3px solid var(--table-border);
 }
-
 .explosive-zombie .table-header .cell i {
   filter: drop-shadow(0px 1px 0px rgba(255, 255, 255, 0.6));
 }
-
 .explosive-zombie .header-effect {
   font-family: var(--font-title);
   font-size: 36px !important;
@@ -942,7 +816,6 @@
   justify-content: center !important;
   color: #3b2818 !important;
 }
-
 .explosive-zombie .data-val {
   font-family: var(--font-data);
   font-size: 26px;
@@ -950,7 +823,6 @@
   line-height: 1.1;
   font-weight: normal;
 }
-
 .explosive-zombie .effect-text {
   font-size: 20px;
   text-align: left;
@@ -959,7 +831,6 @@
   overflow-wrap: anywhere;
   hyphens: auto;
 }
-
 .explosive-zombie .item-section {
   margin-bottom: 12px;
   background: rgba(0, 0, 0, 0.02);
@@ -967,7 +838,6 @@
   border-radius: 4px;
   padding: 6px 10px;
 }
-
 .explosive-zombie .item-section .item-section-header {
   margin: 0 0 4px 0;
   padding: 4px 0;
@@ -978,19 +848,16 @@
   color: #333;
   align-items: center;
 }
-
 .explosive-zombie .item-section .item-section-header i {
   margin-right: 6px;
   color: #5a3a31;
 }
-
 .explosive-zombie .item-section .item-section-header .item-section-count {
   font-size: 12px;
   color: #777;
   margin-left: 6px;
   font-weight: normal;
 }
-
 .explosive-zombie .item-section .empty-section-notice {
   padding: 6px 0;
   font-style: italic;
@@ -998,11 +865,9 @@
   font-size: 12px;
   border-bottom: none;
 }
-
 .explosive-zombie .free-space-overlay {
   padding: 10px;
 }
-
 .explosive-zombie .free-space-overlay .free-space-header {
   font-family: var(--font-title, sans-serif);
   font-size: 18px;
@@ -1012,11 +877,9 @@
   border-bottom: 2px solid #5a3a31;
   padding-bottom: 4px;
 }
-
 .explosive-zombie .free-space-overlay .free-space-header i {
   margin-right: 6px;
 }
-
 .explosive-zombie .free-space-overlay .free-space-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -1025,7 +888,6 @@
   overflow-y: auto;
   padding: 4px;
 }
-
 .explosive-zombie .free-space-overlay .free-space-grid .slot-box {
   justify-content: space-between;
   padding: 6px 10px;
@@ -1036,24 +898,20 @@
   user-select: none;
   transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
 }
-
 .explosive-zombie .free-space-overlay .free-space-grid .slot-box:hover {
   transform: translateY(-2px);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
   background: #ffffff;
 }
-
 .explosive-zombie .free-space-overlay .free-space-grid .slot-box:active {
   cursor: grabbing;
 }
-
 .explosive-zombie .free-space-overlay .free-space-grid .slot-box .item-title {
   flex: 1;
   word-break: break-word;
   overflow-wrap: anywhere;
   line-height: 1.2;
 }
-
 .explosive-zombie .free-space-overlay .free-space-grid .slot-box .remove-free-item {
   margin-left: 8px;
   color: #a00;
@@ -1062,27 +920,23 @@
   opacity: 0.7;
   flex-shrink: 0;
 }
-
 .explosive-zombie .free-space-overlay .free-space-grid .slot-box .remove-free-item:hover {
   opacity: 1;
   color: #e00;
 }
-
 .explosive-zombie .free-space-overlay .free-space-grid .empty-notice {
-  grid-column: -1;
+  grid-column: 1 / -1;
   font-style: italic;
   color: #777;
   text-align: center;
   padding: 20px;
 }
-
 .explosive-zombie .item-list {
   list-style: none;
   margin: 7px 0;
   padding: 0;
   overflow-y: auto;
 }
-
 .explosive-zombie .item-list .item {
   min-height: 30px;
   line-height: 24px;
@@ -1090,20 +944,16 @@
   border-bottom: 1px solid #BBB;
   align-items: stretch;
 }
-
 .explosive-zombie .item-list .item img {
   flex: 0 0 24px;
   margin-right: 5px;
 }
-
 .explosive-zombie .item-list .item-name {
   margin: 0;
 }
-
 .explosive-zombie .item-list .item-controls {
   flex: 0 0 36px;
 }
-
 .explosive-zombie .item-list .item-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -1112,20 +962,17 @@
   flex: 2;
   justify-content: flex-start;
 }
-
 .explosive-zombie .item-list .item-button {
   line-height: 1;
   font-size: 11px;
   flex: none;
   width: auto;
 }
-
 .explosive-zombie .items-footer-controls {
   display: flex;
   gap: 12px;
   margin-top: 10px;
 }
-
 .explosive-zombie .items-footer-controls .item-control {
   cursor: pointer;
   display: inline-flex;
@@ -1141,16 +988,13 @@
   font-family: var(--font-main, sans-serif);
   transition: background 0.15s ease-in-out;
 }
-
 .explosive-zombie .items-footer-controls .item-control:hover {
   background: rgba(0, 0, 0, 0.12);
   color: #000;
 }
-
 .explosive-zombie .attributes {
   position: relative;
 }
-
 .explosive-zombie .attributes .attribute-control,
 .explosive-zombie .attributes .group-control {
   flex: 0 0 20px;
@@ -1158,7 +1002,6 @@
   line-height: 28px;
   border: none;
 }
-
 .explosive-zombie .attributes .attribute-roll {
   flex: 0 0 20px;
   text-align: center;
@@ -1167,12 +1010,10 @@
   align-items: center;
   justify-content: center;
 }
-
 .explosive-zombie .attributes .group-prefix {
   height: 31px;
   margin-right: 10px;
 }
-
 .explosive-zombie .attributes .button {
   width: 100%;
   flex: 1;
@@ -1184,12 +1025,10 @@
   line-height: 28px;
   display: block;
 }
-
 .explosive-zombie .attributes .attribute-key {
   background: transparent;
   border: none;
 }
-
 .explosive-zombie .attributes-header {
   position: sticky;
   top: 0;
@@ -1204,14 +1043,12 @@
   font-weight: bold;
   z-index: 1;
 }
-
 .explosive-zombie .attributes-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-
-.explosive-zombie .attributes-list li>* {
+.explosive-zombie .attributes-list li > * {
   margin: 0 3px;
   height: 28px;
   line-height: 24px;
@@ -1220,46 +1057,38 @@
   border-radius: 0;
   border-bottom: 1px solid #AAA;
 }
-
 .explosive-zombie .attributes-list .attribute-col label {
   font-size: 10px;
   text-align: center;
   line-height: 1;
 }
-
 .explosive-zombie .attributes-list .attribute-col input {
   font-size: 11px;
   text-align: center;
   line-height: 1;
   height: 50%;
 }
-
 .explosive-zombie .attribute input[type="text"]::placeholder,
 .explosive-zombie .group-header input[type="text"]::placeholder {
   opacity: 0;
   transition: opacity 0.25s ease-in-out;
 }
-
 .explosive-zombie .attribute input[type="text"]:focus::placeholder,
 .explosive-zombie .group-header input[type="text"]:focus::placeholder {
   opacity: 1;
 }
-
 .explosive-zombie .group-controls {
   margin: 5px;
 }
-
 .explosive-zombie .groups-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-
 .explosive-zombie .group {
   margin: 5px 0 0;
   padding: 0;
 }
-
 .explosive-zombie .group-header {
   align-items: center;
   background: rgba(0, 0, 0, 0.05);
@@ -1267,7 +1096,6 @@
   border-radius: 2px;
   padding: 2px 5px;
 }
-
 .explosive-zombie .group-key,
 .explosive-zombie .group-label {
   font-weight: bold;
@@ -1277,31 +1105,25 @@
   border-radius: 0;
   margin-right: 6px;
 }
-
 .explosive-zombie .group-key {
   opacity: 0.75;
 }
-
 .explosive-zombie .group-label {
   flex: 2;
 }
-
 .explosive-zombie .group-dtype {
   height: 24px;
   flex: 0 0 116px;
   margin: 0 5px;
 }
-
 .explosive-zombie.sheet.actor {
   min-width: 560px;
   min-height: 420px;
 }
-
 .explosive-zombie.sheet.item {
   min-width: 460px;
   min-height: 400px;
 }
-
 /* ==========================================================================
    Zombie Actor Sheet Styling
    ========================================================================== */
@@ -1313,7 +1135,6 @@
   background: var(--bg-parchment, #fdf6e3);
   border-radius: 8px;
 }
-
 .explosive-zombie .zombie-header {
   display: flex;
   align-items: center;
@@ -1323,7 +1144,6 @@
   border: 1px solid #ccc;
   border-radius: 6px;
 }
-
 .explosive-zombie .zombie-portrait-box {
   flex: 0 0 70px;
   height: 70px;
@@ -1332,21 +1152,18 @@
   overflow: hidden;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
-
 .explosive-zombie .zombie-portrait-box img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   cursor: pointer;
 }
-
 .explosive-zombie .zombie-title-box {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-
 .explosive-zombie .zombie-label {
   font-size: 11px;
   font-weight: bold;
@@ -1354,7 +1171,6 @@
   color: #666;
   letter-spacing: 0.5px;
 }
-
 .explosive-zombie .zombie-name-input {
   font-family: var(--font-data, sans-serif);
   font-size: 22px;
@@ -1364,13 +1180,11 @@
   border-bottom: 2px solid #666;
   background: transparent;
 }
-
 .explosive-zombie .zombie-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
 }
-
 .explosive-zombie .zombie-stat-card {
   background: #fff;
   border: 1px solid #bbb;
@@ -1381,16 +1195,13 @@
   align-items: center;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
 .explosive-zombie .zombie-stat-card.hp-card {
   border-color: #8b0000;
   background: #fff8f8;
 }
-
 .explosive-zombie .zombie-stat-card.hp-card .stat-card-title {
   color: #8b0000;
 }
-
 .explosive-zombie .stat-card-title {
   font-size: 12px;
   font-weight: bold;
@@ -1398,7 +1209,6 @@
   margin-bottom: 6px;
   text-align: center;
 }
-
 .explosive-zombie .stat-card-inputs {
   display: flex;
   align-items: center;
@@ -1406,7 +1216,6 @@
   gap: 4px;
   width: 100%;
 }
-
 .explosive-zombie .stat-card-inputs input {
   font-size: 18px;
   font-weight: bold;
@@ -1417,19 +1226,16 @@
   border-radius: 4px;
   background: #fff;
 }
-
 .explosive-zombie .stat-card-inputs .sep {
   font-size: 18px;
   font-weight: bold;
   color: #777;
 }
-
 .explosive-zombie .zombie-action-bar {
   display: flex;
   justify-content: center;
   margin-top: 5px;
 }
-
 .explosive-zombie .zombie-roll-btn {
   background: linear-gradient(to bottom, #8b0000 0%, #5c0000 100%);
   color: #fff;
@@ -1442,20 +1248,17 @@
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease-in-out;
 }
-
 .explosive-zombie .zombie-roll-btn:hover {
   background: linear-gradient(to bottom, #a30000 0%, #750000 100%);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
   transform: translateY(-1px);
 }
-
 .explosive-zombie .zombie-notes-section {
   display: flex;
   flex-direction: column;
   gap: 6px;
   margin-top: 5px;
 }
-
 .explosive-zombie .zombie-notes-section textarea {
   width: 100%;
   border: 1px solid #ccc;
@@ -1466,13 +1269,11 @@
   resize: vertical;
   background: #fff;
 }
-
 .explosive-zombie .notes-label {
   font-size: 13px;
   font-weight: bold;
   color: #333;
 }
-
 /* ==========================================================================
    Chest Actor Sheet Styling
    ========================================================================== */
@@ -1480,7 +1281,6 @@
   min-width: 500px;
   min-height: 440px;
 }
-
 .explosive-zombie .chest-sheet-content {
   display: flex;
   flex-direction: column;
@@ -1489,7 +1289,6 @@
   background: var(--bg-parchment, #fdf6e3);
   border-radius: 8px;
 }
-
 .explosive-zombie .chest-header {
   display: flex;
   align-items: center;
@@ -1499,7 +1298,6 @@
   border: 1px solid #ccc;
   border-radius: 6px;
 }
-
 .explosive-zombie .chest-portrait-box {
   flex: 0 0 64px;
   height: 64px;
@@ -1509,21 +1307,18 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
   background: #3e2723;
 }
-
 .explosive-zombie .chest-portrait-box img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   cursor: pointer;
 }
-
 .explosive-zombie .chest-title-box {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-
 .explosive-zombie .chest-label {
   font-size: 11px;
   font-weight: bold;
@@ -1531,7 +1326,6 @@
   color: #5d4037;
   letter-spacing: 0.5px;
 }
-
 .explosive-zombie .chest-name-input {
   font-family: var(--font-data, sans-serif);
   font-size: 22px;
@@ -1542,13 +1336,11 @@
   background: transparent;
   color: #3e2723;
 }
-
 .explosive-zombie .chest-resources-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
 }
-
 .explosive-zombie .chest-resource-card {
   background: #fff;
   border: 1px solid #d7ccc8;
@@ -1560,7 +1352,6 @@
   gap: 6px;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(0, 0, 0, 0.06);
 }
-
 .explosive-zombie .chest-resource-card .resource-card-title {
   font-size: 13px;
   font-weight: bold;
@@ -1569,7 +1360,6 @@
   align-items: center;
   gap: 6px;
 }
-
 .explosive-zombie .chest-resource-card .resource-card-input input {
   font-size: 18px;
   font-weight: bold;
@@ -1581,7 +1371,6 @@
   background: #fafafa;
   color: #3e2723;
 }
-
 .explosive-zombie .chest-items-section {
   background: #fff;
   border: 1px solid #d7ccc8;
@@ -1589,7 +1378,6 @@
   padding: 12px;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
 }
-
 .explosive-zombie .chest-section-header {
   display: flex;
   align-items: center;
@@ -1598,13 +1386,11 @@
   padding-bottom: 8px;
   margin-bottom: 10px;
 }
-
 .explosive-zombie .chest-section-header .section-title {
   font-size: 15px;
   font-weight: bold;
   color: #4e342e;
 }
-
 .explosive-zombie .add-item-btn {
   background: #5d4037;
   color: #fff !important;
@@ -1615,11 +1401,9 @@
   cursor: pointer;
   transition: background 0.2s ease;
 }
-
 .explosive-zombie .add-item-btn:hover {
   background: #3e2723;
 }
-
 .explosive-zombie .chest-items-list {
   list-style: none;
   margin: 0;
@@ -1628,7 +1412,6 @@
   flex-direction: column;
   gap: 6px;
 }
-
 .explosive-zombie .chest-item-row {
   display: flex;
   align-items: center;
@@ -1639,12 +1422,10 @@
   border-radius: 4px;
   transition: all 0.15s ease;
 }
-
 .explosive-zombie .chest-item-row:hover {
   background: #f5f5f5;
   border-color: #8d6e63;
 }
-
 .explosive-zombie .chest-item-row .item-icon {
   width: 32px;
   height: 32px;
@@ -1653,7 +1434,6 @@
   border: 1px solid #9e9e9e;
   cursor: pointer;
 }
-
 .explosive-zombie .chest-item-row .item-name {
   flex: 1;
   font-weight: bold;
@@ -1661,28 +1441,23 @@
   color: #212121;
   cursor: pointer;
 }
-
 .explosive-zombie .chest-item-row .item-slots-info {
   font-size: 12px;
   color: #757575;
 }
-
 .explosive-zombie .chest-item-row .item-controls {
   display: flex;
   gap: 8px;
 }
-
 .explosive-zombie .chest-item-row .item-controls a {
   color: #616161;
   cursor: pointer;
   font-size: 13px;
   transition: color 0.15s ease;
 }
-
 .explosive-zombie .chest-item-row .item-controls a:hover {
   color: #d32f2f;
 }
-
 .explosive-zombie .chest-empty-notice {
   text-align: center;
   padding: 20px;
@@ -1690,13 +1465,11 @@
   font-style: italic;
   font-size: 13px;
 }
-
 .explosive-zombie .chest-notes-section {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-
 .explosive-zombie .chest-notes-section textarea {
   width: 100%;
   border: 1px solid #ccc;
@@ -1707,127 +1480,24 @@
   resize: vertical;
   background: #fff;
 }
-
 /* ==========================================================================
    Noise Dice Counter Dialog Styling
    ========================================================================== */
-.noise-dice-window {
-  min-height: 0 !important;
-  height: auto !important;
-}
-
-.noise-dice-window.is-gm {
-  width: 185px !important;
-  min-width: 180px !important;
-}
-
-.noise-dice-window.player-view {
-  width: 95px !important;
-  min-width: 90px !important;
-  max-width: 100px !important;
-}
-
-.noise-dice-window.player-view .window-header {
-  height: 24px !important;
-  min-height: 24px !important;
-  padding: 0 4px !important;
-  justify-content: center !important;
-}
-
-.noise-dice-window.player-view .window-header .window-title {
-  font-size: 11px !important;
-  line-height: 24px !important;
-  text-align: center !important;
-}
-
-.noise-dice-window.player-view .window-header .header-control {
-  display: none !important;
-}
-
-.noise-dice-window.player-view .window-content {
-  padding: 4px 6px !important;
-}
-
-.noise-dice-window.player-view .noise-dice-compact .noise-value-box {
-  min-width: 0 !important;
-  width: 100% !important;
-  padding: 2px 4px !important;
-  gap: 4px !important;
-}
-
-.noise-dice-window.player-view .noise-dice-compact .noise-value-box .noise-count {
-  font-size: 20px !important;
-}
-
-.noise-dice-window .window-header {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 6px !important;
-  height: 28px !important;
-  min-height: 28px !important;
-  padding: 0 6px !important;
-}
-
-.noise-dice-window .window-header .window-title {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-  font-size: 12px !important;
-  margin: 0 !important;
-  line-height: 28px !important;
-}
-
-.noise-dice-window .window-header .header-control {
-  flex: 0 0 22px !important;
-  width: 22px !important;
-  height: 22px !important;
-  min-width: 22px !important;
-  min-height: 22px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  font-size: 13px !important;
-  color: inherit !important;
-  opacity: 0.8;
-  transition: opacity 0.15s ease-in-out, color 0.15s ease-in-out;
-}
-
-.noise-dice-window .window-header .header-control:hover {
-  opacity: 1;
-  color: #c0392b !important;
-}
-
-.noise-dice-window .window-content {
-  min-height: 0 !important;
-  height: auto !important;
-  padding: 6px 8px !important;
-  overflow: visible !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto !important;
-}
-
 .noise-dice-compact {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
+  min-width: 100px;
+  display: grid;
   box-sizing: border-box;
 }
-
+.noise-dice-compact.is-gm {
+  grid-template-columns: repeat(3, 1fr);
+}
 .noise-dice-compact .noise-value-box {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  grid-column: 1 / 3;
+  grid-row: 1 / 3;
   background: #1f2421;
   color: #ffffff;
   border: 2px solid #3d4a41;
@@ -1838,13 +1508,11 @@
   user-select: none;
   transition: all 0.15s ease-in-out;
 }
-
 .noise-dice-compact .noise-value-box i {
   font-size: 13px;
   color: #bdc3c7;
   transition: color 0.15s ease-in-out;
 }
-
 .noise-dice-compact .noise-value-box .noise-count {
   font-family: var(--font-title, sans-serif);
   font-size: 22px;
@@ -1852,74 +1520,39 @@
   line-height: 1;
   color: #ffffff;
 }
-
 .noise-dice-compact .noise-value-box.can-roll {
   cursor: pointer;
 }
-
 .noise-dice-compact .noise-value-box.can-roll:hover {
   border-color: #e74c3c;
   background: #2c2222;
   box-shadow: 0 0 6px rgba(231, 76, 60, 0.5), inset 0 1px 3px rgba(0, 0, 0, 0.5);
 }
-
 .noise-dice-compact .noise-value-box.can-roll:hover i {
   color: #e74c3c;
 }
-
 .noise-dice-compact .noise-value-box.can-roll:active {
   transform: scale(0.96);
 }
-
 .noise-dice-compact .noise-btn {
-  width: 26px;
-  height: 26px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-  padding: 0;
   line-height: 1;
   border: 1px solid #777;
 }
-
-.noise-dice-compact .noise-btn.decrease-btn {
-  background: #fdf2f2;
-  color: #c0392b;
-  border-color: #e74c3c;
-}
-
 .noise-dice-compact .noise-btn.decrease-btn:hover:not(:disabled) {
   background: #e74c3c;
   color: #fff;
 }
-
-.noise-dice-compact .noise-btn.increase-btn {
-  background: #f0fdf4;
-  color: #27ae60;
-  border-color: #2ecc71;
-}
-
 .noise-dice-compact .noise-btn.increase-btn:hover:not(:disabled) {
   background: #27ae60;
   color: #fff;
 }
-
 .noise-dice-compact .noise-btn.reset-btn {
-  background: #f2f3f4;
-  color: #5d6d7e;
-  border-color: #bdc3c7;
+  grid-column: 1 / 4;
 }
-
 .noise-dice-compact .noise-btn.reset-btn:hover:not(:disabled) {
   background: #bdc3c7;
   color: #2c3e50;
 }
-
 .noise-dice-compact .noise-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;

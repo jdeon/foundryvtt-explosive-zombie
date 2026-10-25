@@ -73,11 +73,11 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   get noiseCount() {
     const scene = this.currentScene;
     if (!scene) return 0;
-    return Math.max(0, Number(scene.getFlag("explosive-zombie", "noiseDice")) || 0);
+    return Number(scene.getFlag("explosive-zombie", "noiseDice")) || 0;
   }
 
   /** @override */
-  async _prepareContext(options) {
+  async _prepareContext(_options) {
     const count = this.noiseCount;
     const isGM = Boolean(game.user?.isGM);
 
@@ -97,9 +97,7 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     this.element.classList.toggle("player-view", !context.isGM);
 
     // Enforce tight auto-sizing on window and content
-    this.element.style.height = "auto";
-    this.element.style.minHeight = "0";
-    this.element.style.width = context.isGM ? "185px" : "100px";
+    this.element.style.minWidth = "100px";
 
     const contentElem = this.element.querySelector(".window-content");
     if (contentElem) {
@@ -109,18 +107,18 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const html = $(this.element);
 
-    // Hide it:
+    // Hide close action:
     if (this.window.close) {
-      this.window.close.hidden = true; // or this.window.close.remove();
+      this.window.close.hidden = true;
     }
 
-    // Clicking on the number rolls that many d6
-    html.find('[data-action="roll"], .noise-value-box').off("click").on("click", (e) => {
-      e.preventDefault();
-      this._rollDice();
-    });
-
     if (context.isGM) {
+      html.find('[data-action="roll"], .noise-value-box').off("click").on("click", (e) => {
+        e.preventDefault();
+        this._rollDice();
+      });
+
+
       html.find('[data-action="increase"]').off("click").on("click", (e) => {
         e.preventDefault();
         this._modifyCount(1);
@@ -171,7 +169,7 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const scene = this.currentScene;
     if (!scene) return;
     const current = this.noiseCount;
-    const next = Math.max(0, current + delta);
+    const next = current + delta;
     await scene.setFlag("explosive-zombie", "noiseDice", next);
   }
 
@@ -217,7 +215,7 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
    * @param {Scene} scene
    * @param {object} change
    */
-  static onUpdateScene(scene, change) {
+  static onUpdateScene(scene, _change) {
     const current = canvas?.scene || game.scenes?.current;
     if (current && scene.id === current.id) {
       const app = this.instance;

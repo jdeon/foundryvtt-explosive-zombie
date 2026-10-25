@@ -211,7 +211,7 @@ Hooks.on("canvasReady", (canvas) => {
 });
 
 /**
- * Update noise dice dialog when scene flags or properties are modified
+ * Use this to propagate change without socket
  */
 Hooks.on("updateScene", (scene, change, options, userId) => {
   NoiseDiceDialog.onUpdateScene(scene, change);

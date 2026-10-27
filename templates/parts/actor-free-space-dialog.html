@@ -1,6 +1,6 @@
 <div class="explosive-zombie free-space-overlay">
     <div class="free-space-header">
-        <i class="fas fa-box-open"></i> {{localize "SIMPLE.FreeSpaceTitle"}}
+        <i class="fas fa-box-open"></i> {{localize "characterSheet.freeSpaceTitle"}}
     </div>
     <div class="free-space-grid">
         {{#each freeSpaceItems}}
@@ -9,12 +9,12 @@
              data-slot-index="{{@index}}"
              data-item-id="{{this.item}}"
              draggable="true"
-             title="{{this.title}} - {{localize "SIMPLE.FreeSpaceItemTooltip"}}">
+             title="{{this.title}} - {{localize "characterSheet.freeSpaceItemTooltip"}}">
             <span class="item-title">{{this.title}}</span>
-            <a class="remove-free-item" data-item-id="{{this.item}}" data-slot-index="{{@index}}" title="{{localize "SIMPLE.ItemDelete"}}"><i class="fas fa-trash"></i></a>
+            <a class="remove-free-item" data-item-id="{{this.item}}" data-slot-index="{{@index}}" title="{{localize "itemSheet.delete"}}"><i class="fas fa-trash"></i></a>
         </div>
         {{else}}
-        <div class="empty-notice">{{localize "SIMPLE.FreeSpaceEmpty"}}</div>
+        <div class="empty-notice">{{localize "characterSheet.freeSpaceEmpty"}}</div>
         {{/each}}
     </div>
 </div>

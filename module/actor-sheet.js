@@ -19,7 +19,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     },
     window: {
       resizable: true,
-      title: 'SIMPLE.ActorSheetTitle'
+      title: 'characterSheet.actorSheetTitle'
     },
     tabGroups: {
       primary: "sheet"
@@ -35,10 +35,10 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
   static TABS = {
     primary: {
       tabs: [
-        { id: 'sheet', group: 'primary', label: 'SIMPLE.TabSheet' },
-        { id: 'edit', group: 'primary', label: 'SIMPLE.TabEdit' },
-        { id: 'items', group: 'primary', label: 'SIMPLE.TabItems' },
-        { id: 'attributes', group: 'primary', label: 'SIMPLE.TabAttributes' }
+        { id: 'sheet', group: 'primary', label: 'common.tabSheet' },
+        { id: 'edit', group: 'primary', label: 'common.tabEdit' },
+        { id: 'items', group: 'primary', label: 'common.tabItems' },
+        { id: 'attributes', group: 'primary', label: 'common.tabAttributes' }
       ],
       initial: 'sheet'
     }
@@ -158,10 +158,10 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
 
     // Categorize items by slotType for divided tab view
     const itemsBySlot = [
-      { id: "equipped", labelKey: "SIMPLE.SlotEquipped", icon: "fas fa-shield-alt", items: [] },
-      { id: "belt", labelKey: "SIMPLE.SlotBelt", icon: "fas fa-ring", items: [] },
-      { id: "backpack", labelKey: "SIMPLE.SlotBackpack", icon: "fas fa-briefcase", items: [] },
-      { id: "other", labelKey: "SIMPLE.SlotOther", icon: "fas fa-box-open", items: [] }
+      { id: "equipped", labelKey: "characterSheet.slotEquipped", icon: "fas fa-shield-alt", items: [] },
+      { id: "belt", labelKey: "characterSheet.slotBelt", icon: "fas fa-ring", items: [] },
+      { id: "backpack", labelKey: "characterSheet.slotBackpack", icon: "fas fa-briefcase", items: [] },
+      { id: "other", labelKey: "characterSheet.slotOther", icon: "fas fa-box-open", items: [] }
     ];
     const slotMap = {
       equipped: itemsBySlot[0],
@@ -386,7 +386,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     switch (button.dataset.action) {
       case "create":
         const cls = getDocumentClass("Item");
-        return cls.create({ name: game.i18n.localize("SIMPLE.ItemNew"), type: "item" }, { parent: this.actor });
+        return cls.create({ name: game.i18n.localize("itemSheet.new"), type: "item" }, { parent: this.actor });
       case "edit":
         return item.sheet.render(true);
       case "delete":
@@ -446,7 +446,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
       await this.actor.updateEmbeddedDocuments("Item", itemUpdates);
     }
 
-    ui.notifications.info(game.i18n.localize("SIMPLE.NotifyInventorySynced"));
+    ui.notifications.info(game.i18n.localize("notifications.inventorySynced"));
   }
 
   /**
@@ -470,7 +470,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     );
 
     const dialogOptions = {
-      window: { title: game.i18n.localize("SIMPLE.FreeSpaceTitle") },
+      window: { title: game.i18n.localize("characterSheet.freeSpaceTitle") },
       content: htmlContent,
       buttons: [
         { action: "close", label: game.i18n.localize("Close"), default: true }
@@ -670,7 +670,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     const requiredSlots = Number(item.system?.requiredSlots ?? 1);
 
     if (targetContainer.size < targetContainer.contain.length + requiredSlots && targetContainer.contain.length > 0) {
-      ui.notifications.error(game.i18n.localize("SIMPLE.ErrorInventoryFull"));
+      ui.notifications.error(game.i18n.localize("notifications.errorInventoryFull"));
       if (isNewItem) await item.delete();
       return false;
     }
@@ -737,10 +737,10 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     const itemData = item ? item.toObject() : null;
     const itemName = itemData ? itemData.name : (item ? item.name : "");
 
-    const title = game.i18n.localize("SIMPLE.ItemDelete");
+    const title = game.i18n.localize("itemSheet.delete");
     const content = itemName
-      ? game.i18n.format("SIMPLE.ConfirmClearSlotContent", { name: itemName })
-      : game.i18n.localize("SIMPLE.ConfirmClearSlot");
+      ? game.i18n.format("characterSheet.confirmClearSlotContent", { name: itemName })
+      : game.i18n.localize("characterSheet.confirmClearSlot");
 
     const confirmed = await Dialog.confirm({
       title: title,
@@ -762,9 +762,9 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
 
   async chatMessageDeletedItem(itemData) {
     const img = itemData.img || itemData.system?.imageUrl || "icons/svg/item-bag.svg";
-    const name = itemData.name || game.i18n.localize("SIMPLE.ItemNew");
+    const name = itemData.name || game.i18n.localize("itemSheet.new");
     const description = itemData.system?.description || "";
-    const noticeText = game.i18n.format("SIMPLE.ItemRemovedNotice", { name }) || `Objet "${name}" retiré de l'inventaire.`;
+    const noticeText = game.i18n.format("notifications.itemRemovedNotice", { name }) || `Objet "${name}" retiré de l'inventaire.`;
 
     const chatContent = `
         <div class="explosive-zombie chat-card item-card">
@@ -787,8 +787,10 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
   }
 
   async _generateLootActor(itemData) {
-    // Check if a "Butin" chest actor already exists in the world
-    let lootEntryActor = game.actors.find(a => a.type === "chest" && a.name.toLowerCase() === "butin");
+    const defaultLootName = game.i18n.localize("chestSheet.lootName");
+
+    // Check if a loot chest actor already exists in the world
+    let lootEntryActor = game.actors.find(a => a.type === "chest" && (a.name.toLowerCase() === defaultLootName.toLowerCase() || a.name.toLowerCase() === "butin"));
 
     // If it does not exist, load template from compendium or create fallback
     if (!lootEntryActor) {
@@ -797,7 +799,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
         for (const pack of game.packs) {
           if (pack.metadata.type !== "Actor") continue;
           const index = await pack.getIndex({ fields: ["type", "name"] });
-          const lootEntry = index.find(e => e.type === "chest" && e.name.toLowerCase() === "butin");
+          const lootEntry = index.find(e => e.type === "chest" && (e.name.toLowerCase() === defaultLootName.toLowerCase() || e.name.toLowerCase() === "butin"));
           if (lootEntry) {
             const doc = await pack.getDocument(lootEntry._id);
             if (doc) {
@@ -813,7 +815,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
       //If lootEntryActorData does not exist in compendium pack, create a new chest actor
       if (!lootEntryActorData) {
         lootEntryActorData = {
-          name: "Butin",
+          name: defaultLootName,
           type: "chest",
           img: "icons/svg/chest.svg",
           system: {
@@ -824,7 +826,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
         };
       } else {
         delete lootEntryActorData._id;
-        lootEntryActorData.name = "Butin";
+        lootEntryActorData.name = defaultLootName;
       }
 
       lootEntryActor = await Actor.create(lootEntryActorData);

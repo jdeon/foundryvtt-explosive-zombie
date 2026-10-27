@@ -43,24 +43,24 @@
                     {{/each}}
                 </div>
                 <div class="item-controls">
-                    <a class="item-control" title="{{ localize " SIMPLE.ItemEdit" }}" data-action="edit"><i
+                    <a class="item-control" title="{{ localize " itemSheet.edit" }}" data-action="edit"><i
                             class="fas fa-edit"></i></a>
-                    <a class="item-control" title="{{ localize " SIMPLE.ItemDelete" }}" data-action="delete"><i
+                    <a class="item-control" title="{{ localize " itemSheet.delete" }}" data-action="delete"><i
                             class="fas fa-trash"></i></a>
                 </div>
             </li>
             {{else}}
             <li class="item flexrow empty-section-notice">
-                <span class="notes">{{ localize "SIMPLE.NoItems" }}</span>
+                <span class="notes">{{ localize "characterSheet.noItems" }}</span>
             </li>
             {{/each}}
         </ol>
     </div>
     {{/each}}
     <p class="flexrow items-footer-controls">
-        <a class="item-control" title="{{ localize " SIMPLE.ItemCreate" }}" data-action="create"><i
-                class="fas fa-plus"></i> {{ localize "SIMPLE.ItemCreate" }}</a>
-        <a class="item-control" title="{{ localize " SIMPLE.ItemSync" }}" data-action="sync"><i
-                class="fas fa-sync"></i> {{ localize "SIMPLE.ItemSync" }}</a>
+        <a class="item-control" title="{{ localize " itemSheet.create" }}" data-action="create"><i
+                class="fas fa-plus"></i> {{ localize "itemSheet.create" }}</a>
+        <a class="item-control" title="{{ localize " itemSheet.sync" }}" data-action="sync"><i
+                class="fas fa-sync"></i> {{ localize "itemSheet.sync" }}</a>
     </p>
 </div>

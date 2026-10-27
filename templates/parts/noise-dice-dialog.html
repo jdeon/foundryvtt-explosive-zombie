@@ -1,0 +1,22 @@
+<div class="noise-dice-compact">
+  <div class="noise-value-box {{#if isGM}}can-roll{{/if}}" data-action="roll" role="button" tabindex="0"
+    title="{{localize 'noiseDice.rollTooltip'}}">
+    <i class="fa-solid fa-dice-d6"></i>
+    <span class="noise-count">{{count}}</span>
+  </div>
+
+  {{#if isGM}}
+  <button type="button" class="noise-btn decrease-btn" data-action="decrease" title="{{localize 'noiseDice.decrease'}}"
+    {{#unless canDecrease}}disabled{{/unless}}>
+    <i class="fas fa-minus"></i>
+  </button>
+
+  <button type="button" class="noise-btn increase-btn" data-action="increase" title="{{localize 'noiseDice.increase'}}">
+    <i class="fas fa-plus"></i>
+  </button>
+  <button type="button" class="noise-btn reset-btn" data-action="reset" title="{{localize 'noiseDice.reset'}}" {{#unless
+    canDecrease}}disabled{{/unless}}>
+    <i class="fas fa-rotate-left"></i>
+  </button>
+  {{/if}}
+</div>

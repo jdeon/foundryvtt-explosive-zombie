@@ -2,7 +2,6 @@ import { extractPack } from "@foundryvtt/foundryvtt-cli";
 import { promises as fs } from "fs";
 import path from "path";
 
-const s_MODULE_ID = "explosive-zombie"
 const yaml = true;
 const expandAdventures = true;
 const folders = true;

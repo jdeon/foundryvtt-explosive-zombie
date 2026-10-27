@@ -5,11 +5,11 @@
             <!-- EN-TÊTE -->
             <div class="header-section">
                 <div class="header-text">
-                    <div class="header-row">{{localize "SIMPLE.CharacterName"}} : <br />
+                    <div class="header-row">{{localize "characterSheet.name"}} : <br />
                         <span class="data-val">{{data.name}}</span>
                     </div>
                     <div class="dashed-line"></div>
-                    <div class="header-row" style="margin-top:10px">{{localize "SIMPLE.CharacterDescription"}} : <span
+                    <div class="header-row" style="margin-top:10px">{{localize "characterSheet.description"}} : <span
                             class="data-val">{{description}}</span></div>
                 </div>
                 <div class="portrait-outer">
@@ -21,7 +21,7 @@
             <div class="stats-section">
                 <div class="stats-col">
                     <div class="stat-row">
-                        <span>{{localize "SIMPLE.StatAgility"}}</span>
+                        <span>{{localize "characterSheet.statAgility"}}</span>
                         <div class="stat-bracket-box">
                             <span class="bracket">[</span>
                             <div class="stat-inner-stack">
@@ -32,7 +32,7 @@
                         </div>
                     </div>
                     <div class="stat-row">
-                        <span>{{localize "SIMPLE.StatConstitution"}}</span>
+                        <span>{{localize "characterSheet.statConstitution"}}</span>
                         <div class="stat-bracket-box">
                             <span class="bracket">[</span>
                             <div class="stat-inner-stack">
@@ -43,7 +43,7 @@
                         </div>
                     </div>
                     <div class="stat-row">
-                        <span>{{localize "SIMPLE.StatMental"}}</span>
+                        <span>{{localize "characterSheet.statMental"}}</span>
                         <div class="stat-bracket-box">
                             <span class="bracket">[</span>
                             <div class="stat-inner-stack">
@@ -54,7 +54,7 @@
                         </div>
                     </div>
                     <div class="stat-row">
-                        <span>{{localize "SIMPLE.StatSpeed"}}</span>
+                        <span>{{localize "characterSheet.statSpeed"}}</span>
                         <div class="stat-bracket-box">
                             <span class="bracket">[</span>
                             <div class="stat-inner-stack">
@@ -66,13 +66,13 @@
                     </div>
                 </div>
                 <div class="health-col">
-                    <div class="health-title">{{localize "SIMPLE.HealthHP"}}</div>
+                    <div class="health-title">{{localize "characterSheet.healthHP"}}</div>
                     <div class="box-row">
                         {{#each healthPoints}}
                         <div class="box health-box">
                             <span class="health-letter">{{firstLetter this}}</span>
                             <select name="system.healthPoints.{{@index}}" class="health-select"
-                                title="{{#if this}}{{this}}{{else}}{{localize "SIMPLE.HealthReasonHealthy"}}{{/if}}">
+                                title="{{#if this}}{{this}}{{else}}{{localize "characterSheet.healthReasonHealthy"}}{{/if}}">
                                 <option value="" {{#if (eq ../this "" )}}selected{{/if}}></option>
 
                                 {{#each ../healthReasons}}
@@ -83,10 +83,10 @@
                         </div>
                         {{/each}}
                     </div>
-                    <div class="health-title" style="margin-top: 5px;">{{localize "SIMPLE.ArmorAC"}}</div>
+                    <div class="health-title" style="margin-top: 5px;">{{localize "characterSheet.armorAC"}}</div>
                     <div class="box-row">
                         {{#each armors}}
-                        <div class="box armor-box {{this.state}}" data-armor-index="{{this.index}}" title="{{localize 'SIMPLE.ArmorBoxTooltip'}}">
+                        <div class="box armor-box {{this.state}}" data-armor-index="{{this.index}}" title="{{localize 'characterSheet.armorBoxTooltip'}}">
                             {{#if this.isBroken}}<span class="box-checked">X</span>{{/if}}
                         </div>
                         {{/each}}
@@ -99,14 +99,14 @@
 
                 <!-- Belt -->
                 <div class="side-col left" data-inventory-section="belt">
-                    <div class="section-title">{{localize "SIMPLE.Belt1A"}}</div>
+                    <div class="section-title">{{localize "characterSheet.belt1A"}}</div>
                     <div class="belt-boxes" data-inventory-section="belt">
                         {{#repeat inventory.belt.size}}
                         {{#if (lookup ../inventory.belt.contain index)}}
                         <div class="box data-val slot-box filled" data-inventory-section="belt"
                             data-slot-index="{{index}}"
                             data-item-id="{{lookup (lookup ../inventory.belt.contain index) 'item'}}"
-                            title="{{localize 'SIMPLE.SlotTooltip'}}">
+                            title="{{localize 'characterSheet.slotTooltip'}}">
                             {{lookup (lookup ../inventory.belt.contain index) "title"}}</div>
                         {{else}}
                         <div class="box data-val slot-box empty" data-inventory-section="belt"
@@ -118,7 +118,7 @@
 
                 <!-- Compétences -->
                 <div class="center-col">
-                    <div class="section-title" style="font-size: 26px;">{{localize "SIMPLE.Skills"}}</div>
+                    <div class="section-title" style="font-size: 26px;">{{localize "characterSheet.skills"}}</div>
                     <div class="skills-grid">
                         {{#each skills}}
                         <div class="skill-item">
@@ -132,21 +132,21 @@
 
                 <!-- Backpack -->
                 <div class="side-col right" data-inventory-section="backpack">
-                    <div class="section-title">{{localize "SIMPLE.Backpack3A"}}</div>
+                    <div class="section-title">{{localize "characterSheet.backpack3A"}}</div>
                     <div class="backpack-grid" data-inventory-section="backpack">
                         {{#repeat inventory.backpack.size}}
                         {{#if (lookup ../inventory.backpack.contain index)}}
                         <div class="box data-val slot-box filled" data-inventory-section="backpack"
                             data-slot-index="{{index}}"
                             data-item-id="{{lookup (lookup ../inventory.backpack.contain index) 'item'}}"
-                            title="{{localize 'SIMPLE.SlotTooltip'}}">
+                            title="{{localize 'characterSheet.slotTooltip'}}">
                             {{lookup (lookup ../inventory.backpack.contain index) "title"}}</div>
                         {{else}}
                         <div class="box data-val slot-box empty" data-inventory-section="backpack"
                             data-slot-index="{{index}}"></div>
                         {{/if}}
                         {{/repeat}}
-                        <div class="box free-space data-val" data-action="free-space" title="{{localize "SIMPLE.FreeSpaceTitle"}} ({{localize 'SIMPLE.ClickToOpen'}})">{{localize "SIMPLE.SmallItems"}} : {{#if
+                        <div class="box free-space data-val" data-action="free-space" title="{{localize "characterSheet.freeSpaceTitle"}} ({{localize 'common.clickToOpen'}})">{{localize "characterSheet.smallItems"}} : {{#if
                             inventory.backpack.freeSpace}}{{inventory.backpack.freeSpace.length}}{{else}}0{{/if}}</div>
                     </div>
                 </div>
@@ -157,14 +157,14 @@
                 <div class="dotted-line-container">
                     <div class="dotted-line-text data-val">{{quotes}}</div>
                 </div>
-                <div class="equip-title">{{localize "SIMPLE.Equipped"}}</div>
+                <div class="equip-title">{{localize "common.equipped"}}</div>
                 <div class="equip-boxes" data-inventory-section="equipped">
                     {{#repeat inventory.equipped.size}}
                     {{#if (lookup ../inventory.equipped.contain index)}}
                     <div class="box data-val slot-box filled" data-inventory-section="equipped"
                         data-slot-index="{{index}}"
                         data-item-id="{{lookup (lookup ../inventory.equipped.contain index) 'item'}}"
-                        title="{{localize 'SIMPLE.SlotTooltip'}}">
+                        title="{{localize 'characterSheet.slotTooltip'}}">
                         {{lookup (lookup ../inventory.equipped.contain index) "title"}}</div>
                     {{else}}
                     <div class="box data-val slot-box empty" data-inventory-section="equipped"

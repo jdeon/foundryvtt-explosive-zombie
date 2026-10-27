@@ -9,18 +9,19 @@
             <div class="rivet"></div>
             <div class="inner-box">
                 <div class="item-title-group">
-                    <span class="item-name">{{data.name}}</span>
+                    <span class="item-name" title="{{data.name}}">{{data.name}}</span>
                 </div>
                 {{#if system.munitions.capacity}}
                 <div class="item-munitions">
-                    <i class="fa-solid fa-gas-pump"></i>
-                    <span>{{system.munitions.loadAmmo}} / {{system.munitions.capacity}}</span>
-                    {{#if system.munitions.totalAmmo}}<span
-                        class="total-ammo">({{system.munitions.totalAmmo}})</span>{{/if}}
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>{{system.munitions.loadAmmo}}</span>
+                    <span>/</span>
+                    <span>{{system.munitions.capacity}}</span>
+                    {{#if system.munitions.remainingAmmo}}<span>(+{{system.munitions.remainingAmmo}})</span>{{/if}}
                 </div>
                 {{/if}}
-                <div class="item-title-group">
-                    <div class="box item-slot-box data-val">{{system.requiredSlots}}A</div>
+                <div class="item-title-group item-slot-container">
+                    <div class="box item-slot-box data-val">{{system.requiredSlots}}</div>
                 </div>
             </div>
         </div>
@@ -47,13 +48,15 @@
                         <div class="cell"><i class="fa-solid fa-hand"></i></div>
                         <div class="cell"><i class="fa-solid fa-crosshairs"></i></div>
                         <div class="cell"><i class="fa-solid fa-dice"></i></div>
-                        <div class="cell"><i class="fa-solid fa-gas-pump"></i></div>
-                        <div class="cell header-effect">{{localize "SIMPLE.EffectHeader"}}</div>
+                        <div class="cell"><i class="fa-solid fa-boxes-stacked"></i></div>
+                        <div class="cell header-effect">{{localize "itemSheet.effectHeader"}}</div>
                     </div>
 
                     <!-- Lignes de stats générées dynamiquement -->
                     {{#each system.activeEffects}}
-                    <div class="table-row" style="display: contents;">
+                    <div class="table-row active-effect-rollable" data-dice="{{this.dice}}"
+                        data-threshold="{{this.threshold}}" data-ammo="{{this.ammo}}"
+                        style="display: contents; cursor: pointer;" title="{{localize 'itemSheet.rollEffectTooltip'}}">
                         <div class="cell data-val">{{this.actionNumber}}</div>
                         <div class="cell data-val">{{this.threshold}}</div>
                         <div class="cell data-val cell-dice">{{this.dice}}</div>

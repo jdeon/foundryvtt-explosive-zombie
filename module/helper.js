@@ -195,25 +195,25 @@ export class EntitySheetHelper {
 
     // Check for duplicate group keys.
     if (groups.includes(groupName)) {
-      ui.notifications.error(game.i18n.localize("SIMPLE.NotifyGroupDuplicate") + ` (${groupName})`);
+      ui.notifications.error(game.i18n.localize("notifications.groupDuplicate") + ` (${groupName})`);
       return false;
     }
 
     // Check for group keys that match attribute keys.
     if (attributes.includes(groupName)) {
-      ui.notifications.error(game.i18n.localize("SIMPLE.NotifyGroupAttrDuplicate") + ` (${groupName})`);
+      ui.notifications.error(game.i18n.localize("notifications.groupAttrDuplicate") + ` (${groupName})`);
       return false;
     }
 
     // Check for reserved group names.
     if (["attr", "attributes"].includes(groupName)) {
-      ui.notifications.error(game.i18n.format("SIMPLE.NotifyGroupReserved", { key: groupName }));
+      ui.notifications.error(game.i18n.format("notifications.groupReserved", { key: groupName }));
       return false;
     }
 
     // Check for whitespace or periods.
     if (groupName.match(/[\s|\.]/i)) {
-      ui.notifications.error(game.i18n.localize("SIMPLE.NotifyGroupAlphanumeric"));
+      ui.notifications.error(game.i18n.localize("notifications.groupAlphanumeric"));
       return false;
     }
     return true;
@@ -349,8 +349,8 @@ export class EntitySheetHelper {
     let group = $(groupHeader).find('.group-key');
     // Create a dialog to confirm group deletion.
     new Dialog({
-      title: game.i18n.localize("SIMPLE.DeleteGroup"),
-      content: `${game.i18n.localize("SIMPLE.DeleteGroupContent")} <strong>${group.val()}</strong>`,
+      title: game.i18n.localize("attributes.deleteGroup"),
+      content: `${game.i18n.localize("attributes.deleteGroupContent")} <strong>${group.val()}</strong>`,
       buttons: {
         confirm: {
           icon: '<i class="fas fa-trash"></i>',
@@ -598,7 +598,7 @@ export class EntitySheetHelper {
    */
   static cleanKey(key) {
     const clean = key.replace(/[\s.]/g, "");
-    if (clean !== key) ui.notifications.error("SIMPLE.NotifyAttrInvalid", { localize: true });
+    if (clean !== key) ui.notifications.error("notifications.attrInvalid", { localize: true });
     return clean;
   }
 }

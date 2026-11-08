@@ -39,6 +39,36 @@ export class SimpleTokenDocument extends TokenDocument {
  * @extends {foundry.canvas.placeables.Token}
  */
 export class SimpleToken extends foundry.canvas.placeables.Token {
+  /**
+   * Whether token selection is restricted to unlinked tokens (NPCs).
+   * @type {boolean}
+   */
+  static selectUnlinkedOnly = false;
+
+  /**
+   * Toggle whether only unlinked tokens can be selected, releasing any currently
+   * controlled linked tokens when enabled.
+   * @param {boolean} active
+   */
+  static setSelectUnlinkedOnly(active) {
+    this.selectUnlinkedOnly = Boolean(active);
+    if (this.selectUnlinkedOnly && canvas?.tokens) {
+      for (const token of [...canvas.tokens.controlled]) {
+        if (token.document?.actorLink) {
+          token.release();
+        }
+      }
+    }
+  }
+
+  /** @override */
+  _canControl(user, event) {
+    if (SimpleToken.selectUnlinkedOnly && this.document?.actorLink) {
+      return false;
+    }
+    return super._canControl(user, event);
+  }
+
   _drawBar(number, bar, data) {
     if ("min" in data) {
       // Copy the data to avoid mutating what the caller gave us.

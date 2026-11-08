@@ -225,3 +225,35 @@ Hooks.once("ready", () => {
   }
 });
 
+/**
+ * Add a toggle in the Token scene controls to restrict selection to unlinked tokens (NPCs).
+ */
+Hooks.on("getSceneControlButtons", (controls) => {
+  const tool = {
+    name: "selectUnlinkedOnly",
+    title: game.i18n.localize("tokenControls.selectUnlinkedOnly"),
+    icon: "fas fa-unlink",
+    toggle: true,
+    active: SimpleToken.selectUnlinkedOnly,
+    visible: true,
+    onChange: (event, active) => {
+      const isActive = typeof active === "boolean" ? active : Boolean(event);
+      SimpleToken.setSelectUnlinkedOnly(isActive);
+    }
+  };
+
+  if (Array.isArray(controls)) {
+    const tokenControls = controls.find(c => c.name === "token" || c.name === "tokens");
+    if (tokenControls && Array.isArray(tokenControls.tools)) {
+      tokenControls.tools.push(tool);
+    }
+  } else {
+    const tokenControls = controls.tokens || controls.token;
+    if (tokenControls?.tools) {
+      tool.order = Object.keys(tokenControls.tools).length;
+      tokenControls.tools.selectUnlinkedOnly = tool;
+    }
+  }
+});
+
+

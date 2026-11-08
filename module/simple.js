@@ -256,4 +256,21 @@ Hooks.on("getSceneControlButtons", (controls) => {
   }
 });
 
+/**
+ * Refresh NPC movement highlight border when a token moves or an actor's speed changes.
+*/
+Hooks.on("moveToken", (tokenDoc) => {
+  if (SimpleToken.selectUnlinkedOnly && !tokenDoc?.actorLink) {
+    tokenDoc.object?.renderFlags?.set({ refreshBorder: true, refreshState: true });
+  }
+});
+
+Hooks.on("updateActor", (actor) => {
+  if (!SimpleToken.selectUnlinkedOnly || !canvas?.tokens) return;
+  for (const token of actor.getActiveTokens()) {
+    if (!token.document?.actorLink) {
+      token.renderFlags.set({ refreshBorder: true });
+    }
+  }
+});
 

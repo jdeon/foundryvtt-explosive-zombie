@@ -28,6 +28,19 @@ export class SimpleTokenDocument extends TokenDocument {
     }
     return super.getTrackedAttributes(data);
   }
+
+  /** @override */
+  _shouldRecordMovementHistory() {
+    if (!this.actorLink) return true;
+    return super._shouldRecordMovementHistory?.() ?? true;
+  }
+
+  /** @override */
+  async clearMovementHistory() {
+    const result = await super.clearMovementHistory?.();
+    this.object?.renderFlags?.set({ refreshBorder: true, refreshState: true });
+    return result;
+  }
 }
 
 
@@ -40,6 +53,15 @@ export class SimpleTokenDocument extends TokenDocument {
  */
 export class SimpleToken extends foundry.canvas.placeables.Token {
   /**
+   * Movement highlight border colors.
+   */
+  static MOVEMENT_COLORS = {
+    NOT_MOVED: 0x2ecc71,   // Green (distance === 0)
+    BELOW_SPEED: 0xff9800, // Orange (0 < distance <= speed)
+    OVER_SPEED: 0xe74c3c   // Red (distance > speed)
+  };
+
+  /**
    * Whether token selection is restricted to unlinked tokens (NPCs).
    * @type {boolean}
    */
@@ -47,18 +69,71 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
 
   /**
    * Toggle whether only unlinked tokens can be selected, releasing any currently
-   * controlled linked tokens when enabled.
+   * controlled linked tokens when enabled and refreshing all token borders.
    * @param {boolean} active
    */
   static setSelectUnlinkedOnly(active) {
     this.selectUnlinkedOnly = Boolean(active);
-    if (this.selectUnlinkedOnly && canvas?.tokens) {
+    if (!canvas?.tokens) return;
+
+    if (this.selectUnlinkedOnly) {
       for (const token of [...canvas.tokens.controlled]) {
         if (token.document?.actorLink) {
           token.release();
         }
       }
     }
+
+    for (const token of canvas.tokens.placeables) {
+      token.renderFlags.set({ refreshBorder: true, refreshState: true });
+    }
+  }
+
+  /**
+   * Compute total distance moved by this token from Foundry v13's movementHistory.
+   * @returns {number}
+   */
+  getMovedDistance() {
+    const history = this.document?.movementHistory;
+    if (!Array.isArray(history) || history.length === 0) return 0;
+
+    if (typeof this.document.measureMovementPath === "function") {
+      const measured = this.document.measureMovementPath(history);
+      if (typeof measured?.distance === "number") return measured.distance;
+      if (typeof measured?.cost === "number") return measured.cost;
+    }
+
+    if (canvas?.grid?.measurePath && history.length >= 2) {
+      const measured = canvas.grid.measurePath(history);
+      if (typeof measured?.distance === "number") return measured.distance;
+    }
+
+    let totalCost = 0;
+    for (const wp of history) {
+      if (typeof wp?.cost === "number") totalCost += wp.cost;
+    }
+    return totalCost;
+  }
+
+  /**
+   * Get the speed attribute of the token's actor.
+   * @returns {number}
+   */
+  getActorSpeed() {
+    const rawSpeed = this.actor?.system?.speed ?? this.actor?.system?.stats?.speed ?? 0;
+    return Number(rawSpeed) || 0;
+  }
+
+  /**
+   * Get the movement status color for an unlinked NPC token.
+   * @returns {number}
+   */
+  getMovementHighlightColor() {
+    const distance = this.getMovedDistance();
+    if (distance <= 0) return SimpleToken.MOVEMENT_COLORS.NOT_MOVED;
+    const speed = this.getActorSpeed();
+    if (distance <= speed) return SimpleToken.MOVEMENT_COLORS.BELOW_SPEED;
+    return SimpleToken.MOVEMENT_COLORS.OVER_SPEED;
   }
 
   /** @override */
@@ -67,6 +142,83 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
       return false;
     }
     return super._canControl(user, event);
+  }
+
+  /** @override */
+  _getBorderColor(options) {
+    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+      return this.getMovementHighlightColor();
+    }
+    return super._getBorderColor(options);
+  }
+
+  /** @override */
+  _refreshBorder() {
+    if (!this.border) return;
+    const shape = this.getShape?.();
+    const thickness = CONFIG.Canvas.objectBorderThickness || 4;
+
+    if (shape instanceof PIXI.Polygon) {
+      this.border.clear();
+      const borderColor = this._getBorderColor();
+      if (!borderColor) {
+        this.border.visible = false;
+        return;
+      }
+      const color = Number(borderColor);
+      if (this.border.parent === this) {
+        this.border.position.set(0, 0);
+      } else {
+        this.border.position.set(this.x, this.y);
+      }
+      this.border.visible = this.isVisible;
+      this.border.lineStyle(thickness, 0x000000, 0.8).drawPolygon(shape.points);
+      this.border.lineStyle(thickness / 2, color, 1.0).drawPolygon(shape.points);
+    } else {
+      try {
+        super._refreshBorder();
+      } catch (_err) {
+        this.border.clear();
+        const borderColor = this._getBorderColor();
+        if (!borderColor) {
+          this.border.visible = false;
+          return;
+        }
+        const color = Number(borderColor);
+        if (this.border.parent === this) {
+          this.border.position.set(0, 0);
+        } else {
+          this.border.position.set(this.x, this.y);
+        }
+        this.border.visible = this.isVisible;
+        this.border.lineStyle(thickness, 0x000000, 0.8).drawRect(0, 0, this.w, this.h);
+        this.border.lineStyle(thickness / 2, color, 1.0).drawRect(0, 0, this.w, this.h);
+      }
+    }
+
+    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+      this.border.visible = this.isVisible;
+      if (this.controlled) {
+        this.border.lineStyle(Math.max(2, thickness / 2), 0xffffff, 0.95)
+          .drawRect(-3, -3, this.w + 6, this.h + 6);
+      }
+    }
+  }
+
+  /** @override */
+  _refreshState() {
+    super._refreshState();
+    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+      this._refreshBorder();
+    }
+  }
+
+  /** @override */
+  _onUpdate(changed, options, userId) {
+    super._onUpdate(changed, options, userId);
+    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+      this.renderFlags.set({ refreshBorder: true });
+    }
   }
 
   _drawBar(number, bar, data) {

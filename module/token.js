@@ -122,21 +122,20 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
    * @returns {Promise<void>}
    */
   static async resetAllUsedActions(scene = canvas?.scene) {
-    if (!scene?.tokens) return;
-    const isResponsibleGM = game.users?.activeGM ? game.users.activeGM.isSelf : game.user?.isGM;
-    if (isResponsibleGM) {
-      const updates = [];
-      for (const tokenDoc of scene.tokens) {
-        if (tokenDoc.actorLink) continue;
-        if (tokenDoc.getFlag("explosive-zombie", "usedActions") !== undefined) {
-          updates.push(tokenDoc.unsetFlag("explosive-zombie", "usedActions"));
-        }
-        if (Array.isArray(tokenDoc.movementHistory) && tokenDoc.movementHistory.length > 0) {
-          updates.push(tokenDoc.clearMovementHistory?.());
-        }
+    if (!game.user?.isGM || !scene?.tokens) return;
+
+    const updates = [];
+    for (const tokenDoc of scene.tokens) {
+      if (tokenDoc.actorLink) continue;
+      if (tokenDoc.getFlag("explosive-zombie", "usedActions") !== undefined) {
+        updates.push(tokenDoc.unsetFlag("explosive-zombie", "usedActions"));
       }
-      if (updates.length) await Promise.all(updates);
+      if (Array.isArray(tokenDoc.movementHistory) && tokenDoc.movementHistory.length > 0) {
+        updates.push(tokenDoc.clearMovementHistory?.());
+      }
     }
+    if (updates.length) await Promise.all(updates);
+
     if (canvas?.tokens?.placeables) {
       for (const token of canvas.tokens.placeables) {
         if (!token.document?.actorLink) {

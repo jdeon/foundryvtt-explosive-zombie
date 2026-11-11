@@ -42,7 +42,10 @@ Hooks.once("init", async function () {
     ChestActorSheet,
     RollDialog,
     NoiseDiceDialog,
-    createWorldbuildingMacro
+    SimpleToken,
+    createWorldbuildingMacro,
+    useAction: (count = 1, tokens) => SimpleToken.useActionForSelected(count, tokens),
+    resetActions: (tokens) => SimpleToken.resetActionsForSelected(tokens)
   };
 
   // Define custom Document classes
@@ -229,31 +232,19 @@ Hooks.once("ready", () => {
  * Add a toggle in the Token scene controls to restrict selection to unlinked tokens (NPCs).
  */
 Hooks.on("getSceneControlButtons", (controls) => {
-  const tool = {
+  controls.tokens.tools.selectUnlinkedOnly = {
     name: "selectUnlinkedOnly",
     title: game.i18n.localize("tokenControls.selectUnlinkedOnly"),
-    icon: "fas fa-unlink",
+    icon: "fas fa-skull",
     toggle: true,
     active: SimpleToken.selectUnlinkedOnly,
     visible: true,
+    order: Object.keys(controls.tokens.tools).length,
     onChange: (event, active) => {
       const isActive = typeof active === "boolean" ? active : Boolean(event);
       SimpleToken.setSelectUnlinkedOnly(isActive);
     }
   };
-
-  if (Array.isArray(controls)) {
-    const tokenControls = controls.find(c => c.name === "token" || c.name === "tokens");
-    if (tokenControls && Array.isArray(tokenControls.tools)) {
-      tokenControls.tools.push(tool);
-    }
-  } else {
-    const tokenControls = controls.tokens || controls.token;
-    if (tokenControls?.tools) {
-      tool.order = Object.keys(tokenControls.tools).length;
-      tokenControls.tools.selectUnlinkedOnly = tool;
-    }
-  }
 });
 
 /**
@@ -273,4 +264,18 @@ Hooks.on("updateActor", (actor) => {
     }
   }
 });
+
+/**
+ * Reset used non-movement actions on each combat round and when combat ends.
+ */
+Hooks.on("updateCombat", (combat, changed) => {
+  if (changed.round !== undefined) {
+    SimpleToken.resetAllUsedActions(combat?.scene ?? canvas?.scene);
+  }
+});
+
+Hooks.on("deleteCombat", (combat) => {
+  SimpleToken.resetAllUsedActions(combat?.scene ?? canvas?.scene);
+});
+
 

@@ -135,7 +135,42 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   }
 
   /**
-   * Get the movement status color for an unlinked NPC token.
+   * Get the movement status color for each action segment of an unlinked NPC token.
+   * Each action covers `speed` distance:
+   * - Green (NOT_MOVED): action untouched
+   * - Orange (BELOW_SPEED): action partially used
+   * - Red (OVER_SPEED): action fully spent
+   * @returns {number[]}
+   */
+  getActionSegmentColors() {
+    const distance = this.getMovedDistance();
+    const speed = this.getActorSpeed();
+    const actionCount = Math.max(1, Math.round(this.getActorActionNumber()));
+
+    const colors = [];
+    for (let i = 0; i < actionCount; i++) {
+      if (distance <= 0) {
+        colors.push(SimpleToken.MOVEMENT_COLORS.NOT_MOVED);
+        continue;
+      }
+      if (speed <= 0) {
+        colors.push(SimpleToken.MOVEMENT_COLORS.OVER_SPEED);
+        continue;
+      }
+      const actionDist = distance - i * speed;
+      if (actionDist <= 0) {
+        colors.push(SimpleToken.MOVEMENT_COLORS.NOT_MOVED);
+      } else if (actionDist < speed) {
+        colors.push(SimpleToken.MOVEMENT_COLORS.BELOW_SPEED);
+      } else {
+        colors.push(SimpleToken.MOVEMENT_COLORS.OVER_SPEED);
+      }
+    }
+    return colors;
+  }
+
+  /**
+   * Get the overall movement status color for an unlinked NPC token.
    * @returns {number}
    */
   getMovementHighlightColor() {
@@ -144,6 +179,53 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
     const maxDistance = this.getActorSpeed() * this.getActorActionNumber();
     if (distance >= maxDistance) return SimpleToken.MOVEMENT_COLORS.OVER_SPEED;
     return SimpleToken.MOVEMENT_COLORS.BELOW_SPEED;
+  }
+
+  /**
+   * Draw the segmented circular arc border for an unlinked NPC token.
+   * @param {number} thickness
+   */
+  _drawSegmentedActionBorder(thickness) {
+    this.border.clear();
+    if (this.border.parent === this) {
+      this.border.position.set(0, 0);
+    } else {
+      this.border.position.set(this.x, this.y);
+    }
+    this.border.visible = this.isVisible;
+
+    const cx = this.w / 2;
+    const cy = this.h / 2;
+    const radius = Math.min(this.w, this.h) / 2;
+    if (radius <= 0) return;
+
+    // Draw dark backing ring
+    this.border.lineStyle(thickness, 0x000000, 0.85).drawCircle(cx, cy, radius);
+
+    const segmentColors = this.getActionSegmentColors();
+    const count = segmentColors.length;
+    const fullCircle = Math.PI * 2;
+    const segAngle = fullCircle / count;
+    const halfGap = count > 1 ? Math.min(0.08, segAngle * 0.08) : 0;
+    const baseAngle = -Math.PI / 2; // Start at 12 o'clock (top)
+
+    for (let i = 0; i < count; i++) {
+      const startAngle = baseAngle + i * segAngle + halfGap;
+      const endAngle = baseAngle + (i + 1) * segAngle - halfGap;
+      if (endAngle <= startAngle) continue;
+
+      this.border.lineStyle(thickness / 2, Number(segmentColors[i]), 1.0);
+      this.border.moveTo(
+        cx + radius * Math.cos(startAngle),
+        cy + radius * Math.sin(startAngle)
+      );
+      this.border.arc(cx, cy, radius, startAngle, endAngle);
+    }
+
+    if (this.controlled) {
+      this.border.lineStyle(Math.max(2, thickness / 2), 0xffffff, 0.95)
+        .drawCircle(cx, cy, radius + 3);
+    }
   }
 
   /** @override */
@@ -167,6 +249,11 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
     if (!this.border) return;
     const shape = this.getShape?.();
     const thickness = CONFIG.Canvas.objectBorderThickness || 4;
+
+    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+      this._drawSegmentedActionBorder(thickness);
+      return;
+    }
 
     if (shape instanceof PIXI.Polygon) {
       this.border.clear();
@@ -203,14 +290,6 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
         this.border.visible = this.isVisible;
         this.border.lineStyle(thickness, 0x000000, 0.8).drawRect(0, 0, this.w, this.h);
         this.border.lineStyle(thickness / 2, color, 1.0).drawRect(0, 0, this.w, this.h);
-      }
-    }
-
-    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
-      this.border.visible = this.isVisible;
-      if (this.controlled) {
-        this.border.lineStyle(Math.max(2, thickness / 2), 0xffffff, 0.95)
-          .drawRect(-3, -3, this.w + 6, this.h + 6);
       }
     }
   }

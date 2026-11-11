@@ -42,7 +42,10 @@ Hooks.once("init", async function () {
     ChestActorSheet,
     RollDialog,
     NoiseDiceDialog,
-    createWorldbuildingMacro
+    SimpleToken,
+    createWorldbuildingMacro,
+    useAction: (count = 1, tokens) => SimpleToken.useActionForSelected(count, tokens),
+    resetActions: (tokens) => SimpleToken.resetActionsForSelected(tokens)
   };
 
   // Define custom Document classes
@@ -273,4 +276,18 @@ Hooks.on("updateActor", (actor) => {
     }
   }
 });
+
+/**
+ * Reset used non-movement actions on each combat round and when combat ends.
+ */
+Hooks.on("updateCombat", (combat, changed) => {
+  if (changed.round !== undefined) {
+    SimpleToken.resetAllUsedActions(combat?.scene ?? canvas?.scene);
+  }
+});
+
+Hooks.on("deleteCombat", (combat) => {
+  SimpleToken.resetAllUsedActions(combat?.scene ?? canvas?.scene);
+});
+
 

@@ -38,6 +38,9 @@ export class SimpleTokenDocument extends TokenDocument {
   /** @override */
   async clearMovementHistory() {
     const result = await super.clearMovementHistory?.();
+    if (this.getFlag("explosive-zombie", "usedActions")) {
+      await this.unsetFlag("explosive-zombie", "usedActions");
+    }
     this.object?.renderFlags?.set({ refreshBorder: true, refreshState: true });
     return result;
   }
@@ -90,6 +93,60 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   }
 
   /**
+   * Mark non-movement action(s) as used for all selected unlinked tokens (or a provided list of tokens).
+   * Intended to be called from a Macro, e.g. `game.explosiveZombie.useAction()` or `SimpleToken.useActionForSelected()`.
+   * @param {number} [count=1]
+   * @param {SimpleToken[]} [tokens]
+   * @returns {Promise<SimpleToken[]>}
+   */
+  static async useActionForSelected(count = 1, tokens = canvas?.tokens?.controlled ?? []) {
+    const targets = Array.from(tokens).filter(t => t && !t.document?.actorLink);
+    await Promise.all(targets.map(t => t.useAction(count)));
+    return targets;
+  }
+
+  /**
+   * Reset non-movement action(s) for all selected unlinked tokens (or a provided list of tokens).
+   * @param {SimpleToken[]} [tokens]
+   * @returns {Promise<SimpleToken[]>}
+   */
+  static async resetActionsForSelected(tokens = canvas?.tokens?.controlled ?? []) {
+    const targets = Array.from(tokens).filter(t => t && !t.document?.actorLink);
+    await Promise.all(targets.map(t => t.resetUsedActions()));
+    return targets;
+  }
+
+  /**
+   * Reset non-movement action(s) for all unlinked tokens in the given scene (e.g. on a new combat round).
+   * @param {Scene} [scene]
+   * @returns {Promise<void>}
+   */
+  static async resetAllUsedActions(scene = canvas?.scene) {
+    if (!scene?.tokens) return;
+    const isResponsibleGM = game.users?.activeGM ? game.users.activeGM.isSelf : game.user?.isGM;
+    if (isResponsibleGM) {
+      const updates = [];
+      for (const tokenDoc of scene.tokens) {
+        if (tokenDoc.actorLink) continue;
+        if (tokenDoc.getFlag("explosive-zombie", "usedActions") !== undefined) {
+          updates.push(tokenDoc.unsetFlag("explosive-zombie", "usedActions"));
+        }
+        if (Array.isArray(tokenDoc.movementHistory) && tokenDoc.movementHistory.length > 0) {
+          updates.push(tokenDoc.clearMovementHistory?.());
+        }
+      }
+      if (updates.length) await Promise.all(updates);
+    }
+    if (canvas?.tokens?.placeables) {
+      for (const token of canvas.tokens.placeables) {
+        if (!token.document?.actorLink) {
+          token.renderFlags.set({ refreshBorder: true, refreshState: true });
+        }
+      }
+    }
+  }
+
+  /**
    * Compute total distance moved by this token from Foundry v13's movementHistory.
    * @returns {number}
    */
@@ -135,8 +192,46 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   }
 
   /**
+   * Get the number of non-movement actions manually marked as used on this token.
+   * @returns {number}
+   */
+  getUsedActions() {
+    const raw = this.document?.getFlag("explosive-zombie", "usedActions") ?? 0;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+  }
+
+  /**
+   * Mark one or more non-movement actions as used on this token (pass a negative count to refund).
+   * @param {number} [count=1]
+   * @returns {Promise<number>} The updated number of used non-movement actions
+   */
+  async useAction(count = 1) {
+    const delta = Number(count) || 0;
+    const next = Math.max(0, this.getUsedActions() + delta);
+    if (next === 0) {
+      await this.document?.unsetFlag("explosive-zombie", "usedActions");
+    } else {
+      await this.document?.setFlag("explosive-zombie", "usedActions", next);
+    }
+    this.renderFlags.set({ refreshBorder: true, refreshState: true });
+    return next;
+  }
+
+  /**
+   * Reset non-movement actions used on this token back to 0.
+   * @returns {Promise<void>}
+   */
+  async resetUsedActions() {
+    if (this.document?.getFlag("explosive-zombie", "usedActions") !== undefined) {
+      await this.document.unsetFlag("explosive-zombie", "usedActions");
+    }
+    this.renderFlags.set({ refreshBorder: true, refreshState: true });
+  }
+
+  /**
    * Get the movement status color for each action segment of an unlinked NPC token.
-   * Each action covers `speed` distance:
+   * Each action covers `speed` distance, and each manually used action consumes one full segment:
    * - Green (NOT_MOVED): action untouched
    * - Orange (BELOW_SPEED): action partially used
    * - Red (OVER_SPEED): action fully spent
@@ -145,19 +240,25 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   getActionSegmentColors() {
     const distance = this.getMovedDistance();
     const speed = this.getActorSpeed();
+    const usedActions = this.getUsedActions();
     const actionCount = Math.max(1, Math.round(this.getActorActionNumber()));
+    const effectiveDistance = distance + usedActions * speed;
 
     const colors = [];
     for (let i = 0; i < actionCount; i++) {
-      if (distance <= 0) {
+      if (speed <= 0) {
+        colors.push(
+          i < usedActions || distance > 0
+            ? SimpleToken.MOVEMENT_COLORS.OVER_SPEED
+            : SimpleToken.MOVEMENT_COLORS.NOT_MOVED
+        );
+        continue;
+      }
+      if (effectiveDistance <= 0) {
         colors.push(SimpleToken.MOVEMENT_COLORS.NOT_MOVED);
         continue;
       }
-      if (speed <= 0) {
-        colors.push(SimpleToken.MOVEMENT_COLORS.OVER_SPEED);
-        continue;
-      }
-      const actionDist = distance - i * speed;
+      const actionDist = effectiveDistance - i * speed;
       if (actionDist <= 0) {
         colors.push(SimpleToken.MOVEMENT_COLORS.NOT_MOVED);
       } else if (actionDist < speed) {
@@ -174,10 +275,13 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
    * @returns {number}
    */
   getMovementHighlightColor() {
-    const distance = this.getMovedDistance();
-    if (distance <= 0) return SimpleToken.MOVEMENT_COLORS.NOT_MOVED;
-    const maxDistance = this.getActorSpeed() * this.getActorActionNumber();
-    if (distance >= maxDistance) return SimpleToken.MOVEMENT_COLORS.OVER_SPEED;
+    const speed = this.getActorSpeed();
+    const effectiveDistance = this.getMovedDistance() + this.getUsedActions() * speed;
+    if (effectiveDistance <= 0 && this.getUsedActions() <= 0) {
+      return SimpleToken.MOVEMENT_COLORS.NOT_MOVED;
+    }
+    const maxDistance = speed * this.getActorActionNumber();
+    if (effectiveDistance >= maxDistance) return SimpleToken.MOVEMENT_COLORS.OVER_SPEED;
     return SimpleToken.MOVEMENT_COLORS.BELOW_SPEED;
   }
 

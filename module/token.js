@@ -78,6 +78,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
    * @param {boolean} active
    */
   static setSelectUnlinkedOnly(active) {
+    if (!game.user?.isGM) return;
     this.selectUnlinkedOnly = Boolean(active);
     if (!canvas?.tokens) return;
 
@@ -335,7 +336,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
 
   /** @override */
   _canControl(user, event) {
-    if (SimpleToken.selectUnlinkedOnly && this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && this.document?.actorLink) {
       return false;
     }
     return super._canControl(user, event);
@@ -343,7 +344,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
 
   /** @override */
   _getBorderColor(options) {
-    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
       return this.getMovementHighlightColor();
     }
     return super._getBorderColor(options);
@@ -355,7 +356,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
     const shape = this.getShape?.();
     const thickness = CONFIG.Canvas.objectBorderThickness || 4;
 
-    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
       this._drawSegmentedActionBorder(thickness);
       return;
     }
@@ -398,7 +399,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
       }
     }
 
-    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
       this.border.visible = this.isVisible;
       if (this.controlled) {
         this.border.lineStyle(Math.max(2, thickness / 2), 0xffffff, 0.95)
@@ -410,7 +411,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   /** @override */
   _refreshState() {
     super._refreshState();
-    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
       this._refreshBorder();
     }
   }
@@ -418,14 +419,14 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   /** @override */
   _onUpdate(changed, options, userId) {
     super._onUpdate(changed, options, userId);
-    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
       this.renderFlags.set({ refreshBorder: true });
     }
   }
 
   /** @override */
   _onDragLeftDrop(event) {
-    if (!PathfinderHelper.enabled || this.document?.actorLink || !canvas?.tokens) {
+    if (!game.user?.isGM || !PathfinderHelper.enabled || this.document?.actorLink || !canvas?.tokens) {
       return super._onDragLeftDrop(event);
     }
 

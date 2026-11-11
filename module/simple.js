@@ -234,7 +234,9 @@ Hooks.once("ready", () => {
  * Add a toggle in the Token scene controls to restrict selection to unlinked tokens (NPCs).
  */
 Hooks.on("getSceneControlButtons", (controls) => {
-  const orderIndex = Object.keys(controls.tokens.tools).length
+  if (!game.user?.isGM) return;
+
+  const orderIndex = Object.keys(controls.tokens.tools).length;
 
   controls.tokens.tools.selectUnlinkedOnly = {
     name: "selectUnlinkedOnly",
@@ -242,7 +244,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
     icon: "fas fa-skull",
     toggle: true,
     active: SimpleToken.selectUnlinkedOnly,
-    visible: true,
+    visible: Boolean(game.user?.isGM),
     order: orderIndex,
     onChange: (event, active) => {
       const isActive = typeof active === "boolean" ? active : Boolean(event);
@@ -256,7 +258,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
     icon: "fas fa-route",
     toggle: true,
     active: PathfinderHelper.enabled,
-    visible: true,
+    visible: Boolean(game.user?.isGM),
     order: orderIndex + 1,
     onChange: (event, active) => {
       const isActive = typeof active === "boolean" ? active : Boolean(event);
@@ -269,13 +271,13 @@ Hooks.on("getSceneControlButtons", (controls) => {
  * Refresh NPC movement highlight border when a token moves or an actor's speed changes.
 */
 Hooks.on("moveToken", (tokenDoc) => {
-  if (SimpleToken.selectUnlinkedOnly && !tokenDoc?.actorLink) {
+  if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !tokenDoc?.actorLink) {
     tokenDoc.object?.renderFlags?.set({ refreshBorder: true, refreshState: true });
   }
 });
 
 Hooks.on("updateActor", (actor) => {
-  if (!SimpleToken.selectUnlinkedOnly || !canvas?.tokens) return;
+  if (!game.user?.isGM || !SimpleToken.selectUnlinkedOnly || !canvas?.tokens) return;
   for (const token of actor.getActiveTokens()) {
     if (!token.document?.actorLink) {
       token.renderFlags.set({ refreshBorder: true });

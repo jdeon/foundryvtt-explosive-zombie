@@ -14,6 +14,7 @@ export class PathfinderHelper {
    * @param {boolean} active
    */
   static setEnabled(active) {
+    if (!game.user?.isGM) return;
     this.enabled = Boolean(active);
   }
 
@@ -212,6 +213,7 @@ export class PathfinderHelper {
    * @returns {Promise<void>}
    */
   static async executeSwarmMove(refToken, swarmTokens, dropX, dropY) {
+    if (!game.user?.isGM) return;
     const gridSizeX = canvas.grid?.sizeX || canvas.grid?.size || 100;
     const gridSizeY = canvas.grid?.sizeY || canvas.grid?.size || 100;
     const gridDistance = Number(canvas.scene?.grid?.distance) || 1;

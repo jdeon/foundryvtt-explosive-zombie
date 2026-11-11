@@ -57,8 +57,8 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
    */
   static MOVEMENT_COLORS = {
     NOT_MOVED: 0x2ecc71,   // Green (distance === 0)
-    BELOW_SPEED: 0xff9800, // Orange (0 < distance <= speed)
-    OVER_SPEED: 0xe74c3c   // Red (distance > speed)
+    BELOW_SPEED: 0xff9800, // Orange (0 < distance < speed * actionNumber)
+    OVER_SPEED: 0xe74c3c   // Red (distance >= speed * actionNumber)
   };
 
   /**
@@ -125,15 +125,25 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   }
 
   /**
+   * Get the action number attribute of the token's actor.
+   * @returns {number}
+   */
+  getActorActionNumber() {
+    const rawActionNumber = this.actor?.system?.actionNumber ?? this.actor?.system?.stats?.actionNumber ?? 1;
+    const parsed = Number(rawActionNumber);
+    return Number.isFinite(parsed) ? parsed : 1;
+  }
+
+  /**
    * Get the movement status color for an unlinked NPC token.
    * @returns {number}
    */
   getMovementHighlightColor() {
     const distance = this.getMovedDistance();
     if (distance <= 0) return SimpleToken.MOVEMENT_COLORS.NOT_MOVED;
-    const speed = this.getActorSpeed();
-    if (distance <= speed) return SimpleToken.MOVEMENT_COLORS.BELOW_SPEED;
-    return SimpleToken.MOVEMENT_COLORS.OVER_SPEED;
+    const maxDistance = this.getActorSpeed() * this.getActorActionNumber();
+    if (distance >= maxDistance) return SimpleToken.MOVEMENT_COLORS.OVER_SPEED;
+    return SimpleToken.MOVEMENT_COLORS.BELOW_SPEED;
   }
 
   /** @override */

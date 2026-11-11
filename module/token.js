@@ -425,7 +425,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
 
   /** @override */
   _onDragLeftDrop(event) {
-    if (!SimpleToken.selectUnlinkedOnly || this.document?.actorLink || !canvas?.tokens) {
+    if (!PathfinderHelper.enabled || this.document?.actorLink || !canvas?.tokens) {
       return super._onDragLeftDrop(event);
     }
 

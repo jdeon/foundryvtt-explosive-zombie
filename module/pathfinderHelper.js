@@ -4,6 +4,20 @@
 export class PathfinderHelper {
 
   /**
+   * Whether token pathfinding is currently enabled.
+   * @type {boolean}
+   */
+  static enabled = false;
+
+  /**
+   * Toggle whether token pathfinding is enabled.
+   * @param {boolean} active
+   */
+  static setEnabled(active) {
+    this.enabled = Boolean(active);
+  }
+
+  /**
    * Orthogonal directions first, then diagonals.
    * @type {number[][]}
    */

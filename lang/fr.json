@@ -180,5 +180,6 @@
   "noiseDice.reset": "Réinitialiser le bruit à 0",
   "noiseDice.rollTooltip": "Lancer les dés de bruit",
   "noiseDice.toggle": "Afficher/Masquer les dés de bruit",
-  "tokenControls.selectUnlinkedOnly": "Sélectionner uniquement les tokens non liés (PNJ)"
+  "tokenControls.selectUnlinkedOnly": "Sélectionner uniquement les tokens non liés (PNJ)",
+  "tokenControls.enablePathfinding": "Activer le pathfinding des tokens"
 }

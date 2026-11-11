@@ -42,7 +42,10 @@ Hooks.once("init", async function () {
     ChestActorSheet,
     RollDialog,
     NoiseDiceDialog,
-    createWorldbuildingMacro
+    SimpleToken,
+    createWorldbuildingMacro,
+    useAction: (count = 1, tokens) => SimpleToken.useActionForSelected(count, tokens),
+    resetActions: (tokens) => SimpleToken.resetActionsForSelected(tokens)
   };
 
   // Define custom Document classes
@@ -224,4 +227,55 @@ Hooks.once("ready", () => {
     NoiseDiceDialog.onCanvasReady(canvas.scene);
   }
 });
+
+/**
+ * Add a toggle in the Token scene controls to restrict selection to unlinked tokens (NPCs).
+ */
+Hooks.on("getSceneControlButtons", (controls) => {
+  controls.tokens.tools.selectUnlinkedOnly = {
+    name: "selectUnlinkedOnly",
+    title: game.i18n.localize("tokenControls.selectUnlinkedOnly"),
+    icon: "fas fa-skull",
+    toggle: true,
+    active: SimpleToken.selectUnlinkedOnly,
+    visible: true,
+    order: Object.keys(controls.tokens.tools).length,
+    onChange: (event, active) => {
+      const isActive = typeof active === "boolean" ? active : Boolean(event);
+      SimpleToken.setSelectUnlinkedOnly(isActive);
+    }
+  };
+});
+
+/**
+ * Refresh NPC movement highlight border when a token moves or an actor's speed changes.
+*/
+Hooks.on("moveToken", (tokenDoc) => {
+  if (SimpleToken.selectUnlinkedOnly && !tokenDoc?.actorLink) {
+    tokenDoc.object?.renderFlags?.set({ refreshBorder: true, refreshState: true });
+  }
+});
+
+Hooks.on("updateActor", (actor) => {
+  if (!SimpleToken.selectUnlinkedOnly || !canvas?.tokens) return;
+  for (const token of actor.getActiveTokens()) {
+    if (!token.document?.actorLink) {
+      token.renderFlags.set({ refreshBorder: true });
+    }
+  }
+});
+
+/**
+ * Reset used non-movement actions on each combat round and when combat ends.
+ */
+Hooks.on("updateCombat", (combat, changed) => {
+  if (changed.round !== undefined) {
+    SimpleToken.resetAllUsedActions(combat?.scene ?? canvas?.scene);
+  }
+});
+
+Hooks.on("deleteCombat", (combat) => {
+  SimpleToken.resetAllUsedActions(combat?.scene ?? canvas?.scene);
+});
+
 

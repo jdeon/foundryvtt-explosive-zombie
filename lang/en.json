@@ -179,5 +179,6 @@
   "noiseDice.decrease": "Decrease Noise (-1)",
   "noiseDice.reset": "Reset Noise to 0",
   "noiseDice.rollTooltip": "Roll noise dice",
-  "noiseDice.toggle": "Toggle Noise Dice Dialog"
+  "noiseDice.toggle": "Toggle Noise Dice Dialog",
+  "tokenControls.selectUnlinkedOnly": "Select Unlinked Tokens Only (NPC)"
 }

@@ -235,7 +235,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
   const tool = {
     name: "selectUnlinkedOnly",
     title: game.i18n.localize("tokenControls.selectUnlinkedOnly"),
-    icon: "fas fa-unlink",
+    icon: "fas fa-skull",
     toggle: true,
     active: SimpleToken.selectUnlinkedOnly,
     visible: true,

@@ -220,7 +220,10 @@ export class PathfinderHelper {
       const startKey = this.cellKey(startCell.col, startCell.row);
       const alreadyMoved = token.getMovedDistance();
       const speed = token.getActorSpeed();
-      const remainingDist = Math.max(0, speed - alreadyMoved);
+      const actionNumber = token.getActorActionNumber();
+      const usedActions = token.getUsedActions();
+      const maxMoveDist = Math.max(0, (actionNumber - usedActions) * speed);
+      const remainingDist = Math.max(0, maxMoveDist - alreadyMoved);
       const maxSteps = Math.floor((remainingDist + 1e-6) / gridDistance);
       const targetScore = distToTarget.get(startKey)
         ?? (Math.hypot(startCell.col - targetCell.col, startCell.row - targetCell.row) + 1000);
@@ -228,6 +231,7 @@ export class PathfinderHelper {
         token,
         startCell,
         startKey,
+        maxMoveDist,
         remainingDist,
         maxSteps,
         targetScore
@@ -256,8 +260,7 @@ export class PathfinderHelper {
     const movesToExecute = [];
 
     for (const entry of movableEntries) {
-      const { token, startCell, startKey, remainingDist, maxSteps } = entry;
-      const speed = token.getActorSpeed();
+      const { token, startCell, startKey, maxMoveDist, remainingDist, maxSteps } = entry;
       const history = token.document?.movementHistory;
 
       // BFS from token's startCell up to maxSteps
@@ -330,7 +333,7 @@ export class PathfinderHelper {
             : waypoints;
           const measured = token.document.measureMovementPath(fullPath);
           const totalDist = measured?.distance ?? measured?.cost;
-          if (typeof totalDist === "number" && totalDist > speed + 1e-4) continue;
+          if (typeof totalDist === "number" && totalDist > maxMoveDist + 1e-4) continue;
         } else if (cand.node.steps * gridDistance > remainingDist + 1e-4) {
           continue;
         }

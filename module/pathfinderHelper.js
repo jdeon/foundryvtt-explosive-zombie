@@ -16,6 +16,11 @@ export class PathfinderHelper {
   static setEnabled(active) {
     if (!game.user?.isGM) return;
     this.enabled = Boolean(active);
+    if (canvas?.tokens?.placeables) {
+      for (const token of canvas.tokens.placeables) {
+        token.renderFlags?.set({ refreshState: true, refreshRuler: true });
+      }
+    }
   }
 
   /**
@@ -368,11 +373,15 @@ export class PathfinderHelper {
     // Execute all movements concurrently
     await Promise.all(movesToExecute.map(({ token, waypoints }) => {
       if (typeof token.document.move === "function") {
-        return token.document.move(waypoints);
+        return token.document.move(waypoints, { showRuler: false });
       }
       const last = waypoints[waypoints.length - 1];
       return token.document.update({ x: last.x, y: last.y });
     }));
+
+    for (const token of swarmTokens) {
+      token.renderFlags?.set({ refreshState: true, refreshRuler: true });
+    }
   }
 }
 

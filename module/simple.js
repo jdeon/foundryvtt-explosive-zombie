@@ -13,7 +13,7 @@ import { ChestActorSheet } from "./chest-sheet.js";
 import { RollDialog } from "./roll-dialog.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { createWorldbuildingMacro } from "./macro.js";
-import { SimpleToken, SimpleTokenDocument } from "./token.js";
+import { SimpleToken, SimpleTokenDocument, SimpleTokenRuler } from "./token.js";
 import { PathfinderHelper } from "./pathfinderHelper.js";
 import { INJURY_REASONS } from "./constants.js";
 import { NoiseDiceDialog } from "./noise-dice-dialog.js";
@@ -55,6 +55,7 @@ Hooks.once("init", async function () {
   CONFIG.Item.documentClass = SimpleItem;
   CONFIG.Token.documentClass = SimpleTokenDocument;
   CONFIG.Token.objectClass = SimpleToken;
+  CONFIG.Token.rulerClass = SimpleTokenRuler;
 
   // Register sheet application classes
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);

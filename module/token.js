@@ -53,6 +53,21 @@ export class SimpleTokenDocument extends TokenDocument {
 
 
 /**
+ * Custom TokenRuler that hides the ruler during token drag when pathfinding is enabled,
+ * while still allowing the movement history ruler to be displayed on hover.
+ * @extends {foundry.canvas.placeables.tokens.TokenRuler}
+ */
+export class SimpleTokenRuler extends foundry.canvas.placeables.tokens.TokenRuler {
+  /** @override */
+  get isVisible() {
+    if (this.token?.shouldHideDragRuler?.()) {
+      return false;
+    }
+    return super.isVisible;
+  }
+}
+
+/**
  * Extend the base Token class to implement additional system-specific logic.
  * @extends {foundry.canvas.placeables.Token}
  */
@@ -334,6 +349,23 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
     }
   }
 
+  /**
+   * Whether the movement ruler should be hidden because this token is currently
+   * being dragged while pathfinding is enabled.
+   * @returns {boolean}
+   */
+  shouldHideDragRuler() {
+    return Boolean(game.user?.isGM && PathfinderHelper.enabled && (this.isDragged || this._original));
+  }
+
+  /** @override */
+  get showRuler() {
+    if (this.shouldHideDragRuler()) {
+      return false;
+    }
+    return super.showRuler;
+  }
+
   /** @override */
   _canControl(user, event) {
     if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && this.document?.actorLink) {
@@ -411,9 +443,24 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   /** @override */
   _refreshState() {
     super._refreshState();
+    if (this.shouldHideDragRuler() && this.ruler) {
+      this.ruler.visible = false;
+    }
     if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
       this._refreshBorder();
     }
+  }
+
+  /** @override */
+  _refreshRuler() {
+    if (this.shouldHideDragRuler()) {
+      if (this.ruler) {
+        this.ruler.clear?.();
+        this.ruler.visible = false;
+      }
+      return;
+    }
+    return super._refreshRuler?.();
   }
 
   /** @override */

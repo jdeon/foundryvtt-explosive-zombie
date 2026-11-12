@@ -13,7 +13,8 @@ import { ChestActorSheet } from "./chest-sheet.js";
 import { RollDialog } from "./roll-dialog.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { createWorldbuildingMacro } from "./macro.js";
-import { SimpleToken, SimpleTokenDocument } from "./token.js";
+import { SimpleToken, SimpleTokenDocument, SimpleTokenRuler } from "./token.js";
+import { PathfinderHelper } from "./pathfinderHelper.js";
 import { INJURY_REASONS } from "./constants.js";
 import { NoiseDiceDialog } from "./noise-dice-dialog.js";
 
@@ -43,6 +44,7 @@ Hooks.once("init", async function () {
     RollDialog,
     NoiseDiceDialog,
     SimpleToken,
+    PathfinderHelper,
     createWorldbuildingMacro,
     useAction: (count = 1, tokens) => SimpleToken.useActionForSelected(count, tokens),
     resetActions: (tokens) => SimpleToken.resetActionsForSelected(tokens)
@@ -53,6 +55,7 @@ Hooks.once("init", async function () {
   CONFIG.Item.documentClass = SimpleItem;
   CONFIG.Token.documentClass = SimpleTokenDocument;
   CONFIG.Token.objectClass = SimpleToken;
+  CONFIG.Token.rulerClass = SimpleTokenRuler;
 
   // Register sheet application classes
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
@@ -232,17 +235,35 @@ Hooks.once("ready", () => {
  * Add a toggle in the Token scene controls to restrict selection to unlinked tokens (NPCs).
  */
 Hooks.on("getSceneControlButtons", (controls) => {
+  if (!game.user?.isGM) return;
+
+  const orderIndex = Object.keys(controls.tokens.tools).length;
+
   controls.tokens.tools.selectUnlinkedOnly = {
     name: "selectUnlinkedOnly",
     title: game.i18n.localize("tokenControls.selectUnlinkedOnly"),
     icon: "fas fa-skull",
     toggle: true,
     active: SimpleToken.selectUnlinkedOnly,
-    visible: true,
-    order: Object.keys(controls.tokens.tools).length,
+    visible: Boolean(game.user?.isGM),
+    order: orderIndex,
     onChange: (event, active) => {
       const isActive = typeof active === "boolean" ? active : Boolean(event);
       SimpleToken.setSelectUnlinkedOnly(isActive);
+    }
+  };
+
+  controls.tokens.tools.enablePathfinding = {
+    name: "enablePathfinding",
+    title: game.i18n.localize("tokenControls.enablePathfinding"),
+    icon: "fas fa-route",
+    toggle: true,
+    active: PathfinderHelper.enabled,
+    visible: Boolean(game.user?.isGM),
+    order: orderIndex + 1,
+    onChange: (event, active) => {
+      const isActive = typeof active === "boolean" ? active : Boolean(event);
+      PathfinderHelper.setEnabled(isActive);
     }
   };
 });
@@ -251,13 +272,13 @@ Hooks.on("getSceneControlButtons", (controls) => {
  * Refresh NPC movement highlight border when a token moves or an actor's speed changes.
 */
 Hooks.on("moveToken", (tokenDoc) => {
-  if (SimpleToken.selectUnlinkedOnly && !tokenDoc?.actorLink) {
+  if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !tokenDoc?.actorLink) {
     tokenDoc.object?.renderFlags?.set({ refreshBorder: true, refreshState: true });
   }
 });
 
 Hooks.on("updateActor", (actor) => {
-  if (!SimpleToken.selectUnlinkedOnly || !canvas?.tokens) return;
+  if (!game.user?.isGM || !SimpleToken.selectUnlinkedOnly || !canvas?.tokens) return;
   for (const token of actor.getActiveTokens()) {
     if (!token.document?.actorLink) {
       token.renderFlags.set({ refreshBorder: true });

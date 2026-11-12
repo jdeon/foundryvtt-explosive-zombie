@@ -1,3 +1,5 @@
+import { PathfinderHelper } from "./pathfinderHelper.js";
+
 /**
  * Extend the base TokenDocument to support resource type attributes.
  * @extends {TokenDocument}
@@ -51,6 +53,21 @@ export class SimpleTokenDocument extends TokenDocument {
 
 
 /**
+ * Custom TokenRuler that hides the ruler during token drag when pathfinding is enabled,
+ * while still allowing the movement history ruler to be displayed on hover.
+ * @extends {foundry.canvas.placeables.tokens.TokenRuler}
+ */
+export class SimpleTokenRuler extends foundry.canvas.placeables.tokens.TokenRuler {
+  /** @override */
+  get isVisible() {
+    if (this.token?.shouldHideDragRuler?.()) {
+      return false;
+    }
+    return super.isVisible;
+  }
+}
+
+/**
  * Extend the base Token class to implement additional system-specific logic.
  * @extends {foundry.canvas.placeables.Token}
  */
@@ -76,6 +93,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
    * @param {boolean} active
    */
   static setSelectUnlinkedOnly(active) {
+    if (!game.user?.isGM) return;
     this.selectUnlinkedOnly = Boolean(active);
     if (!canvas?.tokens) return;
 
@@ -331,9 +349,26 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
     }
   }
 
+  /**
+   * Whether the movement ruler should be hidden because this token is currently
+   * being dragged while pathfinding is enabled.
+   * @returns {boolean}
+   */
+  shouldHideDragRuler() {
+    return Boolean(game.user?.isGM && PathfinderHelper.enabled && (this.isDragged || this._original));
+  }
+
+  /** @override */
+  get showRuler() {
+    if (this.shouldHideDragRuler()) {
+      return false;
+    }
+    return super.showRuler;
+  }
+
   /** @override */
   _canControl(user, event) {
-    if (SimpleToken.selectUnlinkedOnly && this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && this.document?.actorLink) {
       return false;
     }
     return super._canControl(user, event);
@@ -341,7 +376,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
 
   /** @override */
   _getBorderColor(options) {
-    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
       return this.getMovementHighlightColor();
     }
     return super._getBorderColor(options);
@@ -353,7 +388,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
     const shape = this.getShape?.();
     const thickness = CONFIG.Canvas.objectBorderThickness || 4;
 
-    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
       this._drawSegmentedActionBorder(thickness);
       return;
     }
@@ -395,22 +430,88 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
         this.border.lineStyle(thickness / 2, color, 1.0).drawRect(0, 0, this.w, this.h);
       }
     }
+
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+      this.border.visible = this.isVisible;
+      if (this.controlled) {
+        this.border.lineStyle(Math.max(2, thickness / 2), 0xffffff, 0.95)
+          .drawRect(-3, -3, this.w + 6, this.h + 6);
+      }
+    }
   }
 
   /** @override */
   _refreshState() {
     super._refreshState();
-    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+    if (this.shouldHideDragRuler() && this.ruler) {
+      this.ruler.visible = false;
+    }
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
       this._refreshBorder();
     }
   }
 
   /** @override */
+  _refreshRuler() {
+    if (this.shouldHideDragRuler()) {
+      if (this.ruler) {
+        this.ruler.clear?.();
+        this.ruler.visible = false;
+      }
+      return;
+    }
+    return super._refreshRuler?.();
+  }
+
+  /** @override */
   _onUpdate(changed, options, userId) {
     super._onUpdate(changed, options, userId);
-    if (SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
       this.renderFlags.set({ refreshBorder: true });
     }
+  }
+
+  /** @override */
+  _onDragLeftDrop(event) {
+    if (!game.user?.isGM || !PathfinderHelper.enabled || this.document?.actorLink || !canvas?.tokens) {
+      return super._onDragLeftDrop(event);
+    }
+
+    const swarmTokens = canvas.tokens.controlled.filter(t => !t.document?.actorLink);
+    if (swarmTokens.length === 0) {
+      return super._onDragLeftDrop(event);
+    }
+
+    const clones = event.interactionData?.clones || [];
+    const myClone = clones.find(c => c._original === this) || clones[0];
+
+    let dropX = myClone?.document?.x ?? myClone?.x;
+    let dropY = myClone?.document?.y ?? myClone?.y;
+
+    if ((dropX === undefined || (dropX === this.document.x && dropY === this.document.y)) && event.interactionData?.destination) {
+      const originX = event.interactionData.origin?.x ?? this.center.x;
+      const originY = event.interactionData.origin?.y ?? this.center.y;
+      dropX = this.document.x + (event.interactionData.destination.x - originX);
+      dropY = this.document.y + (event.interactionData.destination.y - originY);
+    }
+
+    if (dropX === undefined || dropY === undefined) {
+      return super._onDragLeftDrop(event);
+    }
+
+    this._executeSwarmMove(swarmTokens, dropX, dropY);
+    return false;
+  }
+
+  /**
+   * Move a swarm of unlinked tokens toward (dropX, dropY), pathfinding around walls
+   * and other tokens while clamping each token's movement to its remaining speed.
+   * @param {SimpleToken[]} swarmTokens
+   * @param {number} dropX
+   * @param {number} dropY
+   */
+  async _executeSwarmMove(swarmTokens, dropX, dropY) {
+    return PathfinderHelper.executeSwarmMove(this, swarmTokens, dropX, dropY);
   }
 
   _drawBar(number, bar, data) {

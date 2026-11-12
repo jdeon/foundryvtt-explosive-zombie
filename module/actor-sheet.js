@@ -1,5 +1,5 @@
 import { EntitySheetHelper } from "./helper.js";
-import { ATTRIBUTE_TYPES, INJURY_REASONS } from "./constants.js";
+import { INJURY_REASONS } from "./constants.js";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -37,8 +37,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
       tabs: [
         { id: 'sheet', group: 'primary', label: 'common.tabSheet' },
         { id: 'edit', group: 'primary', label: 'common.tabEdit' },
-        { id: 'items', group: 'primary', label: 'common.tabItems' },
-        { id: 'attributes', group: 'primary', label: 'common.tabAttributes' }
+        { id: 'items', group: 'primary', label: 'common.tabItems' }
       ],
       initial: 'sheet'
     }
@@ -59,10 +58,6 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     },
     items: {
       template: "systems/explosive-zombie/templates/parts/actor-tab-items.html",
-      scrollable: [""]
-    },
-    attributes: {
-      template: "systems/explosive-zombie/templates/parts/actor-tab-attributes.html",
       scrollable: [""]
     }
   };
@@ -93,12 +88,8 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     context.isGM = game.user?.isGM;
     context.actor = this.document;
     context.data = this.document.toObject(false);
-    context.shorthand = !!game.settings.get("explosive-zombie", "macroShorthand");
     context.system = context.data.system;
     context.systemData = context.data.system;
-    context.dtypes = ATTRIBUTE_TYPES;
-
-    EntitySheetHelper.getAttributeData(context);
 
     // Ensure system object defaults exist safely
     context.system.stats = context.system.stats || { agility: 2, constitution: 2, mental: 2, speed: 5 };
@@ -208,23 +199,8 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     html.find('.health-control').change(this._onHealthControl.bind(this));
     html.find('.armor-control').change(this._onArmorControl.bind(this));
 
-    // Attribute Management
-    html.find(".attributes").on("click", ".attribute-control", EntitySheetHelper.onClickAttributeControl.bind(this));
-    html.find(".groups").on("click", ".group-control", EntitySheetHelper.onClickAttributeGroupControl.bind(this));
-    html.find(".attributes").on("click", "a.attribute-roll", EntitySheetHelper.onAttributeRoll.bind(this));
-
     // Item Controls
     html.find(".item-control").click(this._onItemControl.bind(this));
-    html.find(".items .rollable").on("click", this._onItemRoll.bind(this));
-
-    // Add draggable for Macro creation
-    html.find(".attributes a.attribute-roll").each((i, a) => {
-      a.setAttribute("draggable", true);
-      a.addEventListener("dragstart", ev => {
-        let dragData = ev.currentTarget.dataset;
-        ev.dataTransfer.setData('text/plain', JSON.stringify(dragData));
-      }, false);
-    });
 
     // Make inventory slot boxes draggable and handle contextmenu (clear)
     html.find('.slot-box').each((i, el) => {
@@ -294,8 +270,6 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
    */
   static async #onSubmitForm(event, form, formData) {
     let submitData = formData.object;
-    submitData = EntitySheetHelper.updateAttributes(submitData, this.document);
-    submitData = EntitySheetHelper.updateGroups(submitData, this.document);
     submitData = EntitySheetHelper.updateArrays(submitData, [
       "system.skills",
       "system.healthPoints",
@@ -574,24 +548,6 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     if (item) {
       item.sheet.render(true);
     }
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Listen for roll buttons on items.
-   * @param {MouseEvent} event    The originating left click event
-   */
-  _onItemRoll(event) {
-    let button = $(event.currentTarget);
-    const li = button.parents(".item");
-    const item = this.actor.items.get(li.data("itemId"));
-    let r = new Roll(button.data('roll'), this.actor.getRollData());
-    return r.toMessage({
-      user: game.user.id,
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: `<h2>${item.name}</h2><h3>${button.text()}</h3>`
-    });
   }
 
   /* -------------------------------------------- */

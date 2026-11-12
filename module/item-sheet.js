@@ -1,5 +1,5 @@
 import { EntitySheetHelper } from "./helper.js";
-import { ATTRIBUTE_TYPES, STAT_MAPPING } from "./constants.js";
+import { STAT_MAPPING } from "./constants.js";
 import { RollDialog } from "./roll-dialog.js";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
@@ -32,8 +32,7 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     primary: {
       tabs: [
         { id: 'sheet', group: 'primary', label: 'common.tabSheet' },
-        { id: 'edit', group: 'primary', label: 'common.tabEdit' },
-        { id: 'attributes', group: 'primary', label: 'common.tabAttributes' }
+        { id: 'edit', group: 'primary', label: 'common.tabEdit' }
       ],
       initial: 'sheet'
     }
@@ -50,10 +49,6 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     },
     edit: {
       template: "systems/explosive-zombie/templates/parts/item-tab-edit.html",
-      scrollable: [""]
-    },
-    attributes: {
-      template: "systems/explosive-zombie/templates/parts/item-tab-attributes.html",
       scrollable: [""]
     }
   };
@@ -86,9 +81,6 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.data = this.document.toObject(false);
     context.system = context.data.system;
     context.systemData = context.data.system;
-    context.dtypes = ATTRIBUTE_TYPES;
-
-    EntitySheetHelper.getAttributeData(context);
 
     // Ensure array defaults exist safely
     if (!context.system.activeEffects) context.system.activeEffects = [];
@@ -133,20 +125,6 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
     // Effect management in Classic Form
     html.find('.effect-control').click(this._onEffectControl.bind(this));
-
-    // Attribute Management
-    html.find(".attributes").on("click", ".attribute-control", EntitySheetHelper.onClickAttributeControl.bind(this));
-    html.find(".groups").on("click", ".group-control", EntitySheetHelper.onClickAttributeGroupControl.bind(this));
-    html.find(".attributes").on("click", "a.attribute-roll", EntitySheetHelper.onAttributeRoll.bind(this));
-
-    // Add draggable for Macro creation
-    html.find(".attributes a.attribute-roll").each((i, a) => {
-      a.setAttribute("draggable", true);
-      a.addEventListener("dragstart", ev => {
-        let dragData = ev.currentTarget.dataset;
-        ev.dataTransfer.setData('text/plain', JSON.stringify(dragData));
-      }, false);
-    });
   }
 
   /**
@@ -320,8 +298,6 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
    */
   static async #onSubmitForm(event, form, formData) {
     let submitData = formData.object;
-    submitData = EntitySheetHelper.updateAttributes(submitData, this.document);
-    submitData = EntitySheetHelper.updateGroups(submitData, this.document);
     submitData = EntitySheetHelper.updateArrays(submitData, [
       "system.activeEffects",
       "system.passiveEffects"

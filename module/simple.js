@@ -12,7 +12,6 @@ import { ZombieActorSheet } from "./zombie-sheet.js";
 import { ChestActorSheet } from "./chest-sheet.js";
 import { RollDialog } from "./roll-dialog.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
-import { createWorldbuildingMacro } from "./macro.js";
 import { SimpleToken, MonsterToken, SimpleTokenDocument, SimpleTokenRuler } from "./token.js";
 import { PathfinderHelper } from "./pathfinderHelper.js";
 import { INJURY_REASONS } from "./constants.js";
@@ -26,7 +25,7 @@ import { NoiseDiceDialog } from "./noise-dice-dialog.js";
  * Init hook.
  */
 Hooks.once("init", async function () {
-  console.log(`Initializing Simple Worldbuilding System`);
+  console.log(`Initializing Explosive Zombie System`);
 
   /**
    * Set an initiative formula for the system. This will be updated later.
@@ -46,7 +45,6 @@ Hooks.once("init", async function () {
     SimpleToken,
     MonsterToken,
     PathfinderHelper,
-    createWorldbuildingMacro,
     useAction: (count = 1, tokens) => SimpleToken.useActionForSelected(count, tokens),
     resetActions: (tokens) => SimpleToken.resetActionsForSelected(tokens)
   };
@@ -65,16 +63,6 @@ Hooks.once("init", async function () {
   foundry.documents.collections.Actors.registerSheet("explosive-zombie", ChestActorSheet, { types: ["chest"], makeDefault: true, label: "chestSheet.sheetTitle" });
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   foundry.documents.collections.Items.registerSheet("explosive-zombie", SimpleItemSheet, { makeDefault: true });
-
-  // Register system settings
-  game.settings.register("explosive-zombie", "macroShorthand", {
-    name: "SETTINGS.SimpleMacroShorthandN",
-    hint: "SETTINGS.SimpleMacroShorthandL",
-    scope: "world",
-    type: Boolean,
-    default: true,
-    config: true
-  });
 
   // Register initiative setting.
   game.settings.register("explosive-zombie", "initFormula", {
@@ -105,13 +93,6 @@ Hooks.once("init", async function () {
     CONFIG.Combat.initiative.formula = formula;
   }
 
-  /**
-   * Slugify a string.
-   */
-  Handlebars.registerHelper('slugify', function (value) {
-    return value.slugify({ strict: true });
-  });
-
   Handlebars.registerHelper('firstLetter', function (value) {
     if (!value || typeof value !== 'string') return '';
     const trimmed = value.trim();
@@ -136,78 +117,6 @@ Hooks.once("init", async function () {
   await preloadHandlebarsTemplates();
 });
 
-/**
- * Macrobar hook.
- */
-Hooks.on("hotbarDrop", (bar, data, slot) => createWorldbuildingMacro(data, slot));
-
-/**
- * Adds the actor template context menu.
- */
-Hooks.on("getActorDirectoryEntryContext", (html, options) => {
-
-  // Define an actor as a template.
-  options.push({
-    name: game.i18n.localize("attributes.defineTemplate"),
-    icon: '<i class="fas fa-stamp"></i>',
-    condition: li => {
-      const actor = game.actors.get(li.data("documentId"));
-      return !actor.isTemplate;
-    },
-    callback: li => {
-      const actor = game.actors.get(li.data("documentId"));
-      actor.setFlag("explosive-zombie", "isTemplate", true);
-    }
-  });
-
-  // Undefine an actor as a template.
-  options.push({
-    name: game.i18n.localize("attributes.unsetTemplate"),
-    icon: '<i class="fas fa-times"></i>',
-    condition: li => {
-      const actor = game.actors.get(li.data("documentId"));
-      return actor.isTemplate;
-    },
-    callback: li => {
-      const actor = game.actors.get(li.data("documentId"));
-      actor.setFlag("explosive-zombie", "isTemplate", false);
-    }
-  });
-});
-
-/**
- * Adds the item template context menu.
- */
-Hooks.on("getItemDirectoryEntryContext", (html, options) => {
-
-  // Define an item as a template.
-  options.push({
-    name: game.i18n.localize("attributes.defineTemplate"),
-    icon: '<i class="fas fa-stamp"></i>',
-    condition: li => {
-      const item = game.items.get(li.data("documentId"));
-      return !item.isTemplate;
-    },
-    callback: li => {
-      const item = game.items.get(li.data("documentId"));
-      item.setFlag("explosive-zombie", "isTemplate", true);
-    }
-  });
-
-  // Undefine an item as a template.
-  options.push({
-    name: game.i18n.localize("attributes.unsetTemplate"),
-    icon: '<i class="fas fa-times"></i>',
-    condition: li => {
-      const item = game.items.get(li.data("documentId"));
-      return item.isTemplate;
-    },
-    callback: li => {
-      const item = game.items.get(li.data("documentId"));
-      item.setFlag("explosive-zombie", "isTemplate", false);
-    }
-  });
-});
 /**
  * Automatically open / update the noise dice dialog on each scene load
  */

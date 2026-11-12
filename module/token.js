@@ -33,7 +33,7 @@ export class SimpleTokenDocument extends TokenDocument {
 
   /** @override */
   _shouldRecordMovementHistory() {
-    if (!this.actorLink) return true;
+    if (this.actor?.type === "zombie") return true;
     return super._shouldRecordMovementHistory?.() ?? true;
   }
 
@@ -60,7 +60,7 @@ export class SimpleTokenDocument extends TokenDocument {
 export class SimpleTokenRuler extends foundry.canvas.placeables.tokens.TokenRuler {
   /** @override */
   get isVisible() {
-    if (this.token?.shouldHideDragRuler?.()) {
+    if (this.token?.shouldHideDragRuler()) {
       return false;
     }
     return super.isVisible;
@@ -72,6 +72,13 @@ export class SimpleTokenRuler extends foundry.canvas.placeables.tokens.TokenRule
  * @extends {foundry.canvas.placeables.Token}
  */
 export class SimpleToken extends foundry.canvas.placeables.Token {
+  constructor(document) {
+    if (new.target === SimpleToken && document?.actor?.type === "zombie") {
+      return new MonsterToken(document);
+    }
+    super(document);
+  }
+
   /**
    * Movement highlight border colors.
    */
@@ -82,14 +89,14 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   };
 
   /**
-   * Whether token selection is restricted to unlinked tokens (NPCs).
+   * Whether token selection is restricted to monster tokens.
    * @type {boolean}
    */
   static selectUnlinkedOnly = false;
 
   /**
-   * Toggle whether only unlinked tokens can be selected, releasing any currently
-   * controlled linked tokens when enabled and refreshing all token borders.
+   * Toggle whether only monster tokens can be selected, releasing any currently
+   * controlled non-monster tokens when enabled and refreshing all token borders.
    * @param {boolean} active
    */
   static setSelectUnlinkedOnly(active) {
@@ -99,7 +106,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
 
     if (this.selectUnlinkedOnly) {
       for (const token of [...canvas.tokens.controlled]) {
-        if (token.document?.actorLink) {
+        if (!(token instanceof MonsterToken)) {
           token.release();
         }
       }
@@ -111,31 +118,31 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   }
 
   /**
-   * Mark non-movement action(s) as used for all selected unlinked tokens (or a provided list of tokens).
+   * Mark non-movement action(s) as used for all selected monster tokens (or a provided list of tokens).
    * Intended to be called from a Macro, e.g. `game.explosiveZombie.useAction()` or `SimpleToken.useActionForSelected()`.
    * @param {number} [count=1]
    * @param {SimpleToken[]} [tokens]
-   * @returns {Promise<SimpleToken[]>}
+   * @returns {Promise<MonsterToken[]>}
    */
   static async useActionForSelected(count = 1, tokens = canvas?.tokens?.controlled ?? []) {
-    const targets = Array.from(tokens).filter(t => t && !t.document?.actorLink);
+    const targets = Array.from(tokens).filter(t => t instanceof MonsterToken);
     await Promise.all(targets.map(t => t.useAction(count)));
     return targets;
   }
 
   /**
-   * Reset non-movement action(s) for all selected unlinked tokens (or a provided list of tokens).
+   * Reset non-movement action(s) for all selected monster tokens (or a provided list of tokens).
    * @param {SimpleToken[]} [tokens]
-   * @returns {Promise<SimpleToken[]>}
+   * @returns {Promise<MonsterToken[]>}
    */
   static async resetActionsForSelected(tokens = canvas?.tokens?.controlled ?? []) {
-    const targets = Array.from(tokens).filter(t => t && !t.document?.actorLink);
+    const targets = Array.from(tokens).filter(t => t instanceof MonsterToken);
     await Promise.all(targets.map(t => t.resetUsedActions()));
     return targets;
   }
 
   /**
-   * Reset non-movement action(s) for all unlinked tokens in the given scene (e.g. on a new combat round).
+   * Reset non-movement action(s) for all monster tokens in the given scene (e.g. on a new combat round).
    * @param {Scene} [scene]
    * @returns {Promise<void>}
    */
@@ -144,7 +151,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
 
     const updates = [];
     for (const tokenDoc of scene.tokens) {
-      if (tokenDoc.actorLink) continue;
+      if (tokenDoc.actor?.type !== "zombie") continue;
       if (tokenDoc.getFlag("explosive-zombie", "usedActions") !== undefined) {
         updates.push(tokenDoc.unsetFlag("explosive-zombie", "usedActions"));
       }
@@ -156,12 +163,39 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
 
     if (canvas?.tokens?.placeables) {
       for (const token of canvas.tokens.placeables) {
-        if (!token.document?.actorLink) {
+        if (token instanceof MonsterToken) {
           token.renderFlags.set({ refreshBorder: true, refreshState: true });
         }
       }
     }
   }
+
+  /**
+   * Whether the movement ruler should be hidden because this token is currently
+   * being dragged while pathfinding is enabled.
+   * @returns {boolean}
+   */
+  shouldHideDragRuler() {
+    return false;
+  }
+
+  /** @override */
+  _canControl(user, event) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly) {
+      return false;
+    }
+    return super._canControl(user, event);
+  }
+}
+
+/* -------------------------------------------- */
+
+/**
+ * Specialized Token class for Monster ("zombie") actors, handling action tracking,
+ * segmented movement borders, and swarm pathfinding.
+ * @extends {SimpleToken}
+ */
+export class MonsterToken extends SimpleToken {
 
   /**
    * Compute total distance moved by this token from Foundry v13's movementHistory.
@@ -247,7 +281,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   }
 
   /**
-   * Get the movement status color for each action segment of an unlinked NPC token.
+   * Get the movement status color for each action segment of a monster token.
    * Each action covers `speed` distance, and each manually used action consumes one full segment:
    * - Green (NOT_MOVED): action untouched
    * - Orange (BELOW_SPEED): action partially used
@@ -288,7 +322,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   }
 
   /**
-   * Get the overall movement status color for an unlinked NPC token.
+   * Get the overall movement status color for a monster token.
    * @returns {number}
    */
   getMovementHighlightColor() {
@@ -303,7 +337,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   }
 
   /**
-   * Draw the segmented circular arc border for an unlinked NPC token.
+   * Draw the segmented circular arc border for a monster token.
    * @param {number} thickness
    */
   _drawSegmentedActionBorder(thickness) {
@@ -349,11 +383,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
     }
   }
 
-  /**
-   * Whether the movement ruler should be hidden because this token is currently
-   * being dragged while pathfinding is enabled.
-   * @returns {boolean}
-   */
+  /** @override */
   shouldHideDragRuler() {
     return Boolean(game.user?.isGM && PathfinderHelper.enabled && (this.isDragged || this._original));
   }
@@ -368,15 +398,15 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
 
   /** @override */
   _canControl(user, event) {
-    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && this.document?.actorLink) {
-      return false;
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly) {
+      return true;
     }
     return super._canControl(user, event);
   }
 
   /** @override */
   _getBorderColor(options) {
-    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly) {
       return this.getMovementHighlightColor();
     }
     return super._getBorderColor(options);
@@ -385,59 +415,12 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   /** @override */
   _refreshBorder() {
     if (!this.border) return;
-    const shape = this.getShape?.();
-    const thickness = CONFIG.Canvas.objectBorderThickness || 4;
-
-    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly) {
+      const thickness = CONFIG.Canvas.objectBorderThickness || 4;
       this._drawSegmentedActionBorder(thickness);
       return;
     }
-
-    if (shape instanceof PIXI.Polygon) {
-      this.border.clear();
-      const borderColor = this._getBorderColor();
-      if (!borderColor) {
-        this.border.visible = false;
-        return;
-      }
-      const color = Number(borderColor);
-      if (this.border.parent === this) {
-        this.border.position.set(0, 0);
-      } else {
-        this.border.position.set(this.x, this.y);
-      }
-      this.border.visible = this.isVisible;
-      this.border.lineStyle(thickness, 0x000000, 0.8).drawPolygon(shape.points);
-      this.border.lineStyle(thickness / 2, color, 1.0).drawPolygon(shape.points);
-    } else {
-      try {
-        super._refreshBorder();
-      } catch (_err) {
-        this.border.clear();
-        const borderColor = this._getBorderColor();
-        if (!borderColor) {
-          this.border.visible = false;
-          return;
-        }
-        const color = Number(borderColor);
-        if (this.border.parent === this) {
-          this.border.position.set(0, 0);
-        } else {
-          this.border.position.set(this.x, this.y);
-        }
-        this.border.visible = this.isVisible;
-        this.border.lineStyle(thickness, 0x000000, 0.8).drawRect(0, 0, this.w, this.h);
-        this.border.lineStyle(thickness / 2, color, 1.0).drawRect(0, 0, this.w, this.h);
-      }
-    }
-
-    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
-      this.border.visible = this.isVisible;
-      if (this.controlled) {
-        this.border.lineStyle(Math.max(2, thickness / 2), 0xffffff, 0.95)
-          .drawRect(-3, -3, this.w + 6, this.h + 6);
-      }
-    }
+    super._refreshBorder();
   }
 
   /** @override */
@@ -446,7 +429,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
     if (this.shouldHideDragRuler() && this.ruler) {
       this.ruler.visible = false;
     }
-    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly) {
       this._refreshBorder();
     }
   }
@@ -466,18 +449,18 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   /** @override */
   _onUpdate(changed, options, userId) {
     super._onUpdate(changed, options, userId);
-    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !this.document?.actorLink) {
+    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly) {
       this.renderFlags.set({ refreshBorder: true });
     }
   }
 
   /** @override */
   _onDragLeftDrop(event) {
-    if (!game.user?.isGM || !PathfinderHelper.enabled || this.document?.actorLink || !canvas?.tokens) {
+    if (!game.user?.isGM || !PathfinderHelper.enabled || !canvas?.tokens) {
       return super._onDragLeftDrop(event);
     }
 
-    const swarmTokens = canvas.tokens.controlled.filter(t => !t.document?.actorLink);
+    const swarmTokens = canvas.tokens.controlled.filter(t => t instanceof MonsterToken);
     if (swarmTokens.length === 0) {
       return super._onDragLeftDrop(event);
     }
@@ -504,24 +487,13 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
   }
 
   /**
-   * Move a swarm of unlinked tokens toward (dropX, dropY), pathfinding around walls
+   * Move a swarm of monster tokens toward (dropX, dropY), pathfinding around walls
    * and other tokens while clamping each token's movement to its remaining speed.
-   * @param {SimpleToken[]} swarmTokens
+   * @param {MonsterToken[]} swarmTokens
    * @param {number} dropX
    * @param {number} dropY
    */
   async _executeSwarmMove(swarmTokens, dropX, dropY) {
     return PathfinderHelper.executeSwarmMove(this, swarmTokens, dropX, dropY);
-  }
-
-  _drawBar(number, bar, data) {
-    if ("min" in data) {
-      // Copy the data to avoid mutating what the caller gave us.
-      data = { ...data };
-      // Shift the value and max by the min to draw the bar percentage accurately for a non-zero min
-      data.value -= data.min;
-      data.max -= data.min;
-    }
-    return super._drawBar(number, bar, data);
   }
 }

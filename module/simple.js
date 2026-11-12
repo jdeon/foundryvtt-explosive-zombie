@@ -13,7 +13,7 @@ import { ChestActorSheet } from "./chest-sheet.js";
 import { RollDialog } from "./roll-dialog.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { createWorldbuildingMacro } from "./macro.js";
-import { SimpleToken, SimpleTokenDocument, SimpleTokenRuler } from "./token.js";
+import { SimpleToken, MonsterToken, SimpleTokenDocument, SimpleTokenRuler } from "./token.js";
 import { PathfinderHelper } from "./pathfinderHelper.js";
 import { INJURY_REASONS } from "./constants.js";
 import { NoiseDiceDialog } from "./noise-dice-dialog.js";
@@ -44,6 +44,7 @@ Hooks.once("init", async function () {
     RollDialog,
     NoiseDiceDialog,
     SimpleToken,
+    MonsterToken,
     PathfinderHelper,
     createWorldbuildingMacro,
     useAction: (count = 1, tokens) => SimpleToken.useActionForSelected(count, tokens),
@@ -272,15 +273,15 @@ Hooks.on("getSceneControlButtons", (controls) => {
  * Refresh NPC movement highlight border when a token moves or an actor's speed changes.
 */
 Hooks.on("moveToken", (tokenDoc) => {
-  if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && !tokenDoc?.actorLink) {
-    tokenDoc.object?.renderFlags?.set({ refreshBorder: true, refreshState: true });
+  if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && tokenDoc?.object instanceof MonsterToken) {
+    tokenDoc.object.renderFlags?.set({ refreshBorder: true, refreshState: true });
   }
 });
 
 Hooks.on("updateActor", (actor) => {
   if (!game.user?.isGM || !SimpleToken.selectUnlinkedOnly || !canvas?.tokens) return;
   for (const token of actor.getActiveTokens()) {
-    if (!token.document?.actorLink) {
+    if (token instanceof MonsterToken) {
       token.renderFlags.set({ refreshBorder: true });
     }
   }

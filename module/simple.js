@@ -50,7 +50,8 @@ Hooks.once("init", async function () {
     MonsterToken,
     PathfinderHelper,
     useAction: (count = 1, tokens) => SimpleToken.useActionForSelected(count, tokens),
-    resetActions: (tokens) => SimpleToken.resetActionsForSelected(tokens)
+    resetActions: (tokens) => SimpleToken.resetActionsForSelected(tokens),
+    spawnZombies: (count = 1, scene) => ZombieActor.spawnZombies(count, scene)
   };
 
   // Define custom Document classes and DataModels
@@ -143,6 +144,13 @@ Hooks.on("canvasReady", (canvas) => {
  */
 Hooks.on("updateScene", (scene, change, options, userId) => {
   NoiseDiceDialog.onUpdateScene(scene, change);
+});
+
+/**
+ * Inject GM-only zombie spawn button onto Noise Dice roll chat messages.
+ */
+Hooks.on("renderChatMessageHTML", (message, html) => {
+  NoiseDiceDialog.onRenderChatMessage(message, html);
 });
 /**
  * Ensure dialog is rendered once the world is ready if canvas is already loaded

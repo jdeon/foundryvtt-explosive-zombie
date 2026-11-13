@@ -1,3 +1,5 @@
+import { ZombieActor } from "./actor.js";
+
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 /**
@@ -152,11 +154,74 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const flavor = game.i18n.localize("noiseDice.title");
     const speaker = ChatMessage.getSpeaker({ scene });
+    const zombieCount = Math.max(0, Number(roll.total) || 0);
 
     return roll.toMessage({
       speaker,
-      flavor
+      flavor,
+      flags: {
+        "explosive-zombie": {
+          noiseRoll: true,
+          zombieCount,
+          spawned: false
+        }
+      }
     });
+  }
+
+  /**
+   * Inject a GM-only "Spawn X Zombies" button onto Noise Dice roll chat cards.
+   * @param {ChatMessage} message
+   * @param {HTMLElement|jQuery} html
+   */
+  static onRenderChatMessage(message, html) {
+    if (!game.user?.isGM) return;
+    if (!message.getFlag("explosive-zombie", "noiseRoll")) return;
+
+    const root = html instanceof HTMLElement ? html : html?.[0];
+    if (!root) return;
+    if (root.querySelector(".noise-spawn-zombies-container")) return;
+
+    const zombieCount = Math.max(0, Number(message.getFlag("explosive-zombie", "zombieCount")) || Number(message.rolls?.[0]?.total) || 0);
+    if (zombieCount <= 0) return;
+
+    const isSpawned = Boolean(message.getFlag("explosive-zombie", "spawned"));
+
+    const container = document.createElement("div");
+    container.className = "noise-spawn-zombies-container";
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `noise-spawn-zombies-btn${isSpawned ? " is-spawned" : ""}`;
+    btn.disabled = isSpawned;
+
+    const icon = document.createElement("i");
+    icon.className = isSpawned ? "fas fa-check" : "fas fa-skull";
+    btn.appendChild(icon);
+
+    const span = document.createElement("span");
+    span.textContent = isSpawned
+      ? game.i18n.format("noiseDice.spawnedButton", { count: zombieCount })
+      : game.i18n.format("noiseDice.spawnButton", { count: zombieCount });
+    btn.appendChild(span);
+
+    if (!isSpawned) {
+      btn.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        btn.disabled = true;
+        const created = await ZombieActor.spawnZombies(zombieCount, canvas?.scene);
+        if (created.length > 0) {
+          await message.setFlag("explosive-zombie", "spawned", true);
+        } else {
+          btn.disabled = false;
+        }
+      });
+    }
+
+    container.appendChild(btn);
+
+    const messageContent = root.querySelector(".message-content") || root;
+    messageContent.appendChild(container);
   }
 
   /**

@@ -1,3 +1,5 @@
+import { PathfinderHelper } from "./pathfinderHelper.js";
+
 const { renderTemplate } = foundry.applications.handlebars;
 
 /**
@@ -424,6 +426,99 @@ export class ZombieActor extends SimpleActor {
             speaker: ChatMessage.getSpeaker({ actor: this }),
             flavor
         });
+    }
+
+    /**
+     * Find or create the default world "Zombie" Actor used for noise spawning.
+     * Prefers a "zombie" Actor named after the localized type name (or "Zombie"),
+     * then falls back to any existing "zombie" Actor in the world or compendiums,
+     * or creates a default prototype Zombie Actor.
+     * @returns {Promise<ZombieActor|null>}
+     */
+    static async getOrCreateZombiePrototype() {
+        const defaultZombieName = "Zombie basique";
+
+        let zombieActor = game.actors.find(a =>
+            a.type === "zombie" &&
+            (a.name.toLowerCase() === defaultZombieName.toLowerCase() || a.name.toLowerCase() === "zombie")
+        ) || game.actors.find(a => a.type === "zombie");
+
+        if (!zombieActor) {
+            let zombieActorData = null;
+            try {
+                for (const pack of game.packs) {
+                    if (pack.metadata.type !== "Actor") continue;
+                    const index = await pack.getIndex({ fields: ["type", "name"] });
+                    const entry = index.find(e =>
+                        e.type === "zombie" &&
+                        (e.name.toLowerCase() === defaultZombieName.toLowerCase() || e.name.toLowerCase() === "zombie")
+                    ) || index.find(e => e.type === "zombie");
+                    if (entry) {
+                        const doc = await pack.getDocument(entry._id);
+                        if (doc) {
+                            zombieActorData = doc.toObject();
+                            break;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn("Failed to check compendium packs for zombie prototype:", e);
+            }
+
+            if (!zombieActorData) {
+                zombieActorData = {
+                    name: defaultZombieName,
+                    type: "zombie",
+                    img: "icons/svg/skull.svg",
+                    prototypeToken: {
+                        actorLink: false,
+                        disposition: CONST.TOKEN_DISPOSITIONS?.HOSTILE ?? -1
+                    }
+                };
+            } else {
+                delete zombieActorData._id;
+            }
+
+            zombieActor = await Actor.create(zombieActorData);
+        }
+
+        return zombieActor;
+    }
+
+    /**
+     * Spawn `count` zombie tokens on the active scene in the closest reachable grid cells
+     * to the players that are outside of all player tokens' vision.
+     * @param {number} count
+     * @param {Scene} [scene]
+     * @returns {Promise<TokenDocument[]>}
+     */
+    static async spawnZombies(count, scene = canvas?.scene) {
+        if (!game.user?.isGM) return [];
+        const total = Math.max(0, Math.round(Number(count) || 0));
+        if (total <= 0 || !scene) return [];
+
+        const zombieActor = await this.getOrCreateZombiePrototype();
+        if (!zombieActor) return [];
+
+        const spawnCells = PathfinderHelper.findZombieSpawnCells(total);
+        if (spawnCells.length === 0) {
+            ui.notifications.warn(game.i18n.localize("noiseDice.noSpawnCellFound"));
+            return [];
+        }
+
+        const tokenDocsData = [];
+        for (const cell of spawnCells) {
+            const tokenDoc = await zombieActor.getTokenDocument({
+                x: cell.x,
+                y: cell.y,
+                actorLink: false
+            });
+            tokenDocsData.push(tokenDoc.toObject());
+        }
+
+        const created = await scene.createEmbeddedDocuments("Token", tokenDocsData);
+        ui.notifications.info(game.i18n.format("noiseDice.spawnedNotification", { count: created.length }));
+        return created;
     }
 }
 

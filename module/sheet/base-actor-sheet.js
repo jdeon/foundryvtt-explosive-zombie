@@ -66,6 +66,19 @@ export class BaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /* -------------------------------------------- */
 
   /** @override */
+  async _preparePartContext(partId, context, options) {
+    context = await super._preparePartContext(partId, context, options);
+    if (context.tabs && partId in context.tabs) {
+      context.tab = context.tabs[partId];
+    } else if (partId === "sheet" && !this.constructor.TABS) {
+      context.tab = { cssClass: "active" };
+    }
+    return context;
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
   _onRender(context, options) {
     super._onRender(context, options);
 
@@ -77,6 +90,8 @@ export class BaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         const tab = ev.currentTarget.dataset.tab;
         if (tab) this.changeTab(tab, "primary");
       });
+    } else if (!game.user?.isGM) {
+      html.find('.tab[data-tab="sheet"]').addClass("active");
     }
 
     if (!this.isEditable) return;

@@ -4,7 +4,7 @@
  */
 
 // Import Modules
-import { CharacterActor } from "./actor.js";
+import { SimpleActor, CharacterActor, ZombieActor, ChestActor } from "./actor.js";
 import { SimpleItem } from "./item.js";
 import { SimpleItemSheet } from "./item-sheet.js";
 import { CharacterActorSheet } from "./actor-sheet.js";
@@ -37,7 +37,10 @@ Hooks.once("init", async function () {
   };
 
   game.explosiveZombie = {
+    SimpleActor,
     CharacterActor,
+    ZombieActor,
+    ChestActor,
     ZombieActorSheet,
     ChestActorSheet,
     RollDialog,
@@ -50,7 +53,7 @@ Hooks.once("init", async function () {
   };
 
   // Define custom Document classes
-  CONFIG.Actor.documentClass = CharacterActor;
+  CONFIG.Actor.documentClass = SimpleActor;
   CONFIG.Item.documentClass = SimpleItem;
   CONFIG.Token.documentClass = SimpleTokenDocument;
   CONFIG.Token.objectClass = SimpleToken;

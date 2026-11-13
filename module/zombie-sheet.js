@@ -113,36 +113,7 @@ export class ZombieActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
    */
   async _onZombieRoll(event) {
     event.preventDefault();
-
-    const diceNumber = Math.max(1, Number(this.actor.system?.diceNumber || 1));
-    const threshold = Math.max(1, Number(this.actor.system?.thresholdDice || 4));
-
-    const roll = new Roll(`${diceNumber}d6`);
-    await roll.evaluate();
-
-    let successCount = 0;
-    for (const term of roll.terms) {
-      if (term.results) {
-        for (const r of term.results) {
-          if (r.result >= threshold) successCount++;
-        }
-      }
-    }
-
-    const flavorTitle = game.i18n.localize("zombieSheet.rollFlavorTitle");
-    const diceRolledLabel = game.i18n.localize("zombieSheet.diceRolledLabel");
-    const thresholdLabel = game.i18n.localize("zombieSheet.thresholdLabel");
-    const successesLabel = game.i18n.localize("zombieSheet.successesLabel");
-
-    const flavor = `<h3>${this.actor.name} - ${flavorTitle}</h3>` +
-      `<p><strong>${diceRolledLabel}</strong> ${diceNumber}d6 | <strong>${thresholdLabel}</strong> ${threshold}+</p>` +
-      `<p><strong>${successesLabel}</strong> ${successCount}</p>`;
-
-    return roll.toMessage({
-      user: game.user.id,
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: flavor
-    });
+    return this.actor.rollAction();
   }
 
   /* -------------------------------------------- */

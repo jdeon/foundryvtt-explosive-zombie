@@ -203,8 +203,7 @@ export class MonsterToken extends SimpleToken {
    * @returns {number}
    */
   getActorSpeed() {
-    const rawSpeed = this.actor?.system?.speed ?? this.actor?.system?.stats?.speed ?? 0;
-    return Number(rawSpeed) || 0;
+    return this.actor.speed;
   }
 
   /**
@@ -212,9 +211,7 @@ export class MonsterToken extends SimpleToken {
    * @returns {number}
    */
   getActorActionNumber() {
-    const rawActionNumber = this.actor?.system?.actionNumber ?? this.actor?.system?.stats?.actionNumber ?? 1;
-    const parsed = Number(rawActionNumber);
-    return Number.isFinite(parsed) ? parsed : 1;
+    this.actor.actionNumber;
   }
 
   /**

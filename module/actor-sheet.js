@@ -242,22 +242,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
   async _onArmorBoxClick(event) {
     event.preventDefault();
     const index = Number(event.currentTarget.dataset.armorIndex);
-    if (isNaN(index)) return;
-
-    const armors = Array.from(this.actor.system.armors || []);
-    const currentState = armors[index] || "";
-
-    let nextState = "";
-    if (!currentState || currentState === "unequipped") {
-      nextState = "equipped";
-    } else if (currentState === "equipped") {
-      nextState = "broken";
-    } else { // "broken", "break", "true", etc.
-      nextState = "";
-    }
-
-    armors[index] = nextState;
-    return this.actor.update({ "system.armors": armors });
+    return this.actor.cycleArmorState(index);
   }
 
   /* -------------------------------------------- */
@@ -289,15 +274,12 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     event.preventDefault();
     const button = event.currentTarget;
     const action = button.dataset.action;
-    const skills = Array.from(this.actor.system.skills || []);
 
     if (action === "add") {
-      skills.push({ label: `Compétence ${skills.length + 1}`, val: 2 });
+      return this.actor.addSkill();
     } else if (action === "delete") {
-      const index = Number(button.dataset.index);
-      if (!isNaN(index)) skills.splice(index, 1);
+      return this.actor.deleteSkill(Number(button.dataset.index));
     }
-    return this.actor.update({ "system.skills": skills });
   }
 
   /**
@@ -307,18 +289,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
    */
   async _onHealthControl(event) {
     event.preventDefault();
-    const healthPointsLenght = event.currentTarget.valueAsNumber;
-    const health = Array.from(this.actor.system.healthPoints || []);
-
-    while (healthPointsLenght > health.length) {
-      health.push("");
-    }
-
-    while (healthPointsLenght < health.length) {
-      health.pop();
-    }
-
-    return this.actor.update({ "system.healthPoints": health });
+    return this.actor.setHealthBoxCount(event.currentTarget.valueAsNumber);
   }
 
   /**
@@ -328,17 +299,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
    */
   async _onArmorControl(event) {
     event.preventDefault();
-    const armorsLenght = event.currentTarget.valueAsNumber;
-    const armors = Array.from(this.actor.system.armors || []);
-
-    while (armorsLenght > armors.length) {
-      armors.push("");
-    }
-
-    while (armorsLenght < armors.length) {
-      armors.pop();
-    }
-    return this.actor.update({ "system.armors": armors });
+    return this.actor.setArmorBoxCount(event.currentTarget.valueAsNumber);
   }
 
   /* -------------------------------------------- */
@@ -366,61 +327,8 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
       case "delete":
         return item.delete();
       case "sync":
-        return this._onSyncInventory();
+        return this.actor.syncInventory();
     }
-  }
-
-  /**
-   * Synchronize the actor's inventory grid with actor.items.
-   * Removes any inventory slot entry that references an item ID not present in actor.items,
-   * and updates system.slotType on existing item documents.
-   * @private
-   */
-  async _onSyncInventory() {
-    const inventory = foundry.utils.duplicate(this.actor.system.inventory || {});
-    const existingItemIds = new Set(this.actor.items.keys());
-
-    // 1. Filter out slot entries referencing missing item IDs across all inventory sections
-    for (const [sectionName, section] of Object.entries(inventory)) {
-      if (!section || typeof section !== "object") continue;
-
-      if (Array.isArray(section.contain)) {
-        section.contain = section.contain.filter(slot => slot && slot.item && existingItemIds.has(slot.item));
-      }
-
-      if (Array.isArray(section.freeSpace)) {
-        section.freeSpace = section.freeSpace.filter(slot => slot && slot.item && existingItemIds.has(slot.item));
-      }
-    }
-
-    // 2. Update actor's inventory state
-    await this.actor.update({ "system.inventory": inventory });
-
-    // 3. Ensure item system.slotType properties match the current inventory layout
-    const itemUpdates = [];
-    for (const item of this.actor.items) {
-      let currentSlot = "";
-      if (inventory.equipped?.contain?.some(s => s.item === item.id)) {
-        currentSlot = "equipped";
-      } else if (inventory.belt?.contain?.some(s => s.item === item.id)) {
-        currentSlot = "belt";
-      } else if (
-        inventory.backpack?.contain?.some(s => s.item === item.id) ||
-        inventory.backpack?.freeSpace?.some(s => s.item === item.id)
-      ) {
-        currentSlot = "backpack";
-      }
-
-      if (item.system.slotType !== currentSlot) {
-        itemUpdates.push({ _id: item.id, "system.slotType": currentSlot });
-      }
-    }
-
-    if (itemUpdates.length > 0) {
-      await this.actor.updateEmbeddedDocuments("Item", itemUpdates);
-    }
-
-    ui.notifications.info(game.i18n.localize("notifications.inventorySynced"));
   }
 
   /**
@@ -530,7 +438,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
       ev.stopPropagation();
       const itemId = ev.currentTarget.dataset.itemId;
       if (itemId) {
-        await this._removeItemFromInventory(itemId, "backpack");
+        await this.actor.removeItemFromInventory(itemId, "backpack");
       }
     });
   }
@@ -585,11 +493,11 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
    * @param {Event} event
    * @param {Object} data
    * @param {string} section  "belt", "backpack", or "equipped"
-   * @param {number|null} targetIndex
+   * @param {number|null} _targetIndex
    * @returns {Promise<boolean>} If the drop was successful
    * @private
    */
-  async _onDropItemToInventory(event, data, section, targetIndex) {
+  async _onDropItemToInventory(event, data, section, _targetIndex) {
     let droppedItem;
     try {
       droppedItem = await Item.fromDropData(data);
@@ -597,52 +505,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
       console.error(err);
       return false;
     }
-    if (!droppedItem) return false;
-
-    // Check if the item is already owned by this actor
-    let item;
-    let isNewItem = false;
-    if (droppedItem.parent === this.actor || this.actor.items.has(droppedItem.id)) {
-      item = droppedItem;
-      await item.update({ "system.slotType": section });
-    } else {
-      // Add item to generic actor.items with slotType property set
-      const itemData = droppedItem.toObject();
-      foundry.utils.setProperty(itemData, "system.slotType", section);
-      const createdItems = await this.actor.createEmbeddedDocuments("Item", [itemData]);
-      item = createdItems[0];
-      isNewItem = true;
-    }
-    if (!item) return false;
-
-    const itemName = item.name;
-    const inventory = foundry.utils.duplicate(this.actor.system.inventory || {});
-    const targetContainer = inventory[section];
-    if (!targetContainer || !Array.isArray(targetContainer.contain)) {
-      if (isNewItem) await item.delete();
-      return false;
-    }
-
-    const requiredSlots = Number(item.system?.requiredSlots ?? 1);
-
-    if (targetContainer.size < targetContainer.contain.length + requiredSlots && targetContainer.contain.length > 0) {
-      ui.notifications.error(game.i18n.localize("notifications.errorInventoryFull"));
-      if (isNewItem) await item.delete();
-      return false;
-    }
-
-    if (requiredSlots > 1) {
-      for (let i = 1; i <= requiredSlots; i++) {
-        targetContainer.contain.push({ title: `${itemName} (${i}/${requiredSlots})`, item: item.id });
-      }
-    } else if (requiredSlots === 0 && Array.isArray(targetContainer.freeSpace)) {
-      targetContainer.freeSpace.push({ title: itemName, item: item.id });
-    } else {
-      targetContainer.contain.push({ title: itemName, item: item.id });
-    }
-
-    await this.actor.update({ "system.inventory": inventory });
-    return true;
+    return this.actor.addItemToInventory(droppedItem, section);
   }
 
   /**
@@ -650,24 +513,14 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
    * @param {Event} event
    * @param {Object} data
    * @param {string} targetSection
-   * @param {number|null} targetIndex
+   * @param {number|null} _targetIndex
    * @returns {Promise<boolean>} if the move was successful
    * @private
    */
-  async _onDropInventorySlot(event, data, targetSection, targetIndex) {
-    const { fromSection, fromIndex, itemName } = data;
+  async _onDropInventorySlot(event, data, targetSection, _targetIndex) {
+    const { fromSection, fromIndex } = data;
     const itemId = data.itemId || data.item || this.actor.system.inventory[fromSection]?.contain?.[fromIndex]?.item;
-    if (!fromSection || fromIndex === undefined || !itemName || !itemId) return false;
-    if (fromSection === targetSection) return false;
-
-    const item = this.actor.items.get(itemId);
-    const itemData = item ? { type: "Item", uuid: item.uuid } : { type: "Item", uuid: `Item.${itemId}` };
-
-    const successful = await this._onDropItemToInventory(event, itemData, targetSection, targetIndex);
-    if (!successful) return false;
-
-    await this._removeItemFromInventory(itemId, fromSection);
-    return true;
+    return this.actor.moveInventoryItem(fromSection, targetSection, itemId);
   }
 
   /**
@@ -682,16 +535,12 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     const index = Number(el.dataset.slotIndex);
     if (!section || isNaN(index)) return;
 
-    const inventory = foundry.utils.duplicate(this.actor.system.inventory || {});
-    const container = inventory[section];
-    if (!container || !Array.isArray(container.contain)) return;
-
-    const itemId = container.contain[index]?.item;
+    const container = this.actor.system.inventory?.[section];
+    const itemId = container?.contain?.[index]?.item;
     if (!itemId) return;
 
     const item = this.actor.items.get(itemId);
-    const itemData = item ? item.toObject() : null;
-    const itemName = itemData ? itemData.name : (item ? item.name : "");
+    const itemName = item?.name || "";
 
     const title = game.i18n.localize("itemSheet.delete");
     const content = itemName
@@ -708,168 +557,6 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
 
     if (!confirmed) return;
 
-    await this._removeItemFromInventory(itemId, section);
-
-    if (itemData) {
-      await this.chatMessageDeletedItem(itemData);
-      await this._generateLootActor(itemData);
-    }
-  }
-
-  async chatMessageDeletedItem(itemData) {
-    const img = itemData.img || itemData.system?.imageUrl || "icons/svg/item-bag.svg";
-    const name = itemData.name || game.i18n.localize("itemSheet.new");
-    const description = itemData.system?.description || "";
-    const noticeText = game.i18n.format("notifications.itemRemovedNotice", { name }) || `Objet "${name}" retiré de l'inventaire.`;
-
-    const chatContent = `
-        <div class="explosive-zombie chat-card item-card">
-          <header class="card-header flexrow" style="display: flex; align-items: center; gap: 8px;">
-            <img src="${img}" title="${name}" width="36" height="36" style="border: 0; object-fit: contain;"/>
-            <h3 class="item-name" style="margin: 0;">${name}</h3>
-          </header>
-          <div class="card-content" style="margin-top: 8px;">
-            <p style="margin: 0; font-style: italic;">${noticeText}</p>
-            ${description ? `<div style="margin-top: 6px;">${description}</div>` : ""}
-          </div>
-        </div>
-      `;
-
-    await ChatMessage.create({
-      user: game.user.id,
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      content: chatContent
-    });
-  }
-
-  async _generateLootActor(itemData) {
-    const defaultLootName = game.i18n.localize("chestSheet.lootName");
-
-    // Check if a loot chest actor already exists in the world
-    let lootEntryActor = game.actors.find(a => a.type === "chest" && (a.name.toLowerCase() === defaultLootName.toLowerCase() || a.name.toLowerCase() === "butin"));
-
-    // If it does not exist, load template from compendium or create fallback
-    if (!lootEntryActor) {
-      let lootEntryActorData = null;
-      try {
-        for (const pack of game.packs) {
-          if (pack.metadata.type !== "Actor") continue;
-          const index = await pack.getIndex({ fields: ["type", "name"] });
-          const lootEntry = index.find(e => e.type === "chest" && (e.name.toLowerCase() === defaultLootName.toLowerCase() || e.name.toLowerCase() === "butin"));
-          if (lootEntry) {
-            const doc = await pack.getDocument(lootEntry._id);
-            if (doc) {
-              lootEntryActorData = doc.toObject();
-              break;
-            }
-          }
-        }
-      } catch (e) {
-        console.warn("Failed to check compendium packs for chest prototype:", e);
-      }
-
-      //If lootEntryActorData does not exist in compendium pack, create a new chest actor
-      if (!lootEntryActorData) {
-        lootEntryActorData = {
-          name: defaultLootName,
-          type: "chest",
-          img: "icons/svg/chest.svg",
-          system: {
-            foodRations: 0,
-            fuel: 0,
-            notes: ''
-          }
-        };
-      } else {
-        delete lootEntryActorData._id;
-        lootEntryActorData.name = defaultLootName;
-      }
-
-      lootEntryActor = await Actor.create(lootEntryActorData);
-    }
-
-    if (!lootEntryActor) return;
-
-    let targetActor = null;
-
-    // Check canvas scene for existing chest token on same cell or neighbor cell
-    if (canvas?.scene) {
-      const activeTokens = this.actor.getActiveTokens();
-      const sourceToken = activeTokens[0] || (canvas.tokens?.placeables ? canvas.tokens.placeables.find(t => t.actor?.id === this.actor.id) : null);
-      if (sourceToken) {
-        const gridSize = canvas.grid.size || 100;
-        // Find existing chest token on same cell or direct neighbor cell (<= 1.5 grid spaces away)
-        const nearbyChestToken = canvas.tokens.placeables.find(t => {
-          if (t.actor?.type !== "chest") return false;
-          const dx = Math.abs(sourceToken.x - t.x);
-          const dy = Math.abs(sourceToken.y - t.y);
-          return dx <= (gridSize * 1.5) && dy <= (gridSize * 1.5);
-        });
-
-        if (nearbyChestToken?.actor) {
-          targetActor = nearbyChestToken.actor;
-        } else {
-          // Create a new chest token at sourceToken coordinates
-          const tokenData = await lootEntryActor.getTokenDocument({
-            x: sourceToken.document?.x ?? sourceToken.x,
-            y: sourceToken.document?.y ?? sourceToken.y,
-            elevation: sourceToken.document?.elevation ?? 0
-          });
-          const createdTokenDocs = await canvas.scene.createEmbeddedDocuments("Token", [tokenData.toObject()]);
-          const createdTokenDoc = createdTokenDocs[0];
-          if (createdTokenDoc?.actor) {
-            targetActor = createdTokenDoc.actor;
-          }
-        }
-      }
-    }
-
-    if (!targetActor) {
-      targetActor = lootEntryActor;
-    }
-
-    // Stock the item in the target token's synthetic actor
-    if (targetActor && itemData) {
-      const newItemData = foundry.utils.duplicate(itemData);
-      delete newItemData._id;
-      await Item.create(newItemData, { parent: targetActor });
-    }
-  }
-
-  /**
-   * Remove an item from the inventory
-   * @param {string} itemId
-   * @param {string} section
-   * @returns {Promise<boolean>} if the item was removed
-   * @private
-   */
-  async _removeItemFromInventory(itemId, section) {
-    const inventory = foundry.utils.duplicate(this.actor.system.inventory || {});
-    const container = inventory[section];
-    if (!itemId || !container || !Array.isArray(container.contain)) return false;
-
-    if (container.contain.some(slot => slot.item === itemId)) {
-      inventory[section].contain = container.contain.filter(el => el.item !== itemId);
-    } else if (Array.isArray(container.freeSpace) && container.freeSpace.some(slot => slot.item === itemId)) {
-      inventory[section].freeSpace = container.freeSpace.filter(slot => slot.item !== itemId);
-    } else {
-      return false;
-    }
-
-    await this.actor.update({ "system.inventory": inventory });
-
-    // Clear item's system.slotType if it is no longer in any inventory container
-    const item = this.actor.items.get(itemId);
-    if (item) {
-      const stillInInventory = Object.values(inventory).some(cont =>
-        cont?.contain?.some(slot => slot.item === itemId) ||
-        cont?.freeSpace?.some(slot => slot.item === itemId)
-      );
-      if (!stillInInventory) {
-        await item.delete();
-      }
-    }
-
-    return true;
+    await this.actor.dropItemAsLoot(itemId, section);
   }
 }

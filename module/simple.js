@@ -7,10 +7,10 @@
 import { SimpleActor, CharacterActor, ZombieActor, ChestActor } from "./actor.js";
 import { CharacterData, ZombieData, ChestData, SimpleItemData } from "./data-models.js";
 import { SimpleItem } from "./item.js";
-import { SimpleItemSheet } from "./item-sheet.js";
-import { CharacterActorSheet } from "./actor-sheet.js";
-import { ZombieActorSheet } from "./zombie-sheet.js";
-import { ChestActorSheet } from "./chest-sheet.js";
+import { SimpleItemSheet } from "./sheet/item-sheet.js";
+import { CharacterActorSheet } from "./sheet/actor-sheet.js";
+import { ZombieActorSheet } from "./sheet/zombie-sheet.js";
+import { ChestActorSheet } from "./sheet/chest-sheet.js";
 import { RollDialog } from "./roll-dialog.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
 import { SimpleToken, MonsterToken, SimpleTokenDocument, SimpleTokenRuler } from "./token.js";

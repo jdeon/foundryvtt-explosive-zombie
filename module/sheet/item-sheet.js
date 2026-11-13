@@ -1,9 +1,11 @@
-import { EntitySheetHelper } from "./helper.js";
-import { ATTRIBUTE_TYPES, STAT_MAPPING } from "./constants.js";
-import { RollDialog } from "./roll-dialog.js";
+import { EntitySheetHelper } from "../helper.js";
+import { STAT_MAPPING } from "../constants.js";
+import { RollDialog } from "../roll-dialog.js";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
-const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
+const { renderTemplate } = foundry.applications.handlebars;
+const { TextEditor } = foundry.applications.ux;
 
 /**
  * Extend the basic ItemSheetV2 with custom tabbed sheet layout and effect management
@@ -32,8 +34,7 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     primary: {
       tabs: [
         { id: 'sheet', group: 'primary', label: 'common.tabSheet' },
-        { id: 'edit', group: 'primary', label: 'common.tabEdit' },
-        { id: 'attributes', group: 'primary', label: 'common.tabAttributes' }
+        { id: 'edit', group: 'primary', label: 'common.tabEdit' }
       ],
       initial: 'sheet'
     }
@@ -50,10 +51,6 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     },
     edit: {
       template: "systems/explosive-zombie/templates/parts/item-tab-edit.html",
-      scrollable: [""]
-    },
-    attributes: {
-      template: "systems/explosive-zombie/templates/parts/item-tab-attributes.html",
       scrollable: [""]
     }
   };
@@ -86,17 +83,10 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.data = this.document.toObject(false);
     context.system = context.data.system;
     context.systemData = context.data.system;
-    context.dtypes = ATTRIBUTE_TYPES;
-
-    EntitySheetHelper.getAttributeData(context);
-
-    // Ensure array defaults exist safely
-    if (!context.system.activeEffects) context.system.activeEffects = [];
-    if (!context.system.passiveEffects) context.system.passiveEffects = [];
 
     context.imageUrl = context.system.imageUrl || context.data.img || "icons/svg/item-bag.svg";
 
-    context.descriptionHTML = await TextEditor.enrichHTML(context.system.description || "", {
+    context.descriptionHTML = await TextEditor.implementation.enrichHTML(context.system.description || "", {
       secrets: this.document.isOwner,
       async: true
     });
@@ -133,20 +123,6 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
     // Effect management in Classic Form
     html.find('.effect-control').click(this._onEffectControl.bind(this));
-
-    // Attribute Management
-    html.find(".attributes").on("click", ".attribute-control", EntitySheetHelper.onClickAttributeControl.bind(this));
-    html.find(".groups").on("click", ".group-control", EntitySheetHelper.onClickAttributeGroupControl.bind(this));
-    html.find(".attributes").on("click", "a.attribute-roll", EntitySheetHelper.onAttributeRoll.bind(this));
-
-    // Add draggable for Macro creation
-    html.find(".attributes a.attribute-roll").each((i, a) => {
-      a.setAttribute("draggable", true);
-      a.addEventListener("dragstart", ev => {
-        let dragData = ev.currentTarget.dataset;
-        ev.dataTransfer.setData('text/plain', JSON.stringify(dragData));
-      }, false);
-    });
   }
 
   /**
@@ -155,20 +131,14 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
    * @returns {Promise<number|null>}
    */
   static async askVariableAmmo(availableAmmo) {
+    const content = await renderTemplate(
+      "systems/explosive-zombie/templates/parts/variable-ammo-dialog.html",
+      { availableAmmo }
+    );
     return new Promise((resolve) => {
-      new foundry.applications.api.DialogV2({
+      new DialogV2({
         window: { title: game.i18n.localize("itemSheet.variableAmmoTitle") },
-        content: `
-          <form style="margin-bottom: 10px;">
-            <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 6px;">
-              <label style="flex: 1; font-weight: bold;">${game.i18n.localize("itemSheet.variableAmmoCostLabel")}</label>
-              <input type="number" id="x-ammo-input" value="1" min="1" max="${availableAmmo}" style="width: 60px; text-align: center;" />
-            </div>
-            <div style="font-size: 0.85em; color: #666; text-align: right;">
-              ${game.i18n.format("itemSheet.variableAmmoAvailableLabel")} <strong>${availableAmmo}</strong>
-            </div>
-          </form>
-        `,
+        content,
         buttons: [
           {
             action: "confirm",
@@ -280,7 +250,7 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       formula = formula.replace(regex, String(val));
     }
 
-    // Try evaluating with Foundry's Roll engine if deterministic
+    // Evaluate deterministic formula using Foundry's Roll engine
     try {
       const roll = new Roll(formula);
       if (roll.isDeterministic) {
@@ -289,19 +259,7 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         if (!isNaN(total)) return Math.round(total);
       }
     } catch (e) {
-      // Fall through to safe Function eval if roll parsing fails
-    }
-
-    // Safe arithmetic fallback for expressions containing only numbers, operators, and parentheses
-    if (/^[0-9+\-*/().\s]+$/.test(formula)) {
-      try {
-        const result = Function(`"use strict"; return (${formula})`)();
-        if (typeof result === "number" && !isNaN(result)) {
-          return Math.round(result);
-        }
-      } catch (e) {
-        console.warn(`SimpleItemSheet | Error evaluating stat expression "${formula}":`, e);
-      }
+      console.warn(`SimpleItemSheet | Error evaluating stat expression "${formula}":`, e);
     }
 
     const parsed = parseInt(formula);
@@ -320,8 +278,6 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
    */
   static async #onSubmitForm(event, form, formData) {
     let submitData = formData.object;
-    submitData = EntitySheetHelper.updateAttributes(submitData, this.document);
-    submitData = EntitySheetHelper.updateGroups(submitData, this.document);
     submitData = EntitySheetHelper.updateArrays(submitData, [
       "system.activeEffects",
       "system.passiveEffects"
@@ -403,19 +359,11 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       capacity: capacity
     });
 
-    const chatContent = `
-      <div class="explosive-zombie chat-card item-card">
-        <header class="card-header flexrow" style="display: flex; align-items: center; gap: 8px;">
-          <img src="${img}" title="${name}" width="36" height="36" style="border: 0; object-fit: contain;"/>
-          <h3 class="item-name" style="margin: 0;">${name}</h3>
-        </header>
-        <div class="card-content" style="margin-top: 8px;">
-          <p style="margin: 0; font-weight: bold; color: #27ae60;">
-            <i class="fa-solid fa-boxes-stacked"></i> ${reloadText}
-          </p>
-        </div>
-      </div>
-    `;
+    const chatContent = await renderTemplate("systems/explosive-zombie/templates/parts/item-chat-card.html", {
+      img,
+      name,
+      reloadText
+    });
 
     const speaker = ChatMessage.getSpeaker({ actor: this.item.actor || canvas.tokens?.controlled[0]?.actor || game.user?.character });
 
@@ -426,3 +374,4 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     });
   }
 }
+

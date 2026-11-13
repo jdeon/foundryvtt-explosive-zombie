@@ -1,0 +1,24 @@
+<form style="margin-bottom: 10px;">
+  {{#if showAmmo}}
+  <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.05); padding: 6px 8px; border-radius: 4px; font-size: 0.9em;">
+    <i class="fa-solid fa-boxes-stacked" style="color: #555;"></i>
+    <label style="flex: 1; font-weight: bold;">{{localize "rollDialog.ammoCost"}}</label>
+    <span style="font-weight: bold; color: {{#if isEnoughAmmo}}#27ae60{{else}}#c0392b{{/if}};">
+      {{ammoCost}} {{loadedText}}
+    </span>
+  </div>
+  {{/if}}
+  <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 4px;">
+    <label style="flex: 1; font-weight: bold;">{{localize "rollDialog.diceCount"}}</label>
+    <button type="button" class="spin-btn" data-action="decrease" data-target="#dice-count" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-minus"></i></button>
+    <input type="number" id="dice-count" name="diceCount" value="{{diceNumber}}" style="width: 50px; text-align: center;" />
+    <button type="button" class="spin-btn" data-action="increase" data-target="#dice-count" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-plus"></i></button>
+  </div>
+  <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 4px;">
+    <label style="flex: 1; font-weight: bold;">{{localize "rollDialog.threshold"}}</label>
+    <button type="button" class="spin-btn" data-action="decrease" data-target="#threshold" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-minus"></i></button>
+    <input type="number" id="threshold" name="threshold" value="{{threshold}}" style="width: 50px; text-align: center;" />
+    <button type="button" class="spin-btn" data-action="increase" data-target="#threshold" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-plus"></i></button>
+  </div>
+</form>
+

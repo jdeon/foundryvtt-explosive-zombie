@@ -1,5 +1,3 @@
-export const ATTRIBUTE_TYPES = ["String", "Number", "Boolean", "Formula", "Resource"];
-
 export const STAT_MAPPING = {
   AGI: "agility",
   MEN: "mental",

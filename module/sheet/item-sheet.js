@@ -96,6 +96,17 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   /* -------------------------------------------- */
 
   /** @override */
+  async _preparePartContext(partId, context, options) {
+    context = await super._preparePartContext(partId, context, options);
+    if (context.tabs && partId in context.tabs) {
+      context.tab = context.tabs[partId];
+    }
+    return context;
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
   _onRender(context, options) {
     super._onRender(context, options);
 
@@ -111,6 +122,8 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         const tab = ev.currentTarget.dataset.tab;
         if (tab) this.changeTab(tab, "primary");
       });
+    } else {
+      html.find('.tab[data-tab="sheet"]').addClass("active");
     }
 
     // Everything below here is only needed if the sheet is editable

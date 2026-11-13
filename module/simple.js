@@ -154,24 +154,24 @@ Hooks.once("ready", () => {
 });
 
 /**
- * Add a toggle in the Token scene controls to restrict selection to unlinked tokens (NPCs).
+ * Add a toggle in the Token scene controls to restrict selection to monster tokens (Zombies).
  */
 Hooks.on("getSceneControlButtons", (controls) => {
   if (!game.user?.isGM) return;
 
   const orderIndex = Object.keys(controls.tokens.tools).length;
 
-  controls.tokens.tools.selectUnlinkedOnly = {
-    name: "selectUnlinkedOnly",
-    title: game.i18n.localize("tokenControls.selectUnlinkedOnly"),
+  controls.tokens.tools.selectMonstersOnly = {
+    name: "selectMonstersOnly",
+    title: game.i18n.localize("tokenControls.selectMonstersOnly"),
     icon: "fas fa-skull",
     toggle: true,
-    active: SimpleToken.selectUnlinkedOnly,
+    active: SimpleToken.selectMonstersOnly,
     visible: Boolean(game.user?.isGM),
     order: orderIndex,
     onChange: (event, active) => {
       const isActive = typeof active === "boolean" ? active : Boolean(event);
-      SimpleToken.setSelectUnlinkedOnly(isActive);
+      SimpleToken.setSelectMonstersOnly(isActive);
     }
   };
 
@@ -191,16 +191,16 @@ Hooks.on("getSceneControlButtons", (controls) => {
 });
 
 /**
- * Refresh NPC movement highlight border when a token moves or an actor's speed changes.
+ * Refresh monster movement highlight border when a token moves or an actor's speed changes.
 */
 Hooks.on("moveToken", (tokenDoc) => {
-  if (game.user?.isGM && SimpleToken.selectUnlinkedOnly && tokenDoc?.object instanceof MonsterToken) {
+  if (game.user?.isGM && SimpleToken.selectMonstersOnly && tokenDoc?.object instanceof MonsterToken) {
     tokenDoc.object.renderFlags?.set({ refreshBorder: true, refreshState: true });
   }
 });
 
 Hooks.on("updateActor", (actor) => {
-  if (!game.user?.isGM || !SimpleToken.selectUnlinkedOnly || !canvas?.tokens) return;
+  if (!game.user?.isGM || !SimpleToken.selectMonstersOnly || !canvas?.tokens) return;
   for (const token of actor.getActiveTokens()) {
     if (token instanceof MonsterToken) {
       token.renderFlags.set({ refreshBorder: true });

@@ -250,7 +250,7 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       formula = formula.replace(regex, String(val));
     }
 
-    // Try evaluating with Foundry's Roll engine if deterministic
+    // Evaluate deterministic formula using Foundry's Roll engine
     try {
       const roll = new Roll(formula);
       if (roll.isDeterministic) {
@@ -259,19 +259,7 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         if (!isNaN(total)) return Math.round(total);
       }
     } catch (e) {
-      // Fall through to safe Function eval if roll parsing fails
-    }
-
-    // Safe arithmetic fallback for expressions containing only numbers, operators, and parentheses
-    if (/^[0-9+\-*/().\s]+$/.test(formula)) {
-      try {
-        const result = Function(`"use strict"; return (${formula})`)();
-        if (typeof result === "number" && !isNaN(result)) {
-          return Math.round(result);
-        }
-      } catch (e) {
-        console.warn(`SimpleItemSheet | Error evaluating stat expression "${formula}":`, e);
-      }
+      console.warn(`SimpleItemSheet | Error evaluating stat expression "${formula}":`, e);
     }
 
     const parsed = parseInt(formula);

@@ -67,19 +67,19 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
    * Whether token selection is restricted to monster tokens.
    * @type {boolean}
    */
-  static selectUnlinkedOnly = false;
+  static selectMonstersOnly = false;
 
   /**
    * Toggle whether only monster tokens can be selected, releasing any currently
    * controlled non-monster tokens when enabled and refreshing all token borders.
    * @param {boolean} active
    */
-  static setSelectUnlinkedOnly(active) {
+  static setSelectMonstersOnly(active) {
     if (!game.user?.isGM) return;
-    this.selectUnlinkedOnly = Boolean(active);
+    this.selectMonstersOnly = Boolean(active);
     if (!canvas?.tokens) return;
 
-    if (this.selectUnlinkedOnly) {
+    if (this.selectMonstersOnly) {
       for (const token of [...canvas.tokens.controlled]) {
         if (!(token instanceof MonsterToken)) {
           token.release();
@@ -156,7 +156,7 @@ export class SimpleToken extends foundry.canvas.placeables.Token {
 
   /** @override */
   _canControl(user, event) {
-    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly) {
+    if (game.user?.isGM && SimpleToken.selectMonstersOnly) {
       return false;
     }
     return super._canControl(user, event);
@@ -203,7 +203,7 @@ export class MonsterToken extends SimpleToken {
    * @returns {number}
    */
   getActorSpeed() {
-    return this.actor.speed;
+    return this.actor?.speed ?? 0;
   }
 
   /**
@@ -211,7 +211,7 @@ export class MonsterToken extends SimpleToken {
    * @returns {number}
    */
   getActorActionNumber() {
-    this.actor.actionNumber;
+    return this.actor?.actionNumber ?? 1;
   }
 
   /**
@@ -370,7 +370,7 @@ export class MonsterToken extends SimpleToken {
 
   /** @override */
   _canControl(user, event) {
-    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly) {
+    if (game.user?.isGM && SimpleToken.selectMonstersOnly) {
       return true;
     }
     return super._canControl(user, event);
@@ -378,7 +378,7 @@ export class MonsterToken extends SimpleToken {
 
   /** @override */
   _getBorderColor(options) {
-    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly) {
+    if (game.user?.isGM && SimpleToken.selectMonstersOnly) {
       return this.getMovementHighlightColor();
     }
     return super._getBorderColor(options);
@@ -387,7 +387,7 @@ export class MonsterToken extends SimpleToken {
   /** @override */
   _refreshBorder() {
     if (!this.border) return;
-    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly) {
+    if (game.user?.isGM && SimpleToken.selectMonstersOnly) {
       const thickness = CONFIG.Canvas.objectBorderThickness || 4;
       this._drawSegmentedActionBorder(thickness);
       return;
@@ -401,7 +401,7 @@ export class MonsterToken extends SimpleToken {
     if (this.shouldHideDragRuler() && this.ruler) {
       this.ruler.visible = false;
     }
-    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly) {
+    if (game.user?.isGM && SimpleToken.selectMonstersOnly) {
       this._refreshBorder();
     }
   }
@@ -421,7 +421,7 @@ export class MonsterToken extends SimpleToken {
   /** @override */
   _onUpdate(changed, options, userId) {
     super._onUpdate(changed, options, userId);
-    if (game.user?.isGM && SimpleToken.selectUnlinkedOnly) {
+    if (game.user?.isGM && SimpleToken.selectMonstersOnly) {
       this.renderFlags.set({ refreshBorder: true });
     }
   }

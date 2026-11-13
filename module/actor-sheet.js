@@ -1,36 +1,33 @@
-import { EntitySheetHelper } from "./helper.js";
-import { INJURY_REASONS } from "./constants.js";
+import { BaseActorSheet } from "./base-actor-sheet.js";
+import { INJURY_REASONS } from "../constants.js";
 
-const { ActorSheetV2 } = foundry.applications.sheets;
-const { HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
+const { DialogV2 } = foundry.applications.api;
 const { renderTemplate } = foundry.applications.handlebars;
 const { TextEditor } = foundry.applications.ux;
 
 /**
- * Extend the basic ActorSheetV2 with custom tabbed sheet layout and inventory management
- * @extends {ActorSheetV2}
+ * Extend BaseActorSheet with custom tabbed sheet layout and inventory management
+ * @extends {BaseActorSheet}
  */
-export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
+export class CharacterActorSheet extends BaseActorSheet {
+
+  /** @override */
+  static ARRAY_PATHS = [
+    "system.skills",
+    "system.healthPoints",
+    "system.armors"
+  ];
 
   /** @override */
   static DEFAULT_OPTIONS = {
-    classes: ["explosive-zombie", "sheet", "actor"],
     position: {
-      width: 780,
-      height: 'auto'
+      width: 780
     },
     window: {
-      resizable: true,
       title: 'characterSheet.actorSheetTitle'
     },
     tabGroups: {
       primary: "sheet"
-    },
-    tag: "form",
-    form: {
-      handler: CharacterActorSheet.#onSubmitForm,
-      submitOnChange: true,
-      closeOnSubmit: false
     }
   };
 
@@ -64,14 +61,6 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     }
   };
 
-  /**
-   * Convenience getter for the Actor document
-   * @type {Actor}
-   */
-  get actor() {
-    return this.document;
-  }
-
   /* -------------------------------------------- */
 
   /** @override */
@@ -87,14 +76,8 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
   /** @override */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    context.isGM = game.user?.isGM;
-    context.actor = this.document;
-    context.data = this.document.toObject(false);
-    context.system = context.data.system;
-    context.systemData = context.data.system;
 
     // Helper context values for template compatibility
-    context.portraitUrl = context.system.portraitUrl || context.data.img || "icons/svg/mystery-man.svg";
     context.description = context.system.description;
     context.quotes = context.system.quotes;
     context.notes = context.system.notes;
@@ -166,19 +149,10 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
   _onRender(context, options) {
     super._onRender(context, options);
 
-    const html = $(this.element);
-
-    if (game.user?.isGM) {
-      // Tab navigation click handling
-      html.find('.sheet-tabs .item, [data-action="tab"]').on('click', ev => {
-        ev.preventDefault();
-        const tab = ev.currentTarget.dataset.tab;
-        if (tab) this.changeTab(tab, "primary");
-      });
-    }
-
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
+
+    const html = $(this.element);
 
     // Skill management in Classic Form
     html.find('.skill-control').click(this._onSkillControl.bind(this));
@@ -231,24 +205,6 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     event.preventDefault();
     const index = Number(event.currentTarget.dataset.armorIndex);
     return this.actor.cycleArmorState(index);
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Handle form submission processing
-   * @param {Event} event
-   * @param {HTMLFormElement} form
-   * @param {FormDataExtended} formData
-   */
-  static async #onSubmitForm(event, form, formData) {
-    let submitData = formData.object;
-    submitData = EntitySheetHelper.updateArrays(submitData, [
-      "system.skills",
-      "system.healthPoints",
-      "system.armors"
-    ]);
-    await this.document.update(submitData);
   }
 
   /* -------------------------------------------- */
@@ -547,3 +503,4 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     await this.actor.dropItemAsLoot(itemId, section);
   }
 }
+

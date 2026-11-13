@@ -1,30 +1,19 @@
-const { ActorSheetV2 } = foundry.applications.sheets;
-const { HandlebarsApplicationMixin } = foundry.applications.api;
-const { FilePicker } = foundry.applications.apps;
-const { TextEditor } = foundry.applications.ux;
+import { BaseActorSheet } from "./base-actor-sheet.js";
 
 /**
  * Item container sheet for Chest actors
- * @extends {ActorSheetV2}
+ * @extends {BaseActorSheet}
  */
-export class ChestActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
+export class ChestActorSheet extends BaseActorSheet {
 
   /** @override */
   static DEFAULT_OPTIONS = {
-    classes: ["explosive-zombie", "sheet", "actor", "chest-sheet"],
+    classes: ["chest-sheet"],
     position: {
-      width: 540,
-      height: 'auto'
+      width: 540
     },
     window: {
-      resizable: true,
-      title: 'chestSheet.title'
-    },
-    tag: "form",
-    form: {
-      handler: ChestActorSheet.#onSubmitForm,
-      submitOnChange: true,
-      closeOnSubmit: false
+      title: "chestSheet.title"
     }
   };
 
@@ -36,12 +25,9 @@ export class ChestActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
   };
 
-  /**
-   * Convenience getter for the Actor document
-   * @type {Actor}
-   */
-  get actor() {
-    return this.document;
+  /** @override */
+  get defaultPortrait() {
+    return "icons/svg/chest.svg";
   }
 
   /* -------------------------------------------- */
@@ -49,11 +35,7 @@ export class ChestActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /** @override */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    context.actor = this.document;
-    context.data = this.document.toObject(false);
-    context.system = context.data.system;
     context.items = this.actor.items.map(i => i.toObject(false));
-    context.portraitUrl = context.data.img || "icons/svg/chest.svg";
     return context;
   }
 
@@ -62,37 +44,11 @@ export class ChestActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /** @override */
   _onRender(context, options) {
     super._onRender(context, options);
-
     if (!this.isEditable) return;
 
     const html = $(this.element);
-
-    // Edit portrait image
-    html.find('[data-edit="img"], .profile-img').click(this._onEditImage.bind(this));
-
-    // Item Controls
-    html.find('.item-control').click(this._onItemControl.bind(this));
-    html.find('.item-name-click').click(this._onItemEdit.bind(this));
-  }
-
-  /**
-   * Handle editing the actor portrait image
-   * @param {Event} event
-   * @private
-   */
-  _onEditImage(event) {
-    const attr = event.currentTarget.dataset.edit || "img";
-    const current = foundry.utils.getProperty(this.document, attr);
-    const fp = new FilePicker.implementation({
-      type: "image",
-      current: current,
-      callback: path => {
-        this.document.update({ [attr]: path });
-      },
-      top: this.position.top + 40,
-      left: this.position.left + 10
-    });
-    return fp.browse();
+    html.find(".item-control").on("click", this._onItemControl.bind(this));
+    html.find(".item-name-click").on("click", this._onItemEdit.bind(this));
   }
 
   /* -------------------------------------------- */
@@ -106,7 +62,7 @@ export class ChestActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     event.preventDefault();
     const button = event.currentTarget;
     const action = button.dataset.action;
-    const li = button.closest('.chest-item-row');
+    const li = button.closest(".chest-item-row");
     const itemId = li?.dataset.itemId;
     const item = itemId ? this.actor.items.get(itemId) : null;
 
@@ -130,37 +86,10 @@ export class ChestActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
    */
   _onItemEdit(event) {
     event.preventDefault();
-    const li = event.currentTarget.closest('.chest-item-row');
+    const li = event.currentTarget.closest(".chest-item-row");
     const itemId = li?.dataset.itemId;
     const item = itemId ? this.actor.items.get(itemId) : null;
     if (item) item.sheet.render(true);
   }
-
-  /* -------------------------------------------- */
-
-  /** @override */
-  async _onDrop(event) {
-    let data;
-    try {
-      data = TextEditor.implementation.getDragEventData(event);
-    } catch (e) {
-      return super._onDrop(event);
-    }
-    if (!data || data.type !== "Item") return super._onDrop(event);
-
-    return super._onDrop(event);
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Handle form submission processing
-   * @param {Event} event
-   * @param {HTMLFormElement} form
-   * @param {FormDataExtended} formData
-   */
-  static async #onSubmitForm(event, form, formData) {
-    let submitData = formData.object;
-    await this.document.update(submitData);
-  }
 }
+

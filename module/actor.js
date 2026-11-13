@@ -1,3 +1,5 @@
+const { renderTemplate } = foundry.applications.handlebars;
+
 /**
  * Base Actor document class that dispatches to specialized Actor subclasses by type.
  * @extends {Actor}
@@ -329,18 +331,12 @@ export class CharacterActor extends SimpleActor {
         const description = itemData.system?.description || "";
         const noticeText = game.i18n.format("notifications.itemRemovedNotice", { name }) || `Objet "${name}" retiré de l'inventaire.`;
 
-        const chatContent = `
-        <div class="explosive-zombie chat-card item-card">
-          <header class="card-header flexrow" style="display: flex; align-items: center; gap: 8px;">
-            <img src="${img}" title="${name}" width="36" height="36" style="border: 0; object-fit: contain;"/>
-            <h3 class="item-name" style="margin: 0;">${name}</h3>
-          </header>
-          <div class="card-content" style="margin-top: 8px;">
-            <p style="margin: 0; font-style: italic;">${noticeText}</p>
-            ${description ? `<div style="margin-top: 6px;">${description}</div>` : ""}
-          </div>
-        </div>
-      `;
+        const chatContent = await renderTemplate("systems/explosive-zombie/templates/parts/item-chat-card.html", {
+            img,
+            name,
+            description,
+            noticeText
+        });
 
         return ChatMessage.create({
             user: game.user.id,

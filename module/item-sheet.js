@@ -1,9 +1,10 @@
-import { EntitySheetHelper } from "./helper.js";
-import { STAT_MAPPING } from "./constants.js";
-import { RollDialog } from "./roll-dialog.js";
+import { EntitySheetHelper } from "../helper.js";
+import { STAT_MAPPING } from "../constants.js";
+import { RollDialog } from "../roll-dialog.js";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
-const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
+const { renderTemplate } = foundry.applications.handlebars;
 const { TextEditor } = foundry.applications.ux;
 
 /**
@@ -130,20 +131,14 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
    * @returns {Promise<number|null>}
    */
   static async askVariableAmmo(availableAmmo) {
+    const content = await renderTemplate(
+      "systems/explosive-zombie/templates/parts/variable-ammo-dialog.html",
+      { availableAmmo }
+    );
     return new Promise((resolve) => {
-      new foundry.applications.api.DialogV2({
+      new DialogV2({
         window: { title: game.i18n.localize("itemSheet.variableAmmoTitle") },
-        content: `
-          <form style="margin-bottom: 10px;">
-            <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 6px;">
-              <label style="flex: 1; font-weight: bold;">${game.i18n.localize("itemSheet.variableAmmoCostLabel")}</label>
-              <input type="number" id="x-ammo-input" value="1" min="1" max="${availableAmmo}" style="width: 60px; text-align: center;" />
-            </div>
-            <div style="font-size: 0.85em; color: #666; text-align: right;">
-              ${game.i18n.format("itemSheet.variableAmmoAvailableLabel")} <strong>${availableAmmo}</strong>
-            </div>
-          </form>
-        `,
+        content,
         buttons: [
           {
             action: "confirm",
@@ -376,19 +371,11 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       capacity: capacity
     });
 
-    const chatContent = `
-      <div class="explosive-zombie chat-card item-card">
-        <header class="card-header flexrow" style="display: flex; align-items: center; gap: 8px;">
-          <img src="${img}" title="${name}" width="36" height="36" style="border: 0; object-fit: contain;"/>
-          <h3 class="item-name" style="margin: 0;">${name}</h3>
-        </header>
-        <div class="card-content" style="margin-top: 8px;">
-          <p style="margin: 0; font-weight: bold; color: #27ae60;">
-            <i class="fa-solid fa-boxes-stacked"></i> ${reloadText}
-          </p>
-        </div>
-      </div>
-    `;
+    const chatContent = await renderTemplate("systems/explosive-zombie/templates/parts/item-chat-card.html", {
+      img,
+      name,
+      reloadText
+    });
 
     const speaker = ChatMessage.getSpeaker({ actor: this.item.actor || canvas.tokens?.controlled[0]?.actor || game.user?.character });
 
@@ -399,3 +386,4 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     });
   }
 }
+

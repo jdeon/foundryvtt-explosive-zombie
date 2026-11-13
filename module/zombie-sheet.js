@@ -1,5 +1,6 @@
 const { ActorSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { FilePicker } = foundry.applications.apps;
 
 /**
  * Single-tab sheet layout for Zombie actors
@@ -49,21 +50,8 @@ export class ZombieActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const context = await super._prepareContext(options);
     context.actor = this.document;
     context.data = this.document.toObject(false);
-    context.system = context.data.system || {};
-
-    // Ensure system defaults exist
-    context.system.hp = context.system.hp || { value: 10, max: 10 };
-    if (context.system.hp.value === undefined) context.system.hp.value = 10;
-    if (context.system.hp.max === undefined) context.system.hp.max = 10;
-
-    context.system.speed = context.system.speed ?? 5;
-    context.system.actionNumber = context.system.actionNumber ?? 1;
-    context.system.thresholdDice = context.system.thresholdDice ?? 4;
-    context.system.diceNumber = context.system.diceNumber ?? 1;
-    context.system.notes = context.system.notes ?? "";
-
+    context.system = context.data.system;
     context.portraitUrl = context.data.img || "icons/svg/mystery-man.svg";
-
     return context;
   }
 
@@ -92,7 +80,7 @@ export class ZombieActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _onEditImage(event) {
     const attr = event.currentTarget.dataset.edit || "img";
     const current = foundry.utils.getProperty(this.document, attr);
-    const fp = new FilePicker({
+    const fp = new FilePicker.implementation({
       type: "image",
       current: current,
       callback: path => {

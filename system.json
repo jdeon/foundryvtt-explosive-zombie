@@ -45,12 +45,29 @@
     "minimum": "13",
     "verified": "13"
   },
+  "documentTypes": {
+    "Actor": {
+      "character": {
+        "htmlFields": ["notes"]
+      },
+      "zombie": {
+        "htmlFields": ["notes"]
+      },
+      "chest": {
+        "htmlFields": ["notes"]
+      }
+    },
+    "Item": {
+      "item": {
+        "htmlFields": ["description"]
+      }
+    }
+  },
   "grid": {
     "distance": 1,
     "units": "m"
   },
-  "primaryTokenAttribute": "health",
-  "secondaryTokenAttribute": "power",
+  "primaryTokenAttribute": "hp",
   "url": "https://github.com/jdeon/foundryvtt-explosive-zombie",
   "manifest": "https://github.com/jdeon/foundryvtt-explosive-zombie/releases/latest/download/module.json",
   "download": "https://github.com/jdeon/foundryvtt-explosive-zombie/releases/download/VERSION_PATHHOLDER/module.zip"

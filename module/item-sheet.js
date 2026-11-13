@@ -4,6 +4,7 @@ import { RollDialog } from "./roll-dialog.js";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { TextEditor } = foundry.applications.ux;
 
 /**
  * Extend the basic ItemSheetV2 with custom tabbed sheet layout and effect management
@@ -82,13 +83,9 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.system = context.data.system;
     context.systemData = context.data.system;
 
-    // Ensure array defaults exist safely
-    if (!context.system.activeEffects) context.system.activeEffects = [];
-    if (!context.system.passiveEffects) context.system.passiveEffects = [];
-
     context.imageUrl = context.system.imageUrl || context.data.img || "icons/svg/item-bag.svg";
 
-    context.descriptionHTML = await TextEditor.enrichHTML(context.system.description || "", {
+    context.descriptionHTML = await TextEditor.implementation.enrichHTML(context.system.description || "", {
       secrets: this.document.isOwner,
       async: true
     });

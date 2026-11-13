@@ -2,7 +2,9 @@ import { EntitySheetHelper } from "./helper.js";
 import { INJURY_REASONS } from "./constants.js";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
-const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
+const { renderTemplate } = foundry.applications.handlebars;
+const { TextEditor } = foundry.applications.ux;
 
 /**
  * Extend the basic ActorSheetV2 with custom tabbed sheet layout and inventory management
@@ -91,25 +93,11 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     context.system = context.data.system;
     context.systemData = context.data.system;
 
-    // Ensure system object defaults exist safely
-    context.system.stats = context.system.stats || { agility: 2, constitution: 2, mental: 2, speed: 5 };
-    context.system.inventory = context.system.inventory || {
-      belt: { size: 3, contain: [] },
-      backpack: { size: 6, contain: [] },
-      equipped: { size: 2, contain: [] }
-    };
-    if (!context.system.inventory.belt) context.system.inventory.belt = { size: 3, contain: [] };
-    if (!context.system.inventory.backpack) context.system.inventory.backpack = { size: 6, contain: [] };
-    if (!context.system.inventory.equipped) context.system.inventory.equipped = { size: 2, contain: [] };
-    if (!context.system.skills) context.system.skills = [];
-    if (!context.system.healthPoints) context.system.healthPoints = ["", "", "", ""];
-    if (!context.system.armors) context.system.armors = [];
-
     // Helper context values for template compatibility
     context.portraitUrl = context.system.portraitUrl || context.data.img || "icons/svg/mystery-man.svg";
-    context.description = context.system.description || "";
-    context.quotes = context.system.quotes || "";
-    context.notes = context.system.notes || "";
+    context.description = context.system.description;
+    context.quotes = context.system.quotes;
+    context.notes = context.system.notes;
     context.stats = context.system.stats;
     context.healthPoints = context.system.healthPoints;
     context.armors = (context.system.armors || []).map((val, index) => {
@@ -360,7 +348,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
     };
 
 
-    this._freeSpaceDialog = new foundry.applications.api.DialogV2(dialogOptions);
+    this._freeSpaceDialog = new DialogV2(dialogOptions);
     await this._freeSpaceDialog.render(true);
 
 
@@ -464,7 +452,7 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
   async _onDrop(event) {
     let data;
     try {
-      data = TextEditor.getDragEventData(event);
+      data = TextEditor.implementation.getDragEventData(event);
     } catch (e) {
       return super._onDrop(event);
     }
@@ -547,12 +535,11 @@ export class CharacterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2
       ? game.i18n.format("characterSheet.confirmClearSlotContent", { name: itemName })
       : game.i18n.localize("characterSheet.confirmClearSlot");
 
-    const confirmed = await Dialog.confirm({
-      title: title,
+    const confirmed = await DialogV2.confirm({
+      window: { title },
       content: `<p>${content}</p>`,
-      yes: () => true,
-      no: () => false,
-      defaultYes: true
+      rejectClose: false,
+      modal: true
     });
 
     if (!confirmed) return;

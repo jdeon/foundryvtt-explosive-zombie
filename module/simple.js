@@ -5,6 +5,7 @@
 
 // Import Modules
 import { SimpleActor, CharacterActor, ZombieActor, ChestActor } from "./actor.js";
+import { CharacterData, ZombieData, ChestData, SimpleItemData } from "./data-models.js";
 import { SimpleItem } from "./item.js";
 import { SimpleItemSheet } from "./item-sheet.js";
 import { CharacterActorSheet } from "./actor-sheet.js";
@@ -52,9 +53,17 @@ Hooks.once("init", async function () {
     resetActions: (tokens) => SimpleToken.resetActionsForSelected(tokens)
   };
 
-  // Define custom Document classes
+  // Define custom Document classes and DataModels
   CONFIG.Actor.documentClass = SimpleActor;
+  CONFIG.Actor.dataModels = {
+    character: CharacterData,
+    zombie: ZombieData,
+    chest: ChestData
+  };
   CONFIG.Item.documentClass = SimpleItem;
+  CONFIG.Item.dataModels = {
+    item: SimpleItemData
+  };
   CONFIG.Token.documentClass = SimpleTokenDocument;
   CONFIG.Token.objectClass = SimpleToken;
   CONFIG.Token.rulerClass = SimpleTokenRuler;

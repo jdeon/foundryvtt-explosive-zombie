@@ -1,5 +1,7 @@
 const { ActorSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { FilePicker } = foundry.applications.apps;
+const { TextEditor } = foundry.applications.ux;
 
 /**
  * Item container sheet for Chest actors
@@ -49,14 +51,9 @@ export class ChestActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const context = await super._prepareContext(options);
     context.actor = this.document;
     context.data = this.document.toObject(false);
-    context.system = context.data.system || {};
-
+    context.system = context.data.system;
     context.items = this.actor.items.map(i => i.toObject(false));
     context.portraitUrl = context.data.img || "icons/svg/chest.svg";
-    context.system.foodRations = context.system.foodRations ?? 0;
-    context.system.fuel = context.system.fuel ?? 0;
-    context.system.notes = context.system.notes ?? "";
-
     return context;
   }
 
@@ -86,7 +83,7 @@ export class ChestActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _onEditImage(event) {
     const attr = event.currentTarget.dataset.edit || "img";
     const current = foundry.utils.getProperty(this.document, attr);
-    const fp = new FilePicker({
+    const fp = new FilePicker.implementation({
       type: "image",
       current: current,
       callback: path => {
@@ -145,7 +142,7 @@ export class ChestActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   async _onDrop(event) {
     let data;
     try {
-      data = TextEditor.getDragEventData(event);
+      data = TextEditor.implementation.getDragEventData(event);
     } catch (e) {
       return super._onDrop(event);
     }

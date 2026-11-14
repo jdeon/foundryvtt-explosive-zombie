@@ -116,11 +116,19 @@ export class PathfinderHelper {
 
     const origin = this.toCenter(c1, r1, refToken, gridSizeX, gridSizeY);
     const dest = this.toCenter(c2, r2, refToken, gridSizeX, gridSizeY);
-    const blocked = Boolean(refToken.checkCollision(dest, {
-      origin,
-      type: "move",
-      mode: "any"
-    }));
+    let blocked = false;
+    if (refToken && typeof refToken.checkCollision === "function") {
+      blocked = Boolean(refToken.checkCollision(dest, {
+        origin,
+        type: "move",
+        mode: "any"
+      }));
+    } else if (CONFIG.Canvas?.polygonBackends?.move) {
+      blocked = Boolean(CONFIG.Canvas.polygonBackends.move.testCollision(origin, dest, {
+        type: "move",
+        mode: "any"
+      }));
+    }
     wallCache.set(key, blocked);
     return blocked;
   }
@@ -382,6 +390,305 @@ export class PathfinderHelper {
     for (const token of swarmTokens) {
       token.renderFlags?.set({ refreshState: true, refreshRuler: true });
     }
+  }
+
+  /* -------------------------------------------- */
+  /*  Zombie Spawning Helpers                     */
+  /* -------------------------------------------- */
+
+  /**
+   * Maximum number of cells explored when searching for zombie spawn locations.
+   * @type {number}
+   */
+  static MAX_SPAWN_BFS_CELLS = 4000;
+
+  /**
+   * Return all non-hidden player character tokens currently on the canvas.
+   * @returns {Token[]}
+   */
+  static getPlayerTokens() {
+    const placeables = canvas?.tokens?.placeables ?? [];
+    const charTokens = placeables.filter(
+      t => !t.document?.hidden && (t.actor?.type === "character" || t.actor?.hasPlayerOwner)
+    );
+    if (charTokens.length > 0) return charTokens;
+    // Fallback to any non-zombie, non-chest visible token if no character token is found
+    return placeables.filter(
+      t => !t.document?.hidden && t.actor?.type !== "zombie" && t.actor?.type !== "chest"
+    );
+  }
+
+  /**
+   * Check whether a canvas point `{ x, y }` is within the vision / line-of-sight of a player token.
+   * @param {{ x: number, y: number }} pt
+   * @param {Token} playerToken
+   * @param {number} gridSizeX
+   * @param {number} gridDistance
+   * @returns {boolean}
+   */
+  static isPointVisibleToPlayer(pt, playerToken, gridSizeX, gridDistance) {
+    const origin = playerToken.getSightOrigin?.() ?? playerToken.center;
+
+    // 1. Check the token's directional vision cone angle (e.g. 120° sight.angle and token rotation)
+    const sightAngle = Number(playerToken.document?.sight?.angle) || 360;
+    if (sightAngle > 0 && sightAngle < 360) {
+      const dx = pt.x - origin.x;
+      const dy = pt.y - origin.y;
+      if (Math.hypot(dx, dy) > 1e-3) {
+        const rayDeg = ((Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360;
+        const rotation = Number(playerToken.document?.rotation) || 0;
+        const facingDeg = (rotation + 90) % 360;
+        const angleDiff = Math.abs(((rayDeg - facingDeg + 540) % 360) - 180);
+        if (angleDiff > sightAngle / 2) return false;
+      }
+    }
+
+    // 2. Check whether a wall blocks line of sight ("sight") between the player token and `pt`
+    let sightBlocked = false;
+    if (CONFIG.Canvas?.polygonBackends?.sight) {
+      sightBlocked = Boolean(CONFIG.Canvas.polygonBackends.sight.testCollision(origin, pt, {
+        type: "sight",
+        mode: "any"
+      }));
+    } else if (typeof playerToken.checkCollision === "function") {
+      sightBlocked = Boolean(playerToken.checkCollision(pt, {
+        origin,
+        type: "sight",
+        mode: "any"
+      }));
+    }
+    if (sightBlocked) return false;
+
+    // 3. If the token has an active vision source with a computed LOS polygon, verify containment
+    if (playerToken.vision?.los && typeof playerToken.vision.los.contains === "function") {
+      if (!playerToken.vision.los.contains(pt.x, pt.y)) return false;
+    }
+
+    // 3. Check lighting / vision range limits when scene tokenVision is enabled and global illumination is off
+    const scene = canvas?.scene;
+    const tokenVisionEnabled = scene?.tokenVision !== false;
+    const globalLightEnabled = Boolean(
+      scene?.environment?.globalLight?.enabled || canvas?.environment?.globalLightSource?.active
+    );
+
+    if (!tokenVisionEnabled || globalLightEnabled) {
+      return true;
+    }
+
+    // Check if an active light source illuminates `pt` (visible since LOS is clear)
+    const lightSources = canvas?.effects?.lightSources;
+    if (lightSources) {
+      for (const source of lightSources) {
+        if (!source?.active || source.disabled) continue;
+        if (source.shape && typeof source.shape.contains === "function" && source.shape.contains(pt.x, pt.y)) {
+          return true;
+        }
+      }
+    }
+
+    // Check the token's active vision shape if available
+    if (playerToken.vision?.active && playerToken.vision?.shape && typeof playerToken.vision.shape.contains === "function") {
+      if (playerToken.vision.shape.contains(pt.x, pt.y)) return true;
+    }
+
+    // Check the token's configured sight range (in scene distance units)
+    const sightRange = Number(playerToken.document?.sight?.range) || 0;
+    if (sightRange > 0) {
+      const tokenRadiusPx = Math.max(playerToken.w || gridSizeX, playerToken.h || gridSizeX) / 2;
+      const sightRadiusPx = (sightRange / gridDistance) * gridSizeX + tokenRadiusPx;
+      const distPx = Math.hypot(pt.x - origin.x, pt.y - origin.y);
+      return distPx <= sightRadiusPx;
+    }
+
+    // If sight range is 0 (unconfigured default) and vision polygon isn't restricting it,
+    // treat unobstructed line-of-sight as visible so zombies still spawn behind walls/obstacles.
+    return true;
+  }
+
+  /**
+   * Check whether any part of grid cell `(col, row)` is visible to any of the provided player tokens.
+   * Samples the cell center and 4 inset corners so spawned tokens don't peek around corners into view.
+   * @param {number} col
+   * @param {number} row
+   * @param {Token[]} playerTokens
+   * @param {number} gridSizeX
+   * @param {number} gridSizeY
+   * @param {number} gridDistance
+   * @returns {boolean}
+   */
+  static isCellVisibleToPlayers(col, row, playerTokens, gridSizeX, gridSizeY, gridDistance) {
+    if (!playerTokens || playerTokens.length === 0) return false;
+
+    const tl = this.toTopLeft(col, row, gridSizeX, gridSizeY);
+    const cx = tl.x + gridSizeX / 2;
+    const cy = tl.y + gridSizeY / 2;
+    const dx = gridSizeX * 0.3;
+    const dy = gridSizeY * 0.3;
+
+    const samplePoints = [
+      { x: cx, y: cy },
+      { x: cx - dx, y: cy - dy },
+      { x: cx + dx, y: cy - dy },
+      { x: cx - dx, y: cy + dy },
+      { x: cx + dx, y: cy + dy }
+    ];
+
+    for (const playerToken of playerTokens) {
+      for (const pt of samplePoints) {
+        if (this.isPointVisibleToPlayer(pt, playerToken, gridSizeX, gridDistance)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Check whether a grid cell `(col, row)` lies inside the playable scene rectangle.
+   * @param {number} col
+   * @param {number} row
+   * @param {number} gridSizeX
+   * @param {number} gridSizeY
+   * @returns {boolean}
+   */
+  static isCellWithinSceneBounds(col, row, gridSizeX, gridSizeY) {
+    const rect = canvas?.dimensions?.sceneRect || canvas?.dimensions?.rect;
+    if (!rect) return col >= 0 && row >= 0;
+    const tl = this.toTopLeft(col, row, gridSizeX, gridSizeY);
+    const cx = tl.x + gridSizeX / 2;
+    const cy = tl.y + gridSizeY / 2;
+    return (
+      cx >= rect.x &&
+      cy >= rect.y &&
+      cx <= rect.x + rect.width &&
+      cy <= rect.y + rect.height
+    );
+  }
+
+  /**
+   * Find up to `count` unoccupied grid cell top-left coordinates `{ x, y }` that are:
+   * 1. Reachable from player tokens via wall-aware movement BFS,
+   * 2. Outside the token vision of all player tokens, and
+   * 3. As close as possible (in walkable steps, then Euclidean distance) to a player token.
+   *
+   * @param {number} count
+   * @param {Token[]} [playerTokens]
+   * @returns {{ x: number, y: number, col: number, row: number }[]}
+   */
+  static findZombieSpawnCells(count, playerTokens = this.getPlayerTokens()) {
+    const needed = Math.max(0, Math.round(Number(count) || 0));
+    if (needed <= 0 || !canvas?.scene) return [];
+
+    const gridSizeX = canvas.grid?.sizeX || canvas.grid?.size || 100;
+    const gridSizeY = canvas.grid?.sizeY || canvas.grid?.size || 100;
+    const gridDistance = Number(canvas.scene?.grid?.distance) || 1;
+
+    const minSpawnDistance = game.settings.get("explosive-zombie", "minZombieSpawnDistance");
+    const minSteps = Math.max(1, Math.ceil(minSpawnDistance / gridDistance));
+
+    const blockedCells = this.getBlockedCells([], gridSizeX, gridSizeY);
+    const wallCache = new Map();
+    const refToken = playerTokens[0] || canvas.tokens?.placeables?.[0] || null;
+
+    // Seed multi-source BFS from all player token cells
+    const visited = new Map(); // cellKey -> { col, row, dist }
+    const queue = [];
+    const playerCells = [];
+
+    for (const pt of playerTokens) {
+      const cell = this.toCell(pt.document.x, pt.document.y, gridSizeX, gridSizeY);
+      playerCells.push(cell);
+      const key = this.cellKey(cell.col, cell.row);
+      if (!visited.has(key)) {
+        visited.set(key, { col: cell.col, row: cell.row, dist: 0 });
+        queue.push({ col: cell.col, row: cell.row, dist: 0 });
+      }
+    }
+
+    // If no player tokens are placed on the scene, seed from the scene center
+    if (queue.length === 0) {
+      const rect = canvas.dimensions?.sceneRect || canvas.dimensions?.rect || { x: 0, y: 0, width: 1000, height: 1000 };
+      const centerCell = this.toCell(rect.x + rect.width / 2, rect.y + rect.height / 2, gridSizeX, gridSizeY);
+      playerCells.push(centerCell);
+      const key = this.cellKey(centerCell.col, centerCell.row);
+      visited.set(key, { col: centerCell.col, row: centerCell.row, dist: 0 });
+      queue.push({ col: centerCell.col, row: centerCell.row, dist: 0 });
+    }
+
+    const hiddenCandidates = [];
+    const fallbackVisibleCandidates = [];
+    let stopDist = Infinity;
+
+    let head = 0;
+    while (head < queue.length && visited.size < this.MAX_SPAWN_BFS_CELLS) {
+      const curr = queue[head++];
+      if (curr.dist > stopDist) break;
+
+      for (const [dc, dr] of this.DIRS) {
+        const nc = curr.col + dc;
+        const nr = curr.row + dr;
+        const nKey = this.cellKey(nc, nr);
+        if (visited.has(nKey)) continue;
+        if (!this.isCellWithinSceneBounds(nc, nr, gridSizeX, gridSizeY)) continue;
+        if (!this.canStep(curr.col, curr.row, nc, nr, refToken, wallCache, gridSizeX, gridSizeY)) continue;
+
+        const nextDist = curr.dist + 1;
+        visited.set(nKey, { col: nc, row: nr, dist: nextDist });
+        queue.push({ col: nc, row: nr, dist: nextDist });
+
+        // Occupied cells can be traversed in BFS, but cannot be selected as spawn cells
+        if (blockedCells.has(nKey)) continue;
+
+        const minEuclid = playerCells.reduce(
+          (best, pc) => Math.min(best, Math.hypot(nc - pc.col, nr - pc.row)),
+          Infinity
+        );
+
+        const isVisible = this.isCellVisibleToPlayers(
+          nc,
+          nr,
+          playerTokens,
+          gridSizeX,
+          gridSizeY,
+          gridDistance
+        );
+
+        if (!isVisible && nextDist >= minSteps) {
+          hiddenCandidates.push({ col: nc, row: nr, dist: nextDist, minEuclid });
+          if (hiddenCandidates.length >= needed && stopDist === Infinity) {
+            // Finish exploring the current distance ring + 1 to ensure optimal Euclidean tie-breaking
+            stopDist = nextDist + 1;
+          }
+        } else {
+          fallbackVisibleCandidates.push({ col: nc, row: nr, dist: nextDist, minEuclid });
+        }
+      }
+    }
+
+    hiddenCandidates.sort((a, b) => {
+      if (a.dist !== b.dist) return a.dist - b.dist;
+      return a.minEuclid - b.minEuclid;
+    });
+
+    const chosen = hiddenCandidates.slice(0, needed);
+
+    // If the map has fewer hidden reachable cells than needed (e.g. completely open map with no walls),
+    // fill remaining slots with reachable cells starting at >= minSteps (or farthest available).
+    if (chosen.length < needed && fallbackVisibleCandidates.length > 0) {
+      const remaining = needed - chosen.length;
+      const farFallback = fallbackVisibleCandidates
+        .filter(c => c.dist >= minSteps)
+        .sort((a, b) => a.dist - b.dist || a.minEuclid - b.minEuclid);
+      const nearFallback = fallbackVisibleCandidates
+        .filter(c => c.dist < minSteps)
+        .sort((a, b) => b.dist - a.dist || b.minEuclid - a.minEuclid);
+      chosen.push(...[...farFallback, ...nearFallback].slice(0, remaining));
+    }
+
+    return chosen.map(c => {
+      const tl = this.toTopLeft(c.col, c.row, gridSizeX, gridSizeY);
+      return { x: tl.x, y: tl.y, col: c.col, row: c.row };
+    });
   }
 }
 

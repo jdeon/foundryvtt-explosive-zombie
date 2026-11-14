@@ -1,3 +1,5 @@
+import { PathfinderHelper } from "./pathfinderHelper.js";
+
 const { renderTemplate } = foundry.applications.handlebars;
 
 /**
@@ -424,6 +426,97 @@ export class ZombieActor extends SimpleActor {
             speaker: ChatMessage.getSpeaker({ actor: this }),
             flavor
         });
+    }
+
+    /**
+     * Find the configured default "zombie" Actor in `game.actors` (matching ID, UUID, or name),
+     * or fall back to any existing "zombie" Actor in the world.
+     * @returns {ZombieActor|null}
+     */
+    static async getDefaultZombieActor() {
+        if (!game.actors) return null;
+        const defaultZombieActorIdentifier = game.settings.get("explosive-zombie", "defaultZombieActorUuid");
+
+        if (!defaultZombieActorIdentifier) return null
+
+        const actor = await fromUuid(defaultZombieActorIdentifier);
+        if (actor && actor.type === "zombie" && actor instanceof ZombieActor) return actor;
+
+        return null;
+    }
+
+    /**
+     * Resolve a source Zombie Actor from an Actor instance, UUID, or ID.
+     * If a Compendium Actor is provided, finds or imports a corresponding World Actor.
+     * Falls back to `getOrCreateZombiePrototype()` when no valid zombie actor is given.
+     * @param {Actor|string|null} [source]
+     * @returns {Promise<ZombieActor|null>}
+     */
+    static async resolveSourceZombie(source = null) {
+        let doc = null;
+        if (source instanceof Actor) {
+            doc = source;
+        } else if (typeof source === "string" && source.trim()) {
+            doc = game.actors?.get(source) || (await fromUuid(source).catch(() => null));
+        }
+
+        if (doc && doc.type === "zombie") {
+            if (doc.pack) {
+                let worldActor = game.actors?.find(a => a.type === "zombie" && a.name === doc.name);
+                if (!worldActor) {
+                    const actorData = doc.toObject();
+                    delete actorData._id;
+                    worldActor = await Actor.create(actorData);
+                }
+                return worldActor;
+            }
+            return doc;
+        }
+    }
+
+    /**
+     * Spawn `count` zombie tokens on the active scene in the closest reachable grid cells
+     * to the players that are outside of all player tokens' vision.
+     * @param {number} count
+     * @param {Scene} [scene]
+     * @param {Actor|string|null} [sourceActor]
+     * @returns {Promise<TokenDocument[]>}
+     */
+    static async spawnZombies(count, scene = canvas?.scene, sourceActorUuid = null) {
+        if (!game.user?.isGM || !sourceActorUuid) {
+            ui.notifications.warn('No zombie actor found for spawning');
+            return []
+        }
+        const total = Math.max(0, Math.round(Number(count) || 0));
+        if (total <= 0 || !scene) return [];
+
+        const zombieActor = await this.resolveSourceZombie(sourceActorUuid);
+        if (!zombieActor) return [];
+
+        const spawnCells = PathfinderHelper.findZombieSpawnCells(total);
+        if (spawnCells.length === 0) {
+            ui.notifications.warn(game.i18n.localize("noiseDice.noSpawnCellFound"));
+            return [];
+        }
+
+        const tokenDocsData = [];
+        for (const cell of spawnCells) {
+            const tokenDoc = await zombieActor.getTokenDocument({
+                x: cell.x,
+                y: cell.y,
+                actorLink: false
+            });
+            tokenDocsData.push(tokenDoc.toObject());
+        }
+
+        const created = await scene.createEmbeddedDocuments("Token", tokenDocsData);
+        ui.notifications.info(
+            game.i18n.format("noiseDice.spawnedNotification", {
+                count: created.length,
+                name: zombieActor.name
+            })
+        );
+        return created;
     }
 }
 

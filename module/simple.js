@@ -3,6 +3,8 @@
  * Author: Atropos
  */
 
+//TODO add player note and gm note on actor sheet and item sheet
+
 // Import Modules
 import { SimpleActor, CharacterActor, ZombieActor, ChestActor } from "./actor.js";
 import { CharacterData, ZombieData, ChestData, SimpleItemData } from "./data-models.js";
@@ -50,7 +52,8 @@ Hooks.once("init", async function () {
     MonsterToken,
     PathfinderHelper,
     useAction: (count = 1, tokens) => SimpleToken.useActionForSelected(count, tokens),
-    resetActions: (tokens) => SimpleToken.resetActionsForSelected(tokens)
+    resetActions: (tokens) => SimpleToken.resetActionsForSelected(tokens),
+    spawnZombies: (count = 1, scene, sourceActor) => ZombieActor.spawnZombies(count, scene, sourceActor)
   };
 
   // Define custom Document classes and DataModels
@@ -76,34 +79,26 @@ Hooks.once("init", async function () {
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   foundry.documents.collections.Items.registerSheet("explosive-zombie", SimpleItemSheet, { makeDefault: true });
 
-  // Register initiative setting.
-  game.settings.register("explosive-zombie", "initFormula", {
-    name: "SETTINGS.SimpleInitFormulaN",
-    hint: "SETTINGS.SimpleInitFormulaL",
+  // Register default Zombie Actor setting (name, ID, or UUID).
+  game.settings.register("explosive-zombie", "defaultZombieActorUuid", {
+    name: "SETTINGS.DefaultZombieActor.name",
+    hint: "SETTINGS.DefaultZombieActor.hint",
     scope: "world",
     type: String,
-    default: "1d20",
     config: true,
-    onChange: formula => _simpleUpdateInit(formula, true)
+    requiresReload: false
   });
 
-  // Retrieve and assign the initiative formula setting.
-  const initFormula = game.settings.get("explosive-zombie", "initFormula");
-  _simpleUpdateInit(initFormula);
-
-  /**
-   * Update the initiative formula.
-   * @param {string} formula - Dice formula to evaluate.
-   * @param {boolean} notify - Whether or not to post nofications.
-   */
-  function _simpleUpdateInit(formula, notify = false) {
-    const isValid = Roll.validate(formula);
-    if (!isValid) {
-      if (notify) ui.notifications.error(`${game.i18n.localize("notifications.initFormulaInvalid")}: ${formula}`);
-      return;
-    }
-    CONFIG.Combat.initiative.formula = formula;
-  }
+  // Register minimum zombie spawn distance setting (in grid units / cells).
+  game.settings.register("explosive-zombie", "minZombieSpawnDistance", {
+    name: "SETTINGS.MinZombieSpawnDistance.name",
+    hint: "SETTINGS.MinZombieSpawnDistance.hint",
+    scope: "world",
+    type: Number,
+    default: 6,
+    config: true,
+    requiresReload: false
+  });
 
   Handlebars.registerHelper('firstLetter', function (value) {
     if (!value || typeof value !== 'string') return '';
@@ -143,6 +138,13 @@ Hooks.on("canvasReady", (canvas) => {
  */
 Hooks.on("updateScene", (scene, change, options, userId) => {
   NoiseDiceDialog.onUpdateScene(scene, change);
+});
+
+/**
+ * Inject GM-only zombie spawn button onto Noise Dice roll chat messages.
+ */
+Hooks.on("renderChatMessageHTML", async (message, html) => {
+  await NoiseDiceDialog.onRenderChatMessage(message, html);
 });
 /**
  * Ensure dialog is rendered once the world is ready if canvas is already loaded

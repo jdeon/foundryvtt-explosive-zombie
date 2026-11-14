@@ -163,6 +163,7 @@
   "noiseDice.noSpawnCellFound": "Aucune case accessible trouvée pour faire apparaître les zombies.",
   "noiseDice.dropZombieHint": "Glissez un acteur Zombie ici pour changer le type",
   "noiseDice.invalidZombieDrop": "Seul un acteur de type Zombie peut être déposé ici.",
+  "noiseDice.playerChatMessage": "Le bruit a attiré des zombies !!!",
   "tokenControls.selectMonstersOnly": "Sélectionner uniquement les tokens monstres (Zombies)",
   "tokenControls.enablePathfinding": "Activer le pathfinding des tokens"
 }

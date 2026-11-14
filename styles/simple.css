@@ -1643,3 +1643,10 @@
   cursor: default;
   opacity: 0.85;
 }
+.noise-player-chat-notice {
+  font-weight: bold;
+  font-size: 14px;
+  color: #8b0000;
+  text-align: center;
+  padding: 6px 4px;
+}

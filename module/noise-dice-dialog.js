@@ -170,16 +170,28 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /**
-   * Inject a GM-only Zombie Actor dropzone and "Spawn X Zombies" button onto Noise Dice roll chat cards.
+   * For non-GM users, replace the roll details with a narrative warning text.
+   * For the GM, inject a Zombie Actor dropzone and "Spawn X Zombies" button onto Noise Dice roll chat cards.
    * @param {ChatMessage} message
    * @param {HTMLElement|jQuery} html
    */
   static onRenderChatMessage(message, html) {
-    if (!game.user?.isGM) return;
     if (!message.getFlag("explosive-zombie", "noiseRoll")) return;
 
     const root = html instanceof HTMLElement ? html : html?.[0];
     if (!root) return;
+
+    const messageContent = root.querySelector(".message-content") || root;
+
+    if (!game.user?.isGM) {
+      messageContent.innerHTML = "";
+      const playerNotice = document.createElement("div");
+      playerNotice.className = "noise-player-chat-notice";
+      playerNotice.textContent = game.i18n.localize("noiseDice.playerChatMessage");
+      messageContent.appendChild(playerNotice);
+      return;
+    }
+
     if (root.querySelector(".noise-spawn-zombies-container")) return;
 
     const zombieCount = Math.max(
@@ -314,8 +326,6 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     }
 
     container.appendChild(btn);
-
-    const messageContent = root.querySelector(".message-content") || root;
     messageContent.appendChild(container);
   }
 

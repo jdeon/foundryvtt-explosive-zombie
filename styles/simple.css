@@ -1560,7 +1560,59 @@
 .noise-spawn-zombies-container {
   margin-top: 8px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+}
+.noise-zombie-dropzone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px dashed #666;
+  border-radius: 5px;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.noise-zombie-dropzone.has-custom-actor {
+  border-style: solid;
+  border-color: #8b0000;
+  background: rgba(139, 0, 0, 0.08);
+}
+.noise-zombie-dropzone.drag-over {
+  border-style: solid;
+  border-color: #e74c3c;
+  background: rgba(231, 76, 60, 0.16);
+}
+.noise-zombie-dropzone.is-disabled {
+  opacity: 0.7;
+  border-style: solid;
+}
+.noise-zombie-dropzone .noise-zombie-avatar {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #444;
+  flex-shrink: 0;
+}
+.noise-zombie-dropzone .noise-zombie-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+.noise-zombie-dropzone .noise-zombie-name {
+  font-weight: bold;
+  font-size: 13px;
+  color: #222;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.noise-zombie-dropzone .noise-zombie-hint {
+  font-size: 10px;
+  color: #666;
+  font-style: italic;
 }
 .noise-spawn-zombies-btn {
   width: 100%;

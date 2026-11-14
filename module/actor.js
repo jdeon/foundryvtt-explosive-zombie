@@ -486,18 +486,50 @@ export class ZombieActor extends SimpleActor {
     }
 
     /**
+     * Resolve a source Zombie Actor from an Actor instance, UUID, or ID.
+     * If a Compendium Actor is provided, finds or imports a corresponding World Actor.
+     * Falls back to `getOrCreateZombiePrototype()` when no valid zombie actor is given.
+     * @param {Actor|string|null} [source]
+     * @returns {Promise<ZombieActor|null>}
+     */
+    static async resolveSourceZombie(source = null) {
+        let doc = null;
+        if (source instanceof Actor) {
+            doc = source;
+        } else if (typeof source === "string" && source.trim()) {
+            doc = game.actors?.get(source) || (await fromUuid(source).catch(() => null));
+        }
+
+        if (doc && doc.type === "zombie") {
+            if (doc.pack) {
+                let worldActor = game.actors?.find(a => a.type === "zombie" && a.name === doc.name);
+                if (!worldActor) {
+                    const actorData = doc.toObject();
+                    delete actorData._id;
+                    worldActor = await Actor.create(actorData);
+                }
+                return worldActor;
+            }
+            return doc;
+        }
+
+        return this.getOrCreateZombiePrototype();
+    }
+
+    /**
      * Spawn `count` zombie tokens on the active scene in the closest reachable grid cells
      * to the players that are outside of all player tokens' vision.
      * @param {number} count
      * @param {Scene} [scene]
+     * @param {Actor|string|null} [sourceActor]
      * @returns {Promise<TokenDocument[]>}
      */
-    static async spawnZombies(count, scene = canvas?.scene) {
+    static async spawnZombies(count, scene = canvas?.scene, sourceActor = null) {
         if (!game.user?.isGM) return [];
         const total = Math.max(0, Math.round(Number(count) || 0));
         if (total <= 0 || !scene) return [];
 
-        const zombieActor = await this.getOrCreateZombiePrototype();
+        const zombieActor = await this.resolveSourceZombie(sourceActor);
         if (!zombieActor) return [];
 
         const spawnCells = PathfinderHelper.findZombieSpawnCells(total);
@@ -517,7 +549,12 @@ export class ZombieActor extends SimpleActor {
         }
 
         const created = await scene.createEmbeddedDocuments("Token", tokenDocsData);
-        ui.notifications.info(game.i18n.format("noiseDice.spawnedNotification", { count: created.length }));
+        ui.notifications.info(
+            game.i18n.format("noiseDice.spawnedNotification", {
+                count: created.length,
+                name: zombieActor.name
+            })
+        );
         return created;
     }
 }

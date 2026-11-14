@@ -157,10 +157,12 @@
   "noiseDice.reset": "Réinitialiser le bruit à 0",
   "noiseDice.rollTooltip": "Lancer les dés de bruit",
   "noiseDice.toggle": "Afficher/Masquer les dés de bruit",
-  "noiseDice.spawnButton": "Faire apparaître {count} Zombie(s)",
-  "noiseDice.spawnedButton": "{count} Zombie(s) apparu(s)",
-  "noiseDice.spawnedNotification": "{count} Zombie(s) apparu(s) hors de la vue des joueurs.",
+  "noiseDice.spawnButton": "Faire apparaître {count} × {name}",
+  "noiseDice.spawnedButton": "{count} × {name} apparu(s)",
+  "noiseDice.spawnedNotification": "{count} × {name} apparu(s) hors de la vue des joueurs.",
   "noiseDice.noSpawnCellFound": "Aucune case accessible trouvée pour faire apparaître les zombies.",
+  "noiseDice.dropZombieHint": "Glissez un acteur Zombie ici pour changer le type",
+  "noiseDice.invalidZombieDrop": "Seul un acteur de type Zombie peut être déposé ici.",
   "tokenControls.selectMonstersOnly": "Sélectionner uniquement les tokens monstres (Zombies)",
   "tokenControls.enablePathfinding": "Activer le pathfinding des tokens"
 }

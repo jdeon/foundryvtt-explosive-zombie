@@ -3,6 +3,8 @@
  * Author: Atropos
  */
 
+//TODO add player note and gm note on actor sheet and item sheet
+
 // Import Modules
 import { SimpleActor, CharacterActor, ZombieActor, ChestActor } from "./actor.js";
 import { CharacterData, ZombieData, ChestData, SimpleItemData } from "./data-models.js";
@@ -51,7 +53,7 @@ Hooks.once("init", async function () {
     PathfinderHelper,
     useAction: (count = 1, tokens) => SimpleToken.useActionForSelected(count, tokens),
     resetActions: (tokens) => SimpleToken.resetActionsForSelected(tokens),
-    spawnZombies: (count = 1, scene) => ZombieActor.spawnZombies(count, scene)
+    spawnZombies: (count = 1, scene, sourceActor) => ZombieActor.spawnZombies(count, scene, sourceActor)
   };
 
   // Define custom Document classes and DataModels

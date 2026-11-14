@@ -157,10 +157,12 @@
   "noiseDice.reset": "Reset Noise to 0",
   "noiseDice.rollTooltip": "Roll noise dice",
   "noiseDice.toggle": "Toggle Noise Dice Dialog",
-  "noiseDice.spawnButton": "Spawn {count} Zombie(s)",
-  "noiseDice.spawnedButton": "{count} Zombie(s) spawned",
-  "noiseDice.spawnedNotification": "{count} Zombie(s) spawned out of player vision.",
+  "noiseDice.spawnButton": "Spawn {count} × {name}",
+  "noiseDice.spawnedButton": "{count} × {name} spawned",
+  "noiseDice.spawnedNotification": "{count} × {name} spawned out of player vision.",
   "noiseDice.noSpawnCellFound": "Could not find any reachable cell to spawn zombies.",
+  "noiseDice.dropZombieHint": "Drop a Zombie Actor here to change type",
+  "noiseDice.invalidZombieDrop": "Only a Zombie Actor can be dropped here.",
   "tokenControls.selectMonstersOnly": "Select Monster Tokens Only (Zombies)",
   "tokenControls.enablePathfinding": "Enable Token Pathfinding"
 }

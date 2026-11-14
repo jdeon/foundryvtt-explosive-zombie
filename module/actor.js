@@ -429,60 +429,20 @@ export class ZombieActor extends SimpleActor {
     }
 
     /**
-     * Find or create the default world "Zombie" Actor used for noise spawning.
-     * Prefers a "zombie" Actor named after the localized type name (or "Zombie"),
-     * then falls back to any existing "zombie" Actor in the world or compendiums,
-     * or creates a default prototype Zombie Actor.
-     * @returns {Promise<ZombieActor|null>}
+     * Find the configured default "zombie" Actor in `game.actors` (matching ID, UUID, or name),
+     * or fall back to any existing "zombie" Actor in the world.
+     * @returns {ZombieActor|null}
      */
-    static async getOrCreateZombiePrototype() {
-        const defaultZombieName = "Zombie basique";
+    static async getDefaultZombieActor() {
+        if (!game.actors) return null;
+        const defaultZombieActorIdentifier = game.settings.get("explosive-zombie", "defaultZombieActorUuid");
 
-        let zombieActor = game.actors.find(a =>
-            a.type === "zombie" &&
-            (a.name.toLowerCase() === defaultZombieName.toLowerCase() || a.name.toLowerCase() === "zombie")
-        ) || game.actors.find(a => a.type === "zombie");
+        if (!defaultZombieActorIdentifier) return null
 
-        if (!zombieActor) {
-            let zombieActorData = null;
-            try {
-                for (const pack of game.packs) {
-                    if (pack.metadata.type !== "Actor") continue;
-                    const index = await pack.getIndex({ fields: ["type", "name"] });
-                    const entry = index.find(e =>
-                        e.type === "zombie" &&
-                        (e.name.toLowerCase() === defaultZombieName.toLowerCase() || e.name.toLowerCase() === "zombie")
-                    ) || index.find(e => e.type === "zombie");
-                    if (entry) {
-                        const doc = await pack.getDocument(entry._id);
-                        if (doc) {
-                            zombieActorData = doc.toObject();
-                            break;
-                        }
-                    }
-                }
-            } catch (e) {
-                console.warn("Failed to check compendium packs for zombie prototype:", e);
-            }
+        const actor = await fromUuid(defaultZombieActorIdentifier);
+        if (actor && actor.type === "zombie" && actor instanceof ZombieActor) return actor;
 
-            if (!zombieActorData) {
-                zombieActorData = {
-                    name: defaultZombieName,
-                    type: "zombie",
-                    img: "icons/svg/skull.svg",
-                    prototypeToken: {
-                        actorLink: false,
-                        disposition: CONST.TOKEN_DISPOSITIONS?.HOSTILE ?? -1
-                    }
-                };
-            } else {
-                delete zombieActorData._id;
-            }
-
-            zombieActor = await Actor.create(zombieActorData);
-        }
-
-        return zombieActor;
+        return null;
     }
 
     /**
@@ -512,8 +472,6 @@ export class ZombieActor extends SimpleActor {
             }
             return doc;
         }
-
-        return this.getOrCreateZombiePrototype();
     }
 
     /**
@@ -524,12 +482,15 @@ export class ZombieActor extends SimpleActor {
      * @param {Actor|string|null} [sourceActor]
      * @returns {Promise<TokenDocument[]>}
      */
-    static async spawnZombies(count, scene = canvas?.scene, sourceActor = null) {
-        if (!game.user?.isGM) return [];
+    static async spawnZombies(count, scene = canvas?.scene, sourceActorUuid = null) {
+        if (!game.user?.isGM || !sourceActorUuid) {
+            ui.notifications.warn('No zombie actor found for spawning');
+            return []
+        }
         const total = Math.max(0, Math.round(Number(count) || 0));
         if (total <= 0 || !scene) return [];
 
-        const zombieActor = await this.resolveSourceZombie(sourceActor);
+        const zombieActor = await this.resolveSourceZombie(sourceActorUuid);
         if (!zombieActor) return [];
 
         const spawnCells = PathfinderHelper.findZombieSpawnCells(total);

@@ -175,7 +175,7 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
    * @param {ChatMessage} message
    * @param {HTMLElement|jQuery} html
    */
-  static onRenderChatMessage(message, html) {
+  static async onRenderChatMessage(message, html) {
     if (!message.getFlag("explosive-zombie", "noiseRoll")) return;
 
     const root = html instanceof HTMLElement ? html : html?.[0];
@@ -194,25 +194,26 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
     if (root.querySelector(".noise-spawn-zombies-container")) return;
 
-    const zombieCount = Math.max(
-      0,
-      Number(message.getFlag("explosive-zombie", "zombieCount")) || Number(message.rolls?.[0]?.total) || 0
-    );
+    const zombieCount = Number(message.rolls?.[0]?.total ?? 0);
     if (zombieCount <= 0) return;
 
     const isSpawned = Boolean(message.getFlag("explosive-zombie", "spawned"));
-    const selectedUuid = message.getFlag("explosive-zombie", "zombieActorUuid") || "";
-    const selectedName = message.getFlag("explosive-zombie", "zombieActorName") || "";
-    const selectedImg = message.getFlag("explosive-zombie", "zombieActorImg") || "";
+    const selectedUuid = message.getFlag("explosive-zombie", "zombieActorUuid");
+    const selectedName = message.getFlag("explosive-zombie", "zombieActorName");
+    const selectedImg = message.getFlag("explosive-zombie", "zombieActorImg");
 
-    // Look up default zombie name/img if none was explicitly dropped yet
-    const defaultActor = !selectedUuid
-      ? (game.actors?.find(a => a.type === "zombie" && (a.name.toLowerCase() === "zombie basique" || a.name.toLowerCase() === "zombie"))
-        || game.actors?.find(a => a.type === "zombie"))
-      : null;
+    // Look up default zombie name/img from system settings if none was explicitly dropped yet
+    const defaultActor = await ZombieActor.getDefaultZombieActor();
+    const displayName = selectedName ?? defaultActor?.name;
+    const displayImg = selectedImg ?? defaultActor?.img;
 
-    const displayName = selectedName || defaultActor?.name || game.i18n.localize("TYPES.Actor.zombie");
-    const displayImg = selectedImg || defaultActor?.img || "icons/svg/skull.svg";
+    if (!selectedUuid && defaultActor) {
+      message.update({
+        "flags.explosive-zombie.zombieActorUuid": defaultActor.uuid,
+        "flags.explosive-zombie.zombieActorName": defaultActor.name,
+        "flags.explosive-zombie.zombieActorImg": defaultActor.img
+      })
+    }
 
     const container = document.createElement("div");
     container.className = "noise-spawn-zombies-container";
@@ -250,7 +251,7 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = `noise-spawn-zombies-btn${isSpawned ? " is-spawned" : ""}`;
-    btn.disabled = isSpawned;
+    btn.disabled = isSpawned || !displayName;
 
     const icon = document.createElement("i");
     icon.className = isSpawned ? "fas fa-check" : "fas fa-skull";

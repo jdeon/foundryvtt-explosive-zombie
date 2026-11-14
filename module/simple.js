@@ -87,7 +87,18 @@ Hooks.once("init", async function () {
     type: String,
     config: true,
     requiresReload: false
-  })
+  });
+
+  // Register minimum zombie spawn distance setting (in grid units / cells).
+  game.settings.register("explosive-zombie", "minZombieSpawnDistance", {
+    name: "SETTINGS.MinZombieSpawnDistance.name",
+    hint: "SETTINGS.MinZombieSpawnDistance.hint",
+    scope: "world",
+    type: Number,
+    default: 6,
+    config: true,
+    requiresReload: false
+  });
 
   Handlebars.registerHelper('firstLetter', function (value) {
     if (!value || typeof value !== 'string') return '';

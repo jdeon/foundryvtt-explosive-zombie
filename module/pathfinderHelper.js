@@ -429,7 +429,21 @@ export class PathfinderHelper {
   static isPointVisibleToPlayer(pt, playerToken, gridSizeX, gridDistance) {
     const origin = playerToken.getSightOrigin?.() ?? playerToken.center;
 
-    // 1. Check whether a wall blocks line of sight ("sight") between the player token and `pt`
+    // 1. Check the token's directional vision cone angle (e.g. 120° sight.angle and token rotation)
+    const sightAngle = Number(playerToken.document?.sight?.angle) || 360;
+    if (sightAngle > 0 && sightAngle < 360) {
+      const dx = pt.x - origin.x;
+      const dy = pt.y - origin.y;
+      if (Math.hypot(dx, dy) > 1e-3) {
+        const rayDeg = ((Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360;
+        const rotation = Number(playerToken.document?.rotation) || 0;
+        const facingDeg = (rotation + 90) % 360;
+        const angleDiff = Math.abs(((rayDeg - facingDeg + 540) % 360) - 180);
+        if (angleDiff > sightAngle / 2) return false;
+      }
+    }
+
+    // 2. Check whether a wall blocks line of sight ("sight") between the player token and `pt`
     let sightBlocked = false;
     if (CONFIG.Canvas?.polygonBackends?.sight) {
       sightBlocked = Boolean(CONFIG.Canvas.polygonBackends.sight.testCollision(origin, pt, {
@@ -445,7 +459,7 @@ export class PathfinderHelper {
     }
     if (sightBlocked) return false;
 
-    // 2. If the token has an active vision source with a computed LOS polygon, verify containment
+    // 3. If the token has an active vision source with a computed LOS polygon, verify containment
     if (playerToken.vision?.los && typeof playerToken.vision.los.contains === "function") {
       if (!playerToken.vision.los.contains(pt.x, pt.y)) return false;
     }
@@ -569,6 +583,9 @@ export class PathfinderHelper {
     const gridSizeY = canvas.grid?.sizeY || canvas.grid?.size || 100;
     const gridDistance = Number(canvas.scene?.grid?.distance) || 1;
 
+    const minSpawnDistance = game.settings.get("explosive-zombie", "minZombieSpawnDistance");
+    const minSteps = Math.max(1, Math.ceil(minSpawnDistance / gridDistance));
+
     const blockedCells = this.getBlockedCells([], gridSizeX, gridSizeY);
     const wallCache = new Map();
     const refToken = playerTokens[0] || canvas.tokens?.placeables?.[0] || null;
@@ -636,7 +653,7 @@ export class PathfinderHelper {
           gridDistance
         );
 
-        if (!isVisible) {
+        if (!isVisible && nextDist >= minSteps) {
           hiddenCandidates.push({ col: nc, row: nr, dist: nextDist, minEuclid });
           if (hiddenCandidates.length >= needed && stopDist === Infinity) {
             // Finish exploring the current distance ring + 1 to ensure optimal Euclidean tie-breaking
@@ -656,14 +673,14 @@ export class PathfinderHelper {
     const chosen = hiddenCandidates.slice(0, needed);
 
     // If the map has fewer hidden reachable cells than needed (e.g. completely open map with no walls),
-    // fill remaining slots with reachable cells starting at a reasonable distance (or farthest available).
+    // fill remaining slots with reachable cells starting at >= minSteps (or farthest available).
     if (chosen.length < needed && fallbackVisibleCandidates.length > 0) {
       const remaining = needed - chosen.length;
       const farFallback = fallbackVisibleCandidates
-        .filter(c => c.dist >= 6)
+        .filter(c => c.dist >= minSteps)
         .sort((a, b) => a.dist - b.dist || a.minEuclid - b.minEuclid);
       const nearFallback = fallbackVisibleCandidates
-        .filter(c => c.dist < 6)
+        .filter(c => c.dist < minSteps)
         .sort((a, b) => b.dist - a.dist || b.minEuclid - a.minEuclid);
       chosen.push(...[...farFallback, ...nearFallback].slice(0, remaining));
     }

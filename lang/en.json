@@ -1,6 +1,8 @@
 {
   "SETTINGS.DefaultZombieActor.name": "Default Zombie Actor UUID",
   "SETTINGS.DefaultZombieActor.hint": "UUID of the default Zombie Actor spawned by Noise Dice",
+  "SETTINGS.MinZombieSpawnDistance.name": "Minimum Zombie Spawn Distance",
+  "SETTINGS.MinZombieSpawnDistance.hint": "Minimum grid distance from player tokens where zombies can spawn",
   "itemSheet.create": "Create Item",
   "itemSheet.edit": "Edit Item",
   "itemSheet.delete": "Delete Item",

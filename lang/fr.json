@@ -1,6 +1,8 @@
 {
   "SETTINGS.DefaultZombieActor.name": "UUID de l'acteur Zombie par défaut",
   "SETTINGS.DefaultZombieActor.hint": "UUID de l'acteur Zombie utilisé par défaut pour l'apparition au bruit",
+  "SETTINGS.MinZombieSpawnDistance.name": "Distance minimale d'apparition des Zombies",
+  "SETTINGS.MinZombieSpawnDistance.hint": "Distance minimale en cases entre un joueurs la zone d'apparition des zombies",
   "itemSheet.create": "Créer un objet",
   "itemSheet.edit": "Éditer l'objet",
   "itemSheet.delete": "Supprimer l'objet",

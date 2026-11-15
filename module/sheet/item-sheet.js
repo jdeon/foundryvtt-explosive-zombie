@@ -34,7 +34,8 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     primary: {
       tabs: [
         { id: 'sheet', group: 'primary', label: 'common.tabSheet' },
-        { id: 'edit', group: 'primary', label: 'common.tabEdit' }
+        { id: 'edit', group: 'primary', label: 'common.tabEdit' },
+        { id: 'notes', group: 'primary', label: 'common.tabNotes' }
       ],
       initial: 'sheet'
     }
@@ -51,6 +52,10 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     },
     edit: {
       template: "systems/explosive-zombie/templates/parts/item-tab-edit.html",
+      scrollable: [""]
+    },
+    notes: {
+      template: "systems/explosive-zombie/templates/parts/tab-notes.html",
       scrollable: [""]
     }
   };
@@ -69,7 +74,7 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   _configureRenderOptions(options) {
     super._configureRenderOptions(options);
     if (!game.user?.isGM) {
-      options.parts = ["sheet"];
+      options.parts = ["tabs", "sheet", "notes"];
     }
   }
 
@@ -79,6 +84,9 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     context.isGM = game.user?.isGM;
+    if (!context.isGM && context.tabs) {
+      delete context.tabs.edit;
+    }
     context.item = this.document;
     context.data = this.document.toObject(false);
     context.system = context.data.system;
@@ -115,16 +123,12 @@ export class SimpleItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     // Active effect click to open prefilled RollDialog
     html.find(".active-effect-rollable").on("click", this._onActiveEffectRoll.bind(this));
 
-    if (game.user?.isGM) {
-      // Tab navigation click handling
-      html.find('.sheet-tabs .item, [data-action="tab"]').on('click', ev => {
-        ev.preventDefault();
-        const tab = ev.currentTarget.dataset.tab;
-        if (tab) this.changeTab(tab, "primary");
-      });
-    } else {
-      html.find('.tab[data-tab="sheet"]').addClass("active");
-    }
+    // Tab navigation click handling
+    html.find('.sheet-tabs .item, [data-action="tab"]').on('click', ev => {
+      ev.preventDefault();
+      const tab = ev.currentTarget.dataset.tab;
+      if (tab) this.changeTab(tab, "primary");
+    });
 
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;

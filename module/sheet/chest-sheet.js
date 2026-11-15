@@ -19,8 +19,15 @@ export class ChestActorSheet extends BaseActorSheet {
 
   /** @override */
   static PARTS = {
+    tabs: {
+      template: "templates/generic/tab-navigation.hbs"
+    },
     sheet: {
       template: "systems/explosive-zombie/templates/parts/chest-tab-sheet.html",
+      scrollable: [""]
+    },
+    notes: {
+      template: "systems/explosive-zombie/templates/parts/tab-notes.html",
       scrollable: [""]
     }
   };

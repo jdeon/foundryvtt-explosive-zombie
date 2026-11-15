@@ -22,6 +22,8 @@ export class CharacterData extends TypeDataModel {
       quotes: new fields.StringField({ required: true, initial: "" }),
       portraitUrl: new fields.StringField({ required: true, initial: "" }),
       notes: new fields.StringField({ required: true, initial: "" }),
+      playerNotes: new fields.StringField({ required: true, initial: "" }),
+      gmNotes: new fields.StringField({ required: true, initial: "" }),
       stats: new fields.SchemaField({
         agility: new fields.NumberField({ required: true, nullable: false, integer: true, initial: 2 }),
         constitution: new fields.NumberField({ required: true, nullable: false, integer: true, initial: 2 }),
@@ -92,7 +94,9 @@ export class ZombieData extends TypeDataModel {
       actionNumber: new fields.NumberField({ required: true, nullable: false, integer: true, initial: 2 }),
       thresholdDice: new fields.NumberField({ required: true, nullable: false, integer: true, initial: 6 }),
       diceNumber: new fields.NumberField({ required: true, nullable: false, integer: true, initial: 1 }),
-      notes: new fields.StringField({ required: true, initial: "" })
+      notes: new fields.StringField({ required: true, initial: "" }),
+      playerNotes: new fields.StringField({ required: true, initial: "" }),
+      gmNotes: new fields.StringField({ required: true, initial: "" })
     };
   }
 }
@@ -105,7 +109,9 @@ export class ChestData extends TypeDataModel {
     return {
       foodRations: new fields.NumberField({ required: true, nullable: false, integer: true, initial: 0 }),
       fuel: new fields.NumberField({ required: true, nullable: false, integer: true, initial: 0 }),
-      notes: new fields.StringField({ required: true, initial: "" })
+      notes: new fields.StringField({ required: true, initial: "" }),
+      playerNotes: new fields.StringField({ required: true, initial: "" }),
+      gmNotes: new fields.StringField({ required: true, initial: "" })
     };
   }
 }
@@ -117,6 +123,8 @@ export class SimpleItemData extends TypeDataModel {
   static defineSchema() {
     return {
       description: new fields.HTMLField({ required: true, initial: "" }),
+      playerNotes: new fields.StringField({ required: true, initial: "" }),
+      gmNotes: new fields.StringField({ required: true, initial: "" }),
       imageUrl: new fields.StringField({ required: true, initial: "" }),
       requiredSlots: new fields.NumberField({ required: true, nullable: false, integer: true, min: 0, initial: 1 }),
       activeEffects: new fields.ArrayField(

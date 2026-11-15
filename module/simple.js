@@ -3,8 +3,6 @@
  * Author: Atropos
  */
 
-//TODO add player note and gm note on actor sheet and item sheet
-
 // Import Modules
 import { SimpleActor, CharacterActor, ZombieActor, ChestActor } from "./actor.js";
 import { CharacterData, ZombieData, ChestData, SimpleItemData } from "./data-models.js";

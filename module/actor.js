@@ -570,7 +570,9 @@ export class ChestActor extends SimpleActor {
                     system: {
                         foodRations: 0,
                         fuel: 0,
-                        notes: ""
+                        notes: "",
+                        playerNotes: "",
+                        gmNotes: ""
                     }
                 };
             } else {

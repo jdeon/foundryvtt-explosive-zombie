@@ -36,7 +36,8 @@ export class CharacterActorSheet extends BaseActorSheet {
       tabs: [
         { id: 'sheet', group: 'primary', label: 'common.tabSheet' },
         { id: 'edit', group: 'primary', label: 'common.tabEdit' },
-        { id: 'items', group: 'primary', label: 'common.tabItems' }
+        { id: 'items', group: 'primary', label: 'common.tabItems' },
+        { id: 'notes', group: 'primary', label: 'common.tabNotes' }
       ],
       initial: 'sheet'
     }
@@ -58,18 +59,12 @@ export class CharacterActorSheet extends BaseActorSheet {
     items: {
       template: "systems/explosive-zombie/templates/parts/actor-tab-items.html",
       scrollable: [""]
+    },
+    notes: {
+      template: "systems/explosive-zombie/templates/parts/tab-notes.html",
+      scrollable: [""]
     }
   };
-
-  /* -------------------------------------------- */
-
-  /** @override */
-  _configureRenderOptions(options) {
-    super._configureRenderOptions(options);
-    if (!game.user?.isGM) {
-      options.parts = ["sheet"];
-    }
-  }
 
   /* -------------------------------------------- */
 

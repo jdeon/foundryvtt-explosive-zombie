@@ -16,6 +16,12 @@ export class BaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
    */
   static ARRAY_PATHS = [];
 
+  /**
+   * Tab IDs that should only be visible to GM users.
+   * @type {Set<string>}
+   */
+  static GM_ONLY_TABS = new Set(["edit", "items"]);
+
   /** @override */
   static DEFAULT_OPTIONS = {
     classes: ["explosive-zombie", "sheet", "actor"],
@@ -25,11 +31,24 @@ export class BaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     window: {
       resizable: true
     },
+    tabGroups: {
+      primary: "sheet"
+    },
     tag: "form",
     form: {
       handler: BaseActorSheet.onSubmitForm,
       submitOnChange: true,
       closeOnSubmit: false
+    }
+  };
+
+  static TABS = {
+    primary: {
+      tabs: [
+        { id: "sheet", group: "primary", label: "common.tabSheet" },
+        { id: "notes", group: "primary", label: "common.tabNotes" }
+      ],
+      initial: "sheet"
     }
   };
 
@@ -52,9 +71,24 @@ export class BaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   /* -------------------------------------------- */
 
   /** @override */
+  _configureRenderOptions(options) {
+    super._configureRenderOptions(options);
+    if (!game.user?.isGM && Array.isArray(options.parts)) {
+      options.parts = options.parts.filter(partId => !this.constructor.GM_ONLY_TABS.has(partId));
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     context.isGM = game.user?.isGM;
+    if (!context.isGM && context.tabs) {
+      for (const tabId of this.constructor.GM_ONLY_TABS) {
+        delete context.tabs[tabId];
+      }
+    }
     context.actor = this.document;
     context.data = this.document.toObject(false);
     context.system = context.data.system;
@@ -84,14 +118,12 @@ export class BaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     const html = $(this.element);
 
-    if (game.user?.isGM && this.constructor.TABS) {
+    if (this.constructor.TABS) {
       html.find('.sheet-tabs .item, [data-action="tab"]').on("click", ev => {
         ev.preventDefault();
         const tab = ev.currentTarget.dataset.tab;
         if (tab) this.changeTab(tab, "primary");
       });
-    } else if (!game.user?.isGM) {
-      html.find('.tab[data-tab="sheet"]').addClass("active");
     }
 
     if (!this.isEditable) return;

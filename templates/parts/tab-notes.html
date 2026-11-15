@@ -1,0 +1,19 @@
+<div class="tab notes {{tab.cssClass}}" data-group="primary" data-tab="notes">
+    <div class="classic-form notes-tab-content">
+        <fieldset class="form-section player-notes-section">
+            <legend><i class="fas fa-sticky-note"></i> {{localize "common.playerNotes"}}</legend>
+            <div class="form-group">
+                <textarea name="system.playerNotes" rows="8" placeholder="{{localize 'common.playerNotesPlaceholder'}}">{{system.playerNotes}}</textarea>
+            </div>
+        </fieldset>
+
+        {{#if isGM}}
+        <fieldset class="form-section gm-notes-section">
+            <legend><i class="fas fa-user-secret"></i> {{localize "common.gmNotes"}}</legend>
+            <div class="form-group">
+                <textarea name="system.gmNotes" rows="8" placeholder="{{localize 'common.gmNotesPlaceholder'}}">{{system.gmNotes}}</textarea>
+            </div>
+        </fieldset>
+        {{/if}}
+    </div>
+</div>

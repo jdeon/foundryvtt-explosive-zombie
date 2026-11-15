@@ -105,6 +105,19 @@
   padding: 0 8px;
   color: #222;
 }
+.explosive-zombie .classic-form .form-section.gm-notes-section {
+  border-color: #8b0000;
+  background: #fffafa;
+}
+.explosive-zombie .classic-form .form-section.gm-notes-section legend {
+  color: #8b0000;
+}
+.explosive-zombie .classic-form.notes-tab-content textarea {
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+  line-height: 1.4;
+}
 .explosive-zombie .classic-form .form-group {
   margin-bottom: 10px;
   display: flex;

@@ -1,4 +1,7 @@
-export class RollDialog extends foundry.applications.api.DialogV2 {
+const { DialogV2 } = foundry.applications.api;
+const { renderTemplate } = foundry.applications.handlebars;
+
+export class RollDialog extends DialogV2 {
 
   /**
    * @param {number|object} [diceNumber=1] Number of dice or options object
@@ -10,38 +13,18 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     const ammoCost = Number(options.ammoCost) || 0;
     const availableAmmo = item ? Number(item.system?.munitions?.loadAmmo || 0) : 0;
 
-    let ammoFieldHtml = "";
-    if (ammoCost > 0) {
-      const isEnough = availableAmmo >= ammoCost;
-      const loadedText = item ? `(${game.i18n.format("rollDialog.loadedAmmo", { count: availableAmmo })})` : '';
-      ammoFieldHtml = `
-        <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.05); padding: 6px 8px; border-radius: 4px; font-size: 0.9em;">
-          <i class="fa-solid fa-boxes-stacked" style="color: #555;"></i>
-          <label style="flex: 1; font-weight: bold;">${game.i18n.localize("rollDialog.ammoCost")}</label>
-          <span style="font-weight: bold; color: ${isEnough ? '#27ae60' : '#c0392b'};">
-            ${ammoCost} ${loadedText}
-          </span>
-        </div>
-      `;
-    }
+    const templatePath = "systems/explosive-zombie/templates/parts/roll-dialog.html";
+    const templateContext = {
+      diceNumber,
+      threshold,
+      ammoCost,
+      showAmmo: ammoCost > 0,
+      isEnoughAmmo: availableAmmo >= ammoCost,
+      loadedText: item ? `(${game.i18n.format("rollDialog.loadedAmmo", { count: availableAmmo })})` : ""
+    };
 
-    const content = `
-      <form style="margin-bottom: 10px;">
-        ${ammoFieldHtml}
-        <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 4px;">
-          <label style="flex: 1; font-weight: bold;">${game.i18n.localize("rollDialog.diceCount")}</label>
-          <button type="button" class="spin-btn" data-action="decrease" data-target="#dice-count" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-minus"></i></button>
-          <input type="number" id="dice-count" name="diceCount" value="${diceNumber}" style="width: 50px; text-align: center;" />
-          <button type="button" class="spin-btn" data-action="increase" data-target="#dice-count" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-plus"></i></button>
-        </div>
-        <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 4px;">
-          <label style="flex: 1; font-weight: bold;">${game.i18n.localize("rollDialog.threshold")}</label>
-          <button type="button" class="spin-btn" data-action="decrease" data-target="#threshold" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-minus"></i></button>
-          <input type="number" id="threshold" name="threshold" value="${threshold}" style="width: 50px; text-align: center;" />
-          <button type="button" class="spin-btn" data-action="increase" data-target="#threshold" style="width: 28px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 0;"><i class="fas fa-plus"></i></button>
-        </div>
-      </form>
-    `;
+    const compiled = Handlebars.partials[templatePath];
+    const content = typeof compiled === "function" ? compiled(templateContext) : "";
 
     const dialogOptions = foundry.utils.mergeObject({
       window: {
@@ -68,10 +51,22 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
 
     this.item = item;
     this.ammoCost = ammoCost;
+    this._templateContext = templateContext;
     this.input = {
       diceNumber,
       threshold
     };
+  }
+
+  /** @override */
+  async _renderHTML(context, options) {
+    if (!this.options.content) {
+      this.options.content = await renderTemplate(
+        "systems/explosive-zombie/templates/parts/roll-dialog.html",
+        this._templateContext
+      );
+    }
+    return super._renderHTML(context, options);
   }
 
   /** @override */
@@ -125,18 +120,23 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
 
     const { diceToRoll, finalThreshold, finalDice, successPenalty } = this._computedRollData(inputThreshold, inputDice);
 
-    let roll;
-    let diceSuccesses = 0;
-
     // Roll dice
     const formula = `${diceToRoll}d6x>=${finalThreshold}cs>=${finalThreshold}`;
-    roll = new Roll(formula);
+    const roll = new Roll(formula);
     await roll.evaluate();
-    diceSuccesses = roll.total;
+    const diceSuccesses = roll.total;
 
     const finalSuccesses = diceSuccesses - successPenalty;
 
-    const flavor = this._generateChatMessage(successPenalty, inputThreshold, finalThreshold, inputDice, finalDice, diceToRoll, finalSuccesses);
+    const flavor = await this._generateChatMessage(
+      successPenalty,
+      inputThreshold,
+      finalThreshold,
+      inputDice,
+      finalDice,
+      diceToRoll,
+      finalSuccesses
+    );
 
     const speaker = ChatMessage.getSpeaker({ actor: canvas.tokens?.controlled[0]?.actor || game.user?.character });
 
@@ -144,7 +144,7 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
       speaker,
       flavor
     });
-  }
+  };
 
   _computedRollData(inputThreshold, inputDice) {
     let finalThreshold = inputThreshold;
@@ -172,51 +172,22 @@ export class RollDialog extends foundry.applications.api.DialogV2 {
     return { diceToRoll, finalThreshold, finalDice, successPenalty };
   }
 
-  _generateChatMessage(successPenalty, inputThreshold, finalThreshold, inputDice, finalDice, diceToRoll, finalSuccesses) {
-    let penaltyNotice = "";
-    if (successPenalty > 0) {
-      penaltyNotice = `<p style="color: #c0392b; font-weight: bold; margin: 4px 0;">
-              <i class="fas fa-exclamation-triangle"></i> ${game.i18n.format("rollDialog.penaltyNotice", { finalDice, penalty: successPenalty })}
-            </p>`;
-    }
-
-    let ammoNotice = "";
-    if (this.ammoCost > 0) {
-      ammoNotice = `
-        <div style="background: rgba(0, 0, 0, 0.05); padding: 4px 8px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em; color: #555;">
-          <i class="fa-solid fa-boxes-stacked"></i> <strong>${game.i18n.localize("rollDialog.ammoUsed")}</strong> ${this.ammoCost}
-        </div>
-      `;
-    }
-
-    let adjustmentNotice = "";
-    if (inputThreshold !== finalThreshold || inputDice !== finalDice) {
-      const actualDiceStr = game.i18n.format("rollDialog.actualDice", { count: diceToRoll });
-      adjustmentNotice = `
-              <div style="background: rgba(0, 0, 0, 0.05); padding: 6px 8px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em;">
-                <strong>${game.i18n.localize("rollDialog.adjustmentsTitle")}</strong><br/>
-                • ${game.i18n.localize("rollDialog.thresholdLabel")} <code>${inputThreshold}</code> → <code>${finalThreshold}</code><br/>
-                • ${game.i18n.localize("rollDialog.diceLabel")} <code>${inputDice}</code> → <code>${finalDice}</code> ${actualDiceStr}
-              </div>
-            `;
-    }
-
-    const flavor = `
-            <div class="explosive-roll-card">
-              <h3 style="border-bottom: 2px solid #7a0000; padding-bottom: 4px; margin-bottom: 8px;">
-                <i class="fas fa-bomb"></i> ${game.i18n.localize("rollDialog.cardTitle")}
-              </h3>
-              ${ammoNotice}
-              ${adjustmentNotice}
-              ${penaltyNotice}
-              <p style="font-size: 1.1em; margin: 4px 0;">
-                <strong>${game.i18n.localize("rollDialog.totalSuccesses")}</strong> 
-                <span style="color: ${finalSuccesses > 0 ? '#27ae60' : '#c0392b'}; font-weight: bold; font-size: 1.2em;">
-                  ${finalSuccesses}
-                </span>
-              </p>
-            </div>
-          `;
-    return flavor;
+  async _generateChatMessage(successPenalty, inputThreshold, finalThreshold, inputDice, finalDice, diceToRoll, finalSuccesses) {
+    return renderTemplate("systems/explosive-zombie/templates/parts/roll-chat-card.html", {
+      showAmmo: this.ammoCost > 0,
+      ammoCost: this.ammoCost,
+      hasAdjustment: inputThreshold !== finalThreshold || inputDice !== finalDice,
+      inputThreshold,
+      finalThreshold,
+      inputDice,
+      finalDice,
+      actualDiceStr: game.i18n.format("rollDialog.actualDice", { count: diceToRoll }),
+      hasPenalty: successPenalty > 0,
+      penaltyText: successPenalty > 0
+        ? game.i18n.format("rollDialog.penaltyNotice", { finalDice, penalty: successPenalty })
+        : "",
+      finalSuccesses,
+      isSuccess: finalSuccesses > 0
+    });
   }
 }

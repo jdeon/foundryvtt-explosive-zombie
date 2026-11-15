@@ -4,16 +4,17 @@
  */
 
 // Import Modules
-import { CharacterActor } from "./actor.js";
+import { SimpleActor, CharacterActor, ZombieActor, ChestActor } from "./actor.js";
+import { CharacterData, ZombieData, ChestData, SimpleItemData } from "./data-models.js";
 import { SimpleItem } from "./item.js";
-import { SimpleItemSheet } from "./item-sheet.js";
-import { CharacterActorSheet } from "./actor-sheet.js";
-import { ZombieActorSheet } from "./zombie-sheet.js";
-import { ChestActorSheet } from "./chest-sheet.js";
+import { SimpleItemSheet } from "./sheet/item-sheet.js";
+import { CharacterActorSheet } from "./sheet/actor-sheet.js";
+import { ZombieActorSheet } from "./sheet/zombie-sheet.js";
+import { ChestActorSheet } from "./sheet/chest-sheet.js";
 import { RollDialog } from "./roll-dialog.js";
 import { preloadHandlebarsTemplates } from "./templates.js";
-import { createWorldbuildingMacro } from "./macro.js";
-import { SimpleToken, SimpleTokenDocument } from "./token.js";
+import { SimpleToken, MonsterToken, SimpleTokenDocument, SimpleTokenRuler } from "./token.js";
+import { PathfinderHelper } from "./pathfinderHelper.js";
 import { INJURY_REASONS } from "./constants.js";
 import { NoiseDiceDialog } from "./noise-dice-dialog.js";
 
@@ -25,7 +26,7 @@ import { NoiseDiceDialog } from "./noise-dice-dialog.js";
  * Init hook.
  */
 Hooks.once("init", async function () {
-  console.log(`Initializing Simple Worldbuilding System`);
+  console.log(`Initializing Explosive Zombie System`);
 
   /**
    * Set an initiative formula for the system. This will be updated later.
@@ -37,19 +38,36 @@ Hooks.once("init", async function () {
   };
 
   game.explosiveZombie = {
+    SimpleActor,
     CharacterActor,
+    ZombieActor,
+    ChestActor,
     ZombieActorSheet,
     ChestActorSheet,
     RollDialog,
     NoiseDiceDialog,
-    createWorldbuildingMacro
+    SimpleToken,
+    MonsterToken,
+    PathfinderHelper,
+    useAction: (count = 1, tokens) => SimpleToken.useActionForSelected(count, tokens),
+    resetActions: (tokens) => SimpleToken.resetActionsForSelected(tokens),
+    spawnZombies: (count = 1, scene, sourceActor) => ZombieActor.spawnZombies(count, scene, sourceActor)
   };
 
-  // Define custom Document classes
-  CONFIG.Actor.documentClass = CharacterActor;
+  // Define custom Document classes and DataModels
+  CONFIG.Actor.documentClass = SimpleActor;
+  CONFIG.Actor.dataModels = {
+    character: CharacterData,
+    zombie: ZombieData,
+    chest: ChestData
+  };
   CONFIG.Item.documentClass = SimpleItem;
+  CONFIG.Item.dataModels = {
+    item: SimpleItemData
+  };
   CONFIG.Token.documentClass = SimpleTokenDocument;
   CONFIG.Token.objectClass = SimpleToken;
+  CONFIG.Token.rulerClass = SimpleTokenRuler;
 
   // Register sheet application classes
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
@@ -59,50 +77,25 @@ Hooks.once("init", async function () {
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   foundry.documents.collections.Items.registerSheet("explosive-zombie", SimpleItemSheet, { makeDefault: true });
 
-  // Register system settings
-  game.settings.register("explosive-zombie", "macroShorthand", {
-    name: "SETTINGS.SimpleMacroShorthandN",
-    hint: "SETTINGS.SimpleMacroShorthandL",
-    scope: "world",
-    type: Boolean,
-    default: true,
-    config: true
-  });
-
-  // Register initiative setting.
-  game.settings.register("explosive-zombie", "initFormula", {
-    name: "SETTINGS.SimpleInitFormulaN",
-    hint: "SETTINGS.SimpleInitFormulaL",
+  // Register default Zombie Actor setting (name, ID, or UUID).
+  game.settings.register("explosive-zombie", "defaultZombieActorUuid", {
+    name: "SETTINGS.DefaultZombieActor.name",
+    hint: "SETTINGS.DefaultZombieActor.hint",
     scope: "world",
     type: String,
-    default: "1d20",
     config: true,
-    onChange: formula => _simpleUpdateInit(formula, true)
+    requiresReload: false
   });
 
-  // Retrieve and assign the initiative formula setting.
-  const initFormula = game.settings.get("explosive-zombie", "initFormula");
-  _simpleUpdateInit(initFormula);
-
-  /**
-   * Update the initiative formula.
-   * @param {string} formula - Dice formula to evaluate.
-   * @param {boolean} notify - Whether or not to post nofications.
-   */
-  function _simpleUpdateInit(formula, notify = false) {
-    const isValid = Roll.validate(formula);
-    if (!isValid) {
-      if (notify) ui.notifications.error(`${game.i18n.localize("notifications.initFormulaInvalid")}: ${formula}`);
-      return;
-    }
-    CONFIG.Combat.initiative.formula = formula;
-  }
-
-  /**
-   * Slugify a string.
-   */
-  Handlebars.registerHelper('slugify', function (value) {
-    return value.slugify({ strict: true });
+  // Register minimum zombie spawn distance setting (in grid units / cells).
+  game.settings.register("explosive-zombie", "minZombieSpawnDistance", {
+    name: "SETTINGS.MinZombieSpawnDistance.name",
+    hint: "SETTINGS.MinZombieSpawnDistance.hint",
+    scope: "world",
+    type: Number,
+    default: 6,
+    config: true,
+    requiresReload: false
   });
 
   Handlebars.registerHelper('firstLetter', function (value) {
@@ -130,78 +123,6 @@ Hooks.once("init", async function () {
 });
 
 /**
- * Macrobar hook.
- */
-Hooks.on("hotbarDrop", (bar, data, slot) => createWorldbuildingMacro(data, slot));
-
-/**
- * Adds the actor template context menu.
- */
-Hooks.on("getActorDirectoryEntryContext", (html, options) => {
-
-  // Define an actor as a template.
-  options.push({
-    name: game.i18n.localize("attributes.defineTemplate"),
-    icon: '<i class="fas fa-stamp"></i>',
-    condition: li => {
-      const actor = game.actors.get(li.data("documentId"));
-      return !actor.isTemplate;
-    },
-    callback: li => {
-      const actor = game.actors.get(li.data("documentId"));
-      actor.setFlag("explosive-zombie", "isTemplate", true);
-    }
-  });
-
-  // Undefine an actor as a template.
-  options.push({
-    name: game.i18n.localize("attributes.unsetTemplate"),
-    icon: '<i class="fas fa-times"></i>',
-    condition: li => {
-      const actor = game.actors.get(li.data("documentId"));
-      return actor.isTemplate;
-    },
-    callback: li => {
-      const actor = game.actors.get(li.data("documentId"));
-      actor.setFlag("explosive-zombie", "isTemplate", false);
-    }
-  });
-});
-
-/**
- * Adds the item template context menu.
- */
-Hooks.on("getItemDirectoryEntryContext", (html, options) => {
-
-  // Define an item as a template.
-  options.push({
-    name: game.i18n.localize("attributes.defineTemplate"),
-    icon: '<i class="fas fa-stamp"></i>',
-    condition: li => {
-      const item = game.items.get(li.data("documentId"));
-      return !item.isTemplate;
-    },
-    callback: li => {
-      const item = game.items.get(li.data("documentId"));
-      item.setFlag("explosive-zombie", "isTemplate", true);
-    }
-  });
-
-  // Undefine an item as a template.
-  options.push({
-    name: game.i18n.localize("attributes.unsetTemplate"),
-    icon: '<i class="fas fa-times"></i>',
-    condition: li => {
-      const item = game.items.get(li.data("documentId"));
-      return item.isTemplate;
-    },
-    callback: li => {
-      const item = game.items.get(li.data("documentId"));
-      item.setFlag("explosive-zombie", "isTemplate", false);
-    }
-  });
-});
-/**
  * Automatically open / update the noise dice dialog on each scene load
  */
 Hooks.on("canvasReady", (canvas) => {
@@ -216,6 +137,13 @@ Hooks.on("canvasReady", (canvas) => {
 Hooks.on("updateScene", (scene, change, options, userId) => {
   NoiseDiceDialog.onUpdateScene(scene, change);
 });
+
+/**
+ * Inject GM-only zombie spawn button onto Noise Dice roll chat messages.
+ */
+Hooks.on("renderChatMessageHTML", async (message, html) => {
+  await NoiseDiceDialog.onRenderChatMessage(message, html);
+});
 /**
  * Ensure dialog is rendered once the world is ready if canvas is already loaded
  */
@@ -224,4 +152,73 @@ Hooks.once("ready", () => {
     NoiseDiceDialog.onCanvasReady(canvas.scene);
   }
 });
+
+/**
+ * Add a toggle in the Token scene controls to restrict selection to monster tokens (Zombies).
+ */
+Hooks.on("getSceneControlButtons", (controls) => {
+  if (!game.user?.isGM) return;
+
+  const orderIndex = Object.keys(controls.tokens.tools).length;
+
+  controls.tokens.tools.selectMonstersOnly = {
+    name: "selectMonstersOnly",
+    title: game.i18n.localize("tokenControls.selectMonstersOnly"),
+    icon: "fas fa-skull",
+    toggle: true,
+    active: SimpleToken.selectMonstersOnly,
+    visible: Boolean(game.user?.isGM),
+    order: orderIndex,
+    onChange: (event, active) => {
+      const isActive = typeof active === "boolean" ? active : Boolean(event);
+      SimpleToken.setSelectMonstersOnly(isActive);
+    }
+  };
+
+  controls.tokens.tools.enablePathfinding = {
+    name: "enablePathfinding",
+    title: game.i18n.localize("tokenControls.enablePathfinding"),
+    icon: "fas fa-route",
+    toggle: true,
+    active: PathfinderHelper.enabled,
+    visible: Boolean(game.user?.isGM),
+    order: orderIndex + 1,
+    onChange: (event, active) => {
+      const isActive = typeof active === "boolean" ? active : Boolean(event);
+      PathfinderHelper.setEnabled(isActive);
+    }
+  };
+});
+
+/**
+ * Refresh monster movement highlight border when a token moves or an actor's speed changes.
+*/
+Hooks.on("moveToken", (tokenDoc) => {
+  if (game.user?.isGM && SimpleToken.selectMonstersOnly && tokenDoc?.object instanceof MonsterToken) {
+    tokenDoc.object.renderFlags?.set({ refreshBorder: true, refreshState: true });
+  }
+});
+
+Hooks.on("updateActor", (actor) => {
+  if (!game.user?.isGM || !SimpleToken.selectMonstersOnly || !canvas?.tokens) return;
+  for (const token of actor.getActiveTokens()) {
+    if (token instanceof MonsterToken) {
+      token.renderFlags.set({ refreshBorder: true });
+    }
+  }
+});
+
+/**
+ * Reset used non-movement actions on each combat round and when combat ends.
+ */
+Hooks.on("updateCombat", (combat, changed) => {
+  if (changed.round !== undefined) {
+    SimpleToken.resetAllUsedActions(combat?.scene ?? canvas?.scene);
+  }
+});
+
+Hooks.on("deleteCombat", (combat) => {
+  SimpleToken.resetAllUsedActions(combat?.scene ?? canvas?.scene);
+});
+
 

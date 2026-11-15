@@ -1,0 +1,19 @@
+<div class="explosive-zombie chat-card item-card">
+  <header class="card-header flexrow" style="display: flex; align-items: center; gap: 8px;">
+    <img src="{{img}}" title="{{name}}" width="36" height="36" style="border: 0; object-fit: contain;"/>
+    <h3 class="item-name" style="margin: 0;">{{name}}</h3>
+  </header>
+  <div class="card-content" style="margin-top: 8px;">
+    {{#if reloadText}}
+    <p style="margin: 0; font-weight: bold; color: #27ae60;">
+      <i class="fa-solid fa-boxes-stacked"></i> {{reloadText}}
+    </p>
+    {{else}}
+    <p style="margin: 0; font-style: italic;">{{noticeText}}</p>
+    {{#if description}}
+    <div style="margin-top: 6px;">{{{description}}}</div>
+    {{/if}}
+    {{/if}}
+  </div>
+</div>
+

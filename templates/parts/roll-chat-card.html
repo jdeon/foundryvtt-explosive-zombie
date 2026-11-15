@@ -1,0 +1,29 @@
+<div class="explosive-roll-card">
+  <h3 style="border-bottom: 2px solid #7a0000; padding-bottom: 4px; margin-bottom: 8px;">
+    <i class="fas fa-bomb"></i> {{localize "rollDialog.cardTitle"}}
+  </h3>
+  {{#if showAmmo}}
+  <div style="background: rgba(0, 0, 0, 0.05); padding: 4px 8px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em; color: #555;">
+    <i class="fa-solid fa-boxes-stacked"></i> <strong>{{localize "rollDialog.ammoUsed"}}</strong> {{ammoCost}}
+  </div>
+  {{/if}}
+  {{#if hasAdjustment}}
+  <div style="background: rgba(0, 0, 0, 0.05); padding: 6px 8px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em;">
+    <strong>{{localize "rollDialog.adjustmentsTitle"}}</strong><br/>
+    • {{localize "rollDialog.thresholdLabel"}} <code>{{inputThreshold}}</code> → <code>{{finalThreshold}}</code><br/>
+    • {{localize "rollDialog.diceLabel"}} <code>{{inputDice}}</code> → <code>{{finalDice}}</code> {{{actualDiceStr}}}
+  </div>
+  {{/if}}
+  {{#if hasPenalty}}
+  <p style="color: #c0392b; font-weight: bold; margin: 4px 0;">
+    <i class="fas fa-exclamation-triangle"></i> {{penaltyText}}
+  </p>
+  {{/if}}
+  <p style="font-size: 1.1em; margin: 4px 0;">
+    <strong>{{localize "rollDialog.totalSuccesses"}}</strong>
+    <span style="color: {{#if isSuccess}}#27ae60{{else}}#c0392b{{/if}}; font-weight: bold; font-size: 1.2em;">
+      {{finalSuccesses}}
+    </span>
+  </p>
+</div>
+

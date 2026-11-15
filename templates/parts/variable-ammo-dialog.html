@@ -1,0 +1,10 @@
+<form style="margin-bottom: 10px;">
+  <div class="form-group" style="display: flex; margin-bottom: 8px; align-items: center; gap: 6px;">
+    <label style="flex: 1; font-weight: bold;">{{localize "itemSheet.variableAmmoCostLabel"}}</label>
+    <input type="number" id="x-ammo-input" value="1" min="1" max="{{availableAmmo}}" style="width: 60px; text-align: center;" />
+  </div>
+  <div style="font-size: 0.85em; color: #666; text-align: right;">
+    {{localize "itemSheet.variableAmmoAvailableLabel"}} <strong>{{availableAmmo}}</strong>
+  </div>
+</form>
+

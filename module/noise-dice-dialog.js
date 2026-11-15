@@ -1,3 +1,5 @@
+import { ZombieActor } from "./actor.js";
+
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 /**
@@ -152,11 +154,180 @@ export class NoiseDiceDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const flavor = game.i18n.localize("noiseDice.title");
     const speaker = ChatMessage.getSpeaker({ scene });
+    const zombieCount = Math.max(0, Number(roll.total) || 0);
 
     return roll.toMessage({
       speaker,
-      flavor
+      flavor,
+      flags: {
+        "explosive-zombie": {
+          noiseRoll: true,
+          zombieCount,
+          spawned: false
+        }
+      }
     });
+  }
+
+  /**
+   * For non-GM users, replace the roll details with a narrative warning text.
+   * For the GM, inject a Zombie Actor dropzone and "Spawn X Zombies" button onto Noise Dice roll chat cards.
+   * @param {ChatMessage} message
+   * @param {HTMLElement|jQuery} html
+   */
+  static async onRenderChatMessage(message, html) {
+    if (!message.getFlag("explosive-zombie", "noiseRoll")) return;
+
+    const root = html instanceof HTMLElement ? html : html?.[0];
+    if (!root) return;
+
+    const messageContent = root.querySelector(".message-content") || root;
+
+    if (!game.user?.isGM) {
+      messageContent.innerHTML = "";
+      const playerNotice = document.createElement("div");
+      playerNotice.className = "noise-player-chat-notice";
+      playerNotice.textContent = game.i18n.localize("noiseDice.playerChatMessage");
+      messageContent.appendChild(playerNotice);
+      return;
+    }
+
+    if (root.querySelector(".noise-spawn-zombies-container")) return;
+
+    const zombieCount = Number(message.rolls?.[0]?.total ?? 0);
+    if (zombieCount <= 0) return;
+
+    const isSpawned = Boolean(message.getFlag("explosive-zombie", "spawned"));
+    const selectedUuid = message.getFlag("explosive-zombie", "zombieActorUuid");
+    const selectedName = message.getFlag("explosive-zombie", "zombieActorName");
+    const selectedImg = message.getFlag("explosive-zombie", "zombieActorImg");
+
+    // Look up default zombie name/img from system settings if none was explicitly dropped yet
+    const defaultActor = await ZombieActor.getDefaultZombieActor();
+    const displayName = selectedName ?? defaultActor?.name;
+    const displayImg = selectedImg ?? defaultActor?.img;
+
+    if (!selectedUuid && defaultActor) {
+      message.update({
+        "flags.explosive-zombie.zombieActorUuid": defaultActor.uuid,
+        "flags.explosive-zombie.zombieActorName": defaultActor.name,
+        "flags.explosive-zombie.zombieActorImg": defaultActor.img
+      })
+    }
+
+    const container = document.createElement("div");
+    container.className = "noise-spawn-zombies-container";
+
+    // Droppable source zombie slot
+    const dropzone = document.createElement("div");
+    dropzone.className = `noise-zombie-dropzone${selectedUuid ? " has-custom-actor" : ""}${isSpawned ? " is-disabled" : ""}`;
+    dropzone.title = game.i18n.localize("noiseDice.dropZombieHint");
+
+    const avatar = document.createElement("img");
+    avatar.className = "noise-zombie-avatar";
+    avatar.src = displayImg;
+    avatar.alt = displayName;
+    dropzone.appendChild(avatar);
+
+    const info = document.createElement("div");
+    info.className = "noise-zombie-info";
+
+    const nameEl = document.createElement("span");
+    nameEl.className = "noise-zombie-name";
+    nameEl.textContent = displayName;
+    info.appendChild(nameEl);
+
+    if (!isSpawned) {
+      const hintEl = document.createElement("span");
+      hintEl.className = "noise-zombie-hint";
+      hintEl.textContent = game.i18n.localize("noiseDice.dropZombieHint");
+      info.appendChild(hintEl);
+    }
+
+    dropzone.appendChild(info);
+    container.appendChild(dropzone);
+
+    // Spawn button
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `noise-spawn-zombies-btn${isSpawned ? " is-spawned" : ""}`;
+    btn.disabled = isSpawned || !displayName;
+
+    const icon = document.createElement("i");
+    icon.className = isSpawned ? "fas fa-check" : "fas fa-skull";
+    btn.appendChild(icon);
+
+    const span = document.createElement("span");
+    span.textContent = isSpawned
+      ? game.i18n.format("noiseDice.spawnedButton", { count: zombieCount, name: displayName })
+      : game.i18n.format("noiseDice.spawnButton", { count: zombieCount, name: displayName });
+    btn.appendChild(span);
+
+    if (!isSpawned) {
+      // Handle dropping a Zombie Actor onto the chat message or dropzone
+      const handleDragOver = (ev) => {
+        ev.preventDefault();
+        if (ev.dataTransfer) ev.dataTransfer.dropEffect = "copy";
+        dropzone.classList.add("drag-over");
+      };
+
+      const handleDragLeave = (ev) => {
+        if (!root.contains(ev.relatedTarget)) {
+          dropzone.classList.remove("drag-over");
+        }
+      };
+
+      const handleDrop = async (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        dropzone.classList.remove("drag-over");
+
+        let data = null;
+        try {
+          const getDragData = foundry.applications?.ux?.TextEditor?.implementation?.getDragEventData
+            || globalThis.TextEditor?.getDragEventData;
+          data = getDragData ? getDragData(ev) : JSON.parse(ev.dataTransfer.getData("text/plain"));
+        } catch (_err) {
+          return;
+        }
+
+        if (!data || data.type !== "Actor") {
+          ui.notifications.warn(game.i18n.localize("noiseDice.invalidZombieDrop"));
+          return;
+        }
+
+        const droppedActor = await Actor.implementation.fromDropData(data).catch(() => null);
+        if (!droppedActor || droppedActor.type !== "zombie") {
+          ui.notifications.warn(game.i18n.localize("noiseDice.invalidZombieDrop"));
+          return;
+        }
+
+        await message.update({
+          "flags.explosive-zombie.zombieActorUuid": droppedActor.uuid,
+          "flags.explosive-zombie.zombieActorName": droppedActor.name,
+          "flags.explosive-zombie.zombieActorImg": droppedActor.img || "icons/svg/skull.svg"
+        });
+      };
+
+      root.addEventListener("dragover", handleDragOver);
+      root.addEventListener("dragleave", handleDragLeave);
+      root.addEventListener("drop", handleDrop);
+
+      btn.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        btn.disabled = true;
+        const sourceUuid = message.getFlag("explosive-zombie", "zombieActorUuid") || null;
+        const created = await ZombieActor.spawnZombies(zombieCount, canvas?.scene, sourceUuid);
+        if (created.length > 0) {
+          await message.setFlag("explosive-zombie", "spawned", true);
+        } else {
+          btn.disabled = false;
+        }
+      });
+    }
+
+    container.appendChild(btn);
+    messageContent.appendChild(container);
   }
 
   /**

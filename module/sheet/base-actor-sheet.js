@@ -1,0 +1,174 @@
+import { EntitySheetHelper } from "../helper.js";
+
+const { ActorSheetV2 } = foundry.applications.sheets;
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { FilePicker } = foundry.applications.apps;
+
+/**
+ * Shared base ActorSheetV2 class for all Actor types ("character", "zombie", "chest").
+ * @extends {ActorSheetV2}
+ */
+export class BaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
+
+  /**
+   * Array field paths within `system` that should be normalized from indexed form objects to arrays on submit.
+   * @type {string[]}
+   */
+  static ARRAY_PATHS = [];
+
+  /**
+   * Tab IDs that should only be visible to GM users.
+   * @type {Set<string>}
+   */
+  static GM_ONLY_TABS = new Set(["edit", "items"]);
+
+  /** @override */
+  static DEFAULT_OPTIONS = {
+    classes: ["explosive-zombie", "sheet", "actor"],
+    position: {
+      height: "auto"
+    },
+    window: {
+      resizable: true
+    },
+    tabGroups: {
+      primary: "sheet"
+    },
+    tag: "form",
+    form: {
+      handler: BaseActorSheet.onSubmitForm,
+      submitOnChange: true,
+      closeOnSubmit: false
+    }
+  };
+
+  static TABS = {
+    primary: {
+      tabs: [
+        { id: "sheet", group: "primary", label: "common.tabSheet" },
+        { id: "notes", group: "primary", label: "common.tabNotes" }
+      ],
+      initial: "sheet"
+    }
+  };
+
+  /**
+   * Convenience getter for the Actor document.
+   * @type {Actor}
+   */
+  get actor() {
+    return this.document;
+  }
+
+  /**
+   * Default portrait fallback when the actor has no image.
+   * @type {string}
+   */
+  get defaultPortrait() {
+    return "icons/svg/mystery-man.svg";
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  _configureRenderOptions(options) {
+    super._configureRenderOptions(options);
+    if (!game.user?.isGM && Array.isArray(options.parts)) {
+      options.parts = options.parts.filter(partId => !this.constructor.GM_ONLY_TABS.has(partId));
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    context.isGM = game.user?.isGM;
+    if (!context.isGM && context.tabs) {
+      for (const tabId of this.constructor.GM_ONLY_TABS) {
+        delete context.tabs[tabId];
+      }
+    }
+    context.actor = this.document;
+    context.data = this.document.toObject(false);
+    context.system = context.data.system;
+    context.systemData = context.data.system;
+    context.portraitUrl = context.system?.portraitUrl || context.data.img || this.defaultPortrait;
+    return context;
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  async _preparePartContext(partId, context, options) {
+    context = await super._preparePartContext(partId, context, options);
+    if (context.tabs && partId in context.tabs) {
+      context.tab = context.tabs[partId];
+    } else if (partId === "sheet" && !this.constructor.TABS) {
+      context.tab = { cssClass: "active" };
+    }
+    return context;
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    const html = $(this.element);
+
+    if (this.constructor.TABS) {
+      html.find('.sheet-tabs .item, [data-action="tab"]').on("click", ev => {
+        ev.preventDefault();
+        const tab = ev.currentTarget.dataset.tab;
+        if (tab) this.changeTab(tab, "primary");
+      });
+    }
+
+    if (!this.isEditable) return;
+
+    // Bind portrait image picker if present in sheet
+    html.find('[data-edit="img"], .profile-img').on("click", this._onEditImage.bind(this));
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle editing the actor portrait image.
+   * @param {Event} event
+   * @protected
+   */
+  _onEditImage(event) {
+    const attr = event.currentTarget.dataset.edit || "img";
+    const current = foundry.utils.getProperty(this.document, attr);
+    const fp = new FilePicker.implementation({
+      type: "image",
+      current,
+      callback: path => {
+        this.document.update({ [attr]: path });
+      },
+      top: this.position.top + 40,
+      left: this.position.left + 10
+    });
+    return fp.browse();
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Shared form submission handler for all actor sheets.
+   * @param {Event} event
+   * @param {HTMLFormElement} form
+   * @param {FormDataExtended} formData
+   */
+  static async onSubmitForm(event, form, formData) {
+    let submitData = formData.object;
+    const arrayPaths = this.constructor.ARRAY_PATHS;
+    if (Array.isArray(arrayPaths) && arrayPaths.length > 0) {
+      submitData = EntitySheetHelper.updateArrays(submitData, arrayPaths);
+    }
+    await this.document.update(submitData);
+  }
+}
+

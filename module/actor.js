@@ -504,7 +504,12 @@ export class ZombieActor extends SimpleActor {
             const tokenDoc = await zombieActor.getTokenDocument({
                 x: cell.x,
                 y: cell.y,
-                actorLink: false
+                actorLink: false,
+                flags: {
+                    "explosive-zombie": {
+                        usedActions: 1
+                    }
+                }
             });
             tokenDocsData.push(tokenDoc.toObject());
         }
